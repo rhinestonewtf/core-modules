@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { IERC7579Hook } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
 import { SigHookInit, HookAndContext } from "./DataTypes.sol";
-import { IERC7579Hook } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
 
 /**
  * @title HookMultiPlexerLib

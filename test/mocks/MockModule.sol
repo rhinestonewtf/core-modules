@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { IERC7579Module } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Module } from "modulekit/external/ERC7579.sol";
 
 contract MockModule is IERC7579Module {
     function isModuleType(uint256) external view returns (bool) {

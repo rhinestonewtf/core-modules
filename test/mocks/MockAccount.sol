@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { IERC7579Account } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Account } from "modulekit/external/ERC7579.sol";
 import {
     CallType,
     ExecType,
@@ -10,7 +10,7 @@ import {
     CALLTYPE_SINGLE,
     ModeLib
 } from "erc7579/lib/ModeLib.sol";
-import { PackedUserOperation } from "modulekit/src/external/ERC4337.sol";
+import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
 import { ExecutionHelper, Execution } from "erc7579/core/ExecutionHelper.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
 

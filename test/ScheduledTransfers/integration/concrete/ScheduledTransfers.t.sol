@@ -3,8 +3,8 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { ScheduledTransfers, SchedulingBase } from "src/ScheduledTransfers/ScheduledTransfers.sol";
-import { MODULE_TYPE_EXECUTOR } from "modulekit/src/external/ERC7579.sol";
-import { Execution } from "modulekit/src/external/ERC7579.sol";
+import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
+import { Execution } from "modulekit/external/ERC7579.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 
 contract ScheduledTransfersIntegrationTest is BaseIntegrationTest {

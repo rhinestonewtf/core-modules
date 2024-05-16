@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579ValidatorBase } from "modulekit/src/Modules.sol";
-import { PackedUserOperation } from "modulekit/src/external/ERC4337.sol";
+import { ERC7579ValidatorBase } from "modulekit/Modules.sol";
+import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
 import { SentinelList4337Lib, SENTINEL } from "sentinellist/SentinelList4337.sol";
 import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
-import { IERC7579Account } from "modulekit/src/Accounts.sol";
+import { IERC7579Account } from "modulekit/Accounts.sol";
 import { ModeLib, CallType, ModeCode, CALLTYPE_SINGLE } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
 import { LibSort } from "solady/utils/LibSort.sol";

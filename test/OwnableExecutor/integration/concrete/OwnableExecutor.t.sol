@@ -7,7 +7,7 @@ import {
     MODULE_TYPE_EXECUTOR,
     Execution,
     ERC7579ExecutionLib
-} from "modulekit/src/external/ERC7579.sol";
+} from "modulekit/external/ERC7579.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 
 contract OwnableExecutorIntegrationTest is BaseIntegrationTest {

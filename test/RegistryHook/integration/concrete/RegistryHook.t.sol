@@ -3,12 +3,12 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { RegistryHook } from "src/RegistryHook/RegistryHook.sol";
-import { IERC7579Module, IERC7579Account } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol";
 import {
     MODULE_TYPE_HOOK,
     MODULE_TYPE_VALIDATOR,
     MODULE_TYPE_EXECUTOR
-} from "modulekit/src/external/ERC7579.sol";
+} from "modulekit/external/ERC7579.sol";
 import { ModeCode } from "erc7579/lib/ModeLib.sol";
 import { MockRegistry } from "test/mocks/MockRegistry.sol";
 import { MockModule } from "test/mocks/MockModule.sol";

@@ -7,7 +7,7 @@ import {
     ModuleKitUserOp,
     AccountInstance,
     RhinestoneModuleKit
-} from "modulekit/src/ModuleKit.sol";
+} from "modulekit/ModuleKit.sol";
 
 abstract contract BaseIntegrationTest is RhinestoneModuleKit, BaseTest {
     using ModuleKitHelpers for *;

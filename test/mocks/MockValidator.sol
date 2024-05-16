@@ -7,7 +7,7 @@ import {
     VALIDATION_SUCCESS,
     MODULE_TYPE_VALIDATOR
 } from "erc7579/interfaces/IERC7579Module.sol";
-import { IStatelessValidator } from "modulekit/src/interfaces/IStatelessValidator.sol";
+import { IStatelessValidator } from "modulekit/interfaces/IStatelessValidator.sol";
 
 contract MockValidator is IValidator, IStatelessValidator {
     function onInstall(bytes calldata data) external override { }

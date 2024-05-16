@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { IERC7579Account } from "modulekit/src/Accounts.sol";
-import { ERC7579ExecutorBase } from "modulekit/src/Modules.sol";
+import { IERC7579Account } from "modulekit/Accounts.sol";
+import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 

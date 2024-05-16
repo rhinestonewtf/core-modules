@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { PackedUserOperation } from "modulekit/src/external/ERC4337.sol";
+import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
 
 struct ValidationData {
     address aggregator;

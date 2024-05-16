@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
-import { UserOpData } from "modulekit/src/ModuleKit.sol";
+import { UserOpData } from "modulekit/ModuleKit.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 import {
     MODULE_TYPE_VALIDATOR,
@@ -10,21 +10,21 @@ import {
     MODULE_TYPE_EXECUTOR,
     IERC7579Account,
     IERC7579Module
-} from "modulekit/src/external/ERC7579.sol";
+} from "modulekit/external/ERC7579.sol";
 
 import { HookMultiPlexer, HookType } from "src/HookMultiPlexer/HookMultiPlexer.sol";
 import "forge-std/interfaces/IERC20.sol";
 import { MockHook } from "test/mocks/MockHook.sol";
-import { IERC7579Hook } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
 
 import "erc7579/lib/ModeLib.sol";
-import { MockTarget } from "modulekit/src/mocks/MockTarget.sol";
+import { MockTarget } from "modulekit/mocks/MockTarget.sol";
 import "forge-std/interfaces/IERC20.sol";
 import "src/HookMultiPlexer/DataTypes.sol";
 import { Solarray } from "solarray/Solarray.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
 
-import { TrustedForwarder } from "modulekit/src/modules/utils/TrustedForwarder.sol";
+import { TrustedForwarder } from "modulekit/modules/utils/TrustedForwarder.sol";
 
 import { DeadmanSwitch } from "src/DeadmanSwitch/DeadmanSwitch.sol";
 import { ColdStorageHook } from "src/ColdStorageHook/ColdStorageHook.sol";

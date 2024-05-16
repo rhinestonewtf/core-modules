@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579ModuleBase } from "modulekit/src/modules/ERC7579ModuleBase.sol";
-import { ERC7484RegistryAdapter } from "modulekit/src/Modules.sol";
-import { IERC7579Account, IERC7579Hook } from "modulekit/src/external/ERC7579.sol";
+import { ERC7579ModuleBase } from "modulekit/modules/ERC7579ModuleBase.sol";
+import { ERC7484RegistryAdapter } from "modulekit/Modules.sol";
+import { IERC7579Account, IERC7579Hook } from "modulekit/external/ERC7579.sol";
 import { SigHookInit, Config, HookType, HookAndContext } from "./DataTypes.sol";
-import { IERC7579Account } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Account } from "modulekit/external/ERC7579.sol";
 import {
     ModeLib,
     CallType,
@@ -17,7 +17,7 @@ import {
 import { ExecutionLib, Execution } from "erc7579/lib/ExecutionLib.sol";
 import { HookMultiPlexerLib } from "./HookMultiPlexerLib.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
-import { IERC7484 } from "modulekit/src/interfaces/IERC7484.sol";
+import { IERC7484 } from "modulekit/interfaces/IERC7484.sol";
 
 /**
  * @title HookMultiPlexer

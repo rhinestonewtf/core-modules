@@ -4,12 +4,12 @@ pragma solidity ^0.8.25;
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 
-import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/src/Modules.sol";
+import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
 import {
     FlashLoanType,
     IERC3156FlashBorrower,
     IERC3156FlashLender
-} from "modulekit/src/interfaces/Flashloan.sol";
+} from "modulekit/interfaces/Flashloan.sol";
 
 /**
  * @title FlashloanLender

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { IERC7484 } from "modulekit/src/interfaces/IERC7484.sol";
+import { IERC7484 } from "modulekit/interfaces/IERC7484.sol";
 
 contract MockRegistry is IERC7484 {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/

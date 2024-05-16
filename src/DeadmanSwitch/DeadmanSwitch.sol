@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579ValidatorBase, ERC7579HookBase } from "modulekit/src/Modules.sol";
-import { PackedUserOperation } from "modulekit/src/ModuleKit.sol";
+import { ERC7579ValidatorBase, ERC7579HookBase } from "modulekit/Modules.sol";
+import { PackedUserOperation } from "modulekit/ModuleKit.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 

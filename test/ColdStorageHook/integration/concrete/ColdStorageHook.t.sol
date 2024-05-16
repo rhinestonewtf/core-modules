@@ -3,13 +3,13 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { ColdStorageHook, Execution } from "src/ColdStorageHook/ColdStorageHook.sol";
-import { IERC7579Account } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Account } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
-import { MODULE_TYPE_HOOK, MODULE_TYPE_EXECUTOR } from "modulekit/src/external/ERC7579.sol";
+import { MODULE_TYPE_HOOK, MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
-import { IAccountModulesPaginated } from "modulekit/src/test/utils/ERC7579Helpers.sol";
+import { IAccountModulesPaginated } from "modulekit/test/utils/ERC7579Helpers.sol";
 import { MockModule } from "test/mocks/MockModule.sol";
 
 contract ColdStorageHookIntegrationTest is BaseIntegrationTest {

@@ -3,12 +3,12 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
-import { IERC7579Module } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Module } from "modulekit/external/ERC7579.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "solmate/test/utils/mocks/MockERC4626.sol";
 import { MockAccount } from "test/mocks/MockAccount.sol";
-import { MockUniswap } from "modulekit/src/integrations/uniswap/MockUniswap.sol";
-import { SWAPROUTER_ADDRESS } from "modulekit/src/integrations/uniswap/helpers/MainnetAddresses.sol";
+import { MockUniswap } from "modulekit/integrations/uniswap/MockUniswap.sol";
+import { SWAPROUTER_ADDRESS } from "modulekit/integrations/uniswap/helpers/MainnetAddresses.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 
 contract AutoSavingsTest is BaseTest {

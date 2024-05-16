@@ -9,7 +9,7 @@ import {
     HookType,
     HookAndContext
 } from "src/HookMultiPlexer/HookMultiPlexer.sol";
-import { IERC7579Account, IERC7579Module, IERC7579Hook } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Account, IERC7579Module, IERC7579Hook } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import {
     ModeLib,

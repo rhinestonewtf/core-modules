@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { ScheduledOrders, SchedulingBase } from "src/ScheduledOrders/ScheduledOrders.sol";
-import { IERC7579Module } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Module } from "modulekit/external/ERC7579.sol";
 import { MockTarget } from "test/mocks/MockTarget.sol";
 
 contract ScheduledOrdersTest is BaseTest {

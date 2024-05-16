@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { ScheduledOrders, SchedulingBase } from "src/ScheduledOrders/ScheduledOrders.sol";
-import { MODULE_TYPE_EXECUTOR } from "modulekit/src/external/ERC7579.sol";
+import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;

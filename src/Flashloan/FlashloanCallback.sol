@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/src/Modules.sol";
-import { FlashLoanType } from "modulekit/src/interfaces/Flashloan.sol";
+import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
+import { FlashLoanType } from "modulekit/interfaces/Flashloan.sol";
 import { SentinelListLib } from "sentinellist/SentinelList.sol";
-import { Execution } from "modulekit/src/modules/ERC7579HookDestruct.sol";
+import { Execution } from "modulekit/modules/ERC7579HookDestruct.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
 

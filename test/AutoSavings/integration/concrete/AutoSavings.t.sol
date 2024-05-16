@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
-import { MODULE_TYPE_EXECUTOR } from "modulekit/src/external/ERC7579.sol";
+import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 import { MockERC4626, ERC20 } from "solmate/test/utils/mocks/MockERC4626.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";

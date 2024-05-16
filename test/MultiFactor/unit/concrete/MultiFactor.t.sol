@@ -8,7 +8,7 @@ import {
     Validator,
     ValidatorId
 } from "src/MultiFactor/MultiFactor.sol";
-import { IERC7579Module } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Module } from "modulekit/external/ERC7579.sol";
 import {
     PackedUserOperation,
     getEmptyUserOperation,

@@ -4,16 +4,16 @@ pragma solidity ^0.8.25;
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { EnumerableMap } from "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
-import { ERC7579HookDestruct, Execution } from "modulekit/src/modules/ERC7579HookDestruct.sol";
-import { IERC3156FlashLender } from "modulekit/src/interfaces/Flashloan.sol";
-import { IERC7579Account } from "modulekit/src/external/ERC7579.sol";
+import { ERC7579HookDestruct, Execution } from "modulekit/modules/ERC7579HookDestruct.sol";
+import { IERC3156FlashLender } from "modulekit/interfaces/Flashloan.sol";
+import { IERC7579Account } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 import {
     FlashLoanType,
     IERC3156FlashBorrower,
     IERC3156FlashLender
-} from "modulekit/src/interfaces/Flashloan.sol";
+} from "modulekit/interfaces/Flashloan.sol";
 import { FlashloanLender } from "../Flashloan/FlashloanLender.sol";
 
 /**

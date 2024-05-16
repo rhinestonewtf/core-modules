@@ -5,11 +5,11 @@ import { BaseTest } from "test/Base.t.sol";
 import {
     ColdStorageFlashloan, FlashloanCallback
 } from "src/ColdStorageHook/ColdStorageFlashloan.sol";
-import { IERC7579Module, IERC7579Account } from "modulekit/src/external/ERC7579.sol";
+import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { Execution } from "erc7579/lib/ExecutionLib.sol";
-import { FlashLoanType } from "modulekit/src/interfaces/Flashloan.sol";
+import { FlashLoanType } from "modulekit/interfaces/Flashloan.sol";
 
 contract ColdStorageFlashloanTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////

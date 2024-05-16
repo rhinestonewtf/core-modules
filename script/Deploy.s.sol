@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { Script } from "forge-std/Script.sol";
-import { IERC7484 } from "modulekit/src/interfaces/IERC7484.sol";
+import { IERC7484 } from "modulekit/interfaces/IERC7484.sol";
 
 import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
 import { ColdStorageHook } from "src/ColdStorageHook/ColdStorageHook.sol";
