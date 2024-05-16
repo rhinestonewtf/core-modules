@@ -1,9 +1,11 @@
 
 [profile.default]
+emv_version = "paris"
 src = "src"
 out = "out"
-libs = ["lib"]
-fs_permissions = [{ access = "read", path = "out-optimized" }]
+script = "script"
+libs = ["node_modules"]
+fs_permissions = [{ access = "read", path = "out-optimized" }, { access = "read-write", path = "gas_calculations" }]
 allow_paths = ["*", "/"]
 
 [rpc_endpoints]
@@ -21,5 +23,3 @@ wrap_comments = true
 
 [fuzz]
 runs=1000
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
