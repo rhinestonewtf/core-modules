@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {
-    BaseIntegrationTest,
-    ModuleKitHelpers,
-    ModuleKitSCM,
-    ModuleKitUserOp
-} from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import {
     MultiFactor,
     ERC7579ValidatorBase,
@@ -22,7 +17,6 @@ import { IERC1271 } from "modulekit/src/interfaces/IERC1271.sol";
 
 contract MultiFactorIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

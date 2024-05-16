@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {
-    BaseIntegrationTest,
-    ModuleKitHelpers,
-    ModuleKitSCM,
-    ModuleKitUserOp
-} from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { UserOpData } from "modulekit/src/ModuleKit.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 import {
@@ -44,7 +39,6 @@ import "forge-std/console2.sol";
 contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
     using LibSort for address[];
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

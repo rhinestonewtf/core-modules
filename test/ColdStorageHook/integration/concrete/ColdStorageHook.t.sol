@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {
-    BaseIntegrationTest,
-    ModuleKitHelpers,
-    ModuleKitSCM,
-    ModuleKitUserOp
-} from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { ColdStorageHook, Execution } from "src/ColdStorageHook/ColdStorageHook.sol";
 import { IERC7579Account } from "modulekit/src/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
@@ -19,7 +14,6 @@ import { MockModule } from "test/mocks/MockModule.sol";
 
 contract ColdStorageHookIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

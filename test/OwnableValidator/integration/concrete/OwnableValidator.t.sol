@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {
-    BaseIntegrationTest,
-    ModuleKitHelpers,
-    ModuleKitSCM,
-    ModuleKitUserOp
-} from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { OwnableValidator } from "src/OwnableValidator/OwnableValidator.sol";
 import { signHash } from "test/utils/Signature.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
@@ -17,7 +12,6 @@ import { SENTINEL } from "sentinellist/SentinelList.sol";
 
 contract OwnableValidatorIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

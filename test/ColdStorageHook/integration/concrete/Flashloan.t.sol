@@ -5,7 +5,6 @@ import { Solarray } from "solarray/Solarray.sol";
 import {
     BaseIntegrationTest,
     ModuleKitHelpers,
-    ModuleKitSCM,
     ModuleKitUserOp,
     AccountInstance
 } from "test/BaseIntegration.t.sol";
@@ -36,7 +35,6 @@ import "forge-std/interfaces/IERC721.sol";
 
 contract FlashloanTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

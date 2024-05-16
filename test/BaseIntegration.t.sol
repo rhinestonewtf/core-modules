@@ -4,7 +4,6 @@ pragma solidity ^0.8.23;
 import { BaseTest } from "./Base.t.sol";
 import {
     ModuleKitHelpers,
-    ModuleKitSCM,
     ModuleKitUserOp,
     AccountInstance,
     RhinestoneModuleKit
@@ -12,7 +11,6 @@ import {
 
 abstract contract BaseIntegrationTest is RhinestoneModuleKit, BaseTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

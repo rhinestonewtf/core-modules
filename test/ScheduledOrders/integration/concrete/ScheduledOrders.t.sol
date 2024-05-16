@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {
-    BaseIntegrationTest,
-    ModuleKitHelpers,
-    ModuleKitSCM,
-    ModuleKitUserOp
-} from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { ScheduledOrders, SchedulingBase } from "src/ScheduledOrders/ScheduledOrders.sol";
 import { MODULE_TYPE_EXECUTOR } from "modulekit/src/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
@@ -16,7 +11,6 @@ address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
 contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////

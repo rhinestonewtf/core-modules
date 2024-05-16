@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {
-    BaseIntegrationTest,
-    ModuleKitHelpers,
-    ModuleKitSCM,
-    ModuleKitUserOp
-} from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { RegistryHook } from "src/RegistryHook/RegistryHook.sol";
 import { IERC7579Module, IERC7579Account } from "modulekit/src/external/ERC7579.sol";
 import {
@@ -20,7 +15,6 @@ import { MockModule } from "test/mocks/MockModule.sol";
 
 contract RegistryHookIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitSCM for *;
     using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////
