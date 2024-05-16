@@ -31,7 +31,7 @@
     "@rhinestone/erc4337-validation": "github:rhinestonewtf/erc4337-validation",
     "@rhinestone/sentinellist": "github:rhinestonewtf/sentinellist",
     "@rhinestone/associatedBytesLib": "github:rhinestonewtf/associatedBytesLib",
-    "@rhinestone/checknsignatures": "github:zeroknots/checknsignatures",
+    "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
     "@ERC4337/account-abstraction": "github:kopy-kat/account-abstraction#develop",
     "@ERC4337/account-abstraction-v0.6": "github:eth-infinitism/account-abstraction#v0.6.0",
     "@openzeppelin/contracts": "5.0.1",
