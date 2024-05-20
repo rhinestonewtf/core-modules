@@ -26,9 +26,10 @@
     "test:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   },
   "dependencies": {
-    "@rhinestone/modulekit": "github:rhinestonewtf/modulekit#dev",
     "@rhinestone/associatedBytesLib": "github:rhinestonewtf/associatedBytesLib",
-    "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures"
+    "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
+    "@rhinestone/modulekit": "github:rhinestonewtf/modulekit#dev",
+    "solmate": "github:transmissions11/solmate"
   },
   "files": [
     "src",
