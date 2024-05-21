@@ -15,8 +15,8 @@ importers:
         specifier: github:rhinestonewtf/checknsignatures
         version: https://codeload.github.com/rhinestonewtf/checknsignatures/tar.gz/e4e4e446070a2c7dc1d54ca718fef23dde6892e0
       '@rhinestone/modulekit':
-        specifier: github:rhinestonewtf/modulekit#dev
-        version: https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/49b1569f561d82396226f07fad9aa58b4204082f(ethers@5.7.2)(hardhat@2.22.4(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))(typescript@4.9.5)
+        specifier: ^0.4.0
+        version: 0.4.0(ethers@5.7.2)(hardhat@2.22.4(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))(typescript@4.9.5)
       solmate:
         specifier: github:transmissions11/solmate
         version: https://codeload.github.com/transmissions11/solmate/tar.gz/c892309933b25c03d32b1b0d674df7ae292ba925
@@ -343,9 +343,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/rhinestonewtf/module-bases/tar.gz/064bc4a82e212de837ffe59e43734e72b0e0798d}
     version: 0.0.1
 
-  '@rhinestone/modulekit@https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/49b1569f561d82396226f07fad9aa58b4204082f':
-    resolution: {tarball: https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/49b1569f561d82396226f07fad9aa58b4204082f}
-    version: 0.4.0
+  '@rhinestone/modulekit@0.4.0':
+    resolution: {integrity: sha512-GyPxffNYaKxGHP6bdJbXWivYtwx5vGXzZLkFXN/9eY7XGCvOUdswCvKjnJ0f7seDrvlRNK5ZLrwK+7oB7ktF3w==}
 
   '@rhinestone/safe7579@https://codeload.github.com/rhinestonewtf/safe7579/tar.gz/9840c1a302270b991bb9a2350f1ba7a078e4109b':
     resolution: {tarball: https://codeload.github.com/rhinestonewtf/safe7579/tar.gz/9840c1a302270b991bb9a2350f1ba7a078e4109b}
@@ -2507,7 +2506,7 @@ snapshots:
       - typechain
       - utf-8-validate
 
-  '@rhinestone/modulekit@https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/49b1569f561d82396226f07fad9aa58b4204082f(ethers@5.7.2)(hardhat@2.22.4(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))(typescript@4.9.5)':
+  '@rhinestone/modulekit@0.4.0(ethers@5.7.2)(hardhat@2.22.4(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))(typescript@4.9.5)':
     dependencies:
       '@ERC4337/account-abstraction': accountabstraction@https://codeload.github.com/kopy-kat/account-abstraction/tar.gz/c5887153fbfe3ed09b2637cac39873f96d676f38(ethers@5.7.2)(hardhat@2.22.4(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
       '@ERC4337/account-abstraction-v0.6': accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/7174d6d845618dbd11cee68eefa715f5263690b6(ethers@5.7.2)(hardhat@2.22.4(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
