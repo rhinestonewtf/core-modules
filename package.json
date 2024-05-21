@@ -37,7 +37,10 @@
     "remappings.txt"
   ],
   "homepage": "https://docs.rhinestone.wtf",
-  "repository": "github:rhinestonewtf/core-modules",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhinestonewtf/core-modules.git"
+  },
   "bugs": {
     "url": "https://github.com/rhinestonewtf/core-modules/issues"
   },
