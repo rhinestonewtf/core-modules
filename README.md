@@ -1,37 +1,46 @@
-## ModuleKit Examples
+# Core Modules
 
-**Example modules built using the ModuleKit**
+**Rhinestone Core Modules for Smart Accounts**
 
 Modules:
 
-- AutoSavings
-- ColdStorageHook
-- ColdStorage
-- Flashloan
-- DeadmanSwitch
-- HookMultiPlexer
-- MFA
-- OwnableExecutor
-- OwnableValidator
-- RegistryHook
-- ScheduledOrders
-- ScheduledTransactions
-- SocialRecovery
+- **AutoSavings**: Automatically save a portion of received tokens into a vault
+- **ColdStorageHook**: Secure your account by transforming it into cold storage for your assets
+- **ColdStorageFlashloan**: Enable using the utility of your assets in cold storage through flashloans
+- **DeadmanSwitch**: Secure your account by setting up a deadman switch
+- **HookMultiPlexer**: Use multiple hooks based on granular conditions
+- **MultiFactor**: Multiplex different validators to make your account more secure
+- **OwnableExecutor**: Control your account from another account
+- **OwnableValidator**: Own your account using an EOA or a set of EOAs
+- **RegistryHook**: Use the Rhinestone Registry to ensure you only install secure modules
+- **ScheduledOrders**: Automate swaps on a schedule
+- **ScheduledTransactions**: Automate transactions on a schedule
+- **SocialRecovery**: Recover your account using a set of trusted friends
 
-## Usage as part of ModuleKit
+## Using the modules
 
-### Install dependencies
+To use the modules in an application, head to our [sdk documentation](https://docs.rhinestone.wtf/module-sdk) for more information.
 
-```shell
+## Using this repo
+
+To install the dependencies, run:
+
+```bash
 pnpm install
 ```
 
-### Testing modules
+To build the project, run:
 
-```shell
-pnpm test -r
+```bash
+forge build
 ```
 
-## Learn more
+To run the tests, run:
 
-For more information, check out the [ModuleKit documentation](https://docs.rhinestone.wtf/modulekit).
+```bash
+forge test
+```
+
+## Contributing
+
+For feature or change requests, feel free to open a PR, start a discussion or get in touch with us.

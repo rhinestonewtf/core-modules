@@ -1,7 +1,7 @@
 {
   "name": "@rhinestone/core-modules",
   "version": "1.0.0",
-  "description": "ModuleKit Examples",
+  "description": "Rhinestone Core Modules for Smart Accounts",
   "license": "GPL-3.0",
   "author": {
     "name": "Rhinestone",
