@@ -9,16 +9,11 @@ import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol"
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
-import { IERC3156FlashLender } from "modulekit/interfaces/Flashloan.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 import { MockERC721 } from "solmate/test/utils/mocks/MockERC721.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
-import {
-    FlashLoanType,
-    IERC3156FlashBorrower,
-    IERC3156FlashLender
-} from "modulekit/interfaces/Flashloan.sol";
+import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 
 contract ColdStorageHookTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////

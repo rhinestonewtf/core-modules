@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579HookDestruct } from "modulekit/modules/ERC7579HookDestruct.sol";
-import { IERC7484 } from "modulekit/interfaces/IERC7484.sol";
+import { ERC7579HookDestruct } from "modulekit/Modules.sol";
+import { IERC7484 } from "modulekit/Interfaces.sol";
 import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 
 /**

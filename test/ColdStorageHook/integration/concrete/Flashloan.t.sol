@@ -10,11 +10,7 @@ import {
 } from "test/BaseIntegration.t.sol";
 import { ColdStorageHook, Execution } from "src/ColdStorageHook/ColdStorageHook.sol";
 import { ColdStorageFlashloan } from "src/ColdStorageHook/ColdStorageFlashloan.sol";
-import {
-    FlashLoanType,
-    IERC3156FlashBorrower,
-    IERC3156FlashLender
-} from "modulekit/interfaces/Flashloan.sol";
+import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { OwnableExecutor } from "src/OwnableExecutor/OwnableExecutor.sol";
 import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";

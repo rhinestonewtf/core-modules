@@ -18,13 +18,13 @@ import { MockHook } from "test/mocks/MockHook.sol";
 import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
 
 import "erc7579/lib/ModeLib.sol";
-import { MockTarget } from "modulekit/mocks/MockTarget.sol";
+import { MockTarget } from "modulekit/Mocks.sol";
 import "forge-std/interfaces/IERC20.sol";
 import "src/HookMultiPlexer/DataTypes.sol";
 import { Solarray } from "solarray/Solarray.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
 
-import { TrustedForwarder } from "modulekit/modules/utils/TrustedForwarder.sol";
+import { TrustedForwarder } from "modulekit/Modules.sol";
 
 import { DeadmanSwitch } from "src/DeadmanSwitch/DeadmanSwitch.sol";
 import { ColdStorageHook } from "src/ColdStorageHook/ColdStorageHook.sol";
