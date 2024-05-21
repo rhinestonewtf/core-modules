@@ -4,9 +4,7 @@ pragma solidity ^0.8.23;
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { OwnableExecutor } from "src/OwnableExecutor/OwnableExecutor.sol";
 import {
-    MODULE_TYPE_EXECUTOR,
-    Execution,
-    ERC7579ExecutionLib
+    MODULE_TYPE_EXECUTOR, Execution, ERC7579ExecutionLib
 } from "modulekit/external/ERC7579.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 

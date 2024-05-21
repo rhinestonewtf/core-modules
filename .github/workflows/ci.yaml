@@ -6,19 +6,28 @@ on:
   pull_request:
 
 jobs:
-  lint-core-modules:
+  lint:
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-lint.yaml@main"
 
-  build-core-modules:
+  build:
+    uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-build.yaml@main"
+
+  test:
+    needs: ["lint", "build"]
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-test.yaml@main"
     with:
+      foundry-fuzz-runs: 5000
+      foundry-profile: "test"
       match-path: "test/**/*.sol"
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
 
-  simulate-core-modules:
+  test-simulate:
+    needs: ["lint", "build"]
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-test-simulate.yaml@main"
     with:
+      foundry-fuzz-runs: 5000
+      foundry-profile: "test"
       match-path: "test/**/*.sol"
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
