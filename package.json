@@ -28,7 +28,7 @@
   "dependencies": {
     "@rhinestone/associatedBytesLib": "github:rhinestonewtf/associatedBytesLib",
     "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
-    "@rhinestone/modulekit": "^0.4.0",
+    "@rhinestone/modulekit": "^0.4.1",
     "solmate": "github:transmissions11/solmate"
   },
   "files": [

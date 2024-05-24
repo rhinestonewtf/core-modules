@@ -110,12 +110,6 @@ contract FlashloanTest is BaseIntegrationTest {
             module: address(flashloanCallback),
             data: ""
         });
-
-        owner.installModule({
-            moduleTypeId: MODULE_TYPE_VALIDATOR,
-            module: address(instance.defaultValidator),
-            data: ""
-        });
     }
 
     function test_flashloanERC20() public {
