@@ -29,18 +29,18 @@ contract DeployScript is Script {
         vm.startBroadcast(vm.envUint("PK"));
 
         // Deploy Modules
-        new AutoSavings{ salt: salt }();
+        // new AutoSavings{ salt: salt }();
         new ColdStorageHook{ salt: salt }();
-        new ColdStorageFlashloan{ salt: salt }();
-        new DeadmanSwitch{ salt: salt }();
-        new HookMultiPlexer{ salt: salt }(registry);
-        new MultiFactor{ salt: salt }(registry);
-        new OwnableExecutor{ salt: salt }();
-        new OwnableValidator{ salt: salt }();
-        new RegistryHook{ salt: salt }();
-        new ScheduledOrders{ salt: salt }();
-        new ScheduledTransfers{ salt: salt }();
-        new SocialRecovery{ salt: salt }();
+        // new ColdStorageFlashloan{ salt: salt }();
+        // new DeadmanSwitch{ salt: salt }();
+        // new HookMultiPlexer{ salt: salt }(registry);
+        // new MultiFactor{ salt: salt }(registry);
+        // new OwnableExecutor{ salt: salt }();
+        // new OwnableValidator{ salt: salt }();
+        // new RegistryHook{ salt: salt }();
+        // new ScheduledOrders{ salt: salt }();
+        // new ScheduledTransfers{ salt: salt }();
+        // new SocialRecovery{ salt: salt }();
 
         vm.stopBroadcast();
     }
