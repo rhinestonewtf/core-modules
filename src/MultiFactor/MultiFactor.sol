@@ -403,7 +403,6 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
 
             // check if the subValidator data is empty and return false if it is
             bytes memory validatorStorageData = $validator.data;
-
             if (validatorStorageData.length == 0) {
                 return false;
             }
