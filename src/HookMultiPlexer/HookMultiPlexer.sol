@@ -356,7 +356,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
 
             // if there is only one hook for the sig, remove the sig
             if (sigsHooksLength == 1) {
-                $config.targetSigs.popBytes4(sig);
+                $config.sigs.popBytes4(sig);
             }
         } else if (hookType == HookType.TARGET_SIG) {
             // get the length of the hooks for the same sig
