@@ -20,7 +20,6 @@ contract OwnableExecutor is ERC7579ExecutorBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     error UnauthorizedAccess();
-    error OwnerAlreadyExists(address owner);
     error InvalidOwner(address owner);
 
     // account => owners
@@ -44,6 +43,11 @@ contract OwnableExecutor is ERC7579ExecutorBase {
 
         // decode the owner
         address owner = address(bytes20(data[0:20]));
+        // revert if the owner is address(0)
+        if (owner == address(0)) {
+            revert InvalidOwner(owner);
+        }
+
         // initialize the linked list
         accountOwners[account].init();
         // add the owner to the linked list
@@ -150,7 +154,9 @@ contract OwnableExecutor is ERC7579ExecutorBase {
         }
 
         // execute the transaction on the owned account
-        IERC7579Account(ownedAccount).executeFromExecutor(ModeLib.encodeSimpleSingle(), callData);
+        IERC7579Account(ownedAccount).executeFromExecutor{ value: msg.value }(
+            ModeLib.encodeSimpleSingle(), callData
+        );
     }
 
     /**
@@ -172,7 +178,9 @@ contract OwnableExecutor is ERC7579ExecutorBase {
         }
 
         // execute the batch of transaction on the owned account
-        IERC7579Account(ownedAccount).executeFromExecutor(ModeLib.encodeSimpleBatch(), callData);
+        IERC7579Account(ownedAccount).executeFromExecutor{ value: msg.value }(
+            ModeLib.encodeSimpleBatch(), callData
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////

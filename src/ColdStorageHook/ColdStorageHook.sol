@@ -147,8 +147,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         returns (bytes32 executeAfter)
     {
         // get the executeAfter timestamp
-        bool success;
-        (success, executeAfter) = executions[account].tryGet(hash);
+        (, executeAfter) = executions[account].tryGet(hash);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -187,6 +186,10 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
                     // if not, revert
                     revert InvalidTransferReceiver();
                 }
+                if (_exec.value != 0) {
+                    // if value is not 0, revert
+                    revert InvalidTransferReceiver();
+                }
             }
         } else {
             // check that the transaction is a native token transfer to the owner
@@ -209,9 +212,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     }
 
     /**
-     * Requests the execution of a transaction after a certain time period
-     * @dev the function will revert if the transaction is not a transfer to the owner or a call to
-     * setWaitPeriod
+     * Requests the execution of a module config after a certain time period
+     * @dev the function will revert if the module config has not been correctly scheduled
      *
      * @param moduleTypeId type of the module
      * @param module address of the module
@@ -344,7 +346,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
      *
      * @param executionHash bytes32 hash of the execution
      */
-    function _checkTimelockedExecution(address account, bytes32 executionHash) internal view {
+    function _checkTimelockedExecution(address account, bytes32 executionHash) internal {
         // get the executeAfter timestamp
         (bool success, bytes32 executeAfter) = executions[account].tryGet(executionHash);
 
@@ -354,6 +356,9 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // determine if the transaction can be executed and revert if not
         uint256 requestTimeStamp = uint256(executeAfter);
         if (requestTimeStamp > block.timestamp) revert UnauthorizedAccess();
+
+        // clear the execution hash
+        executions[account].remove(executionHash);
     }
 
     /**
@@ -394,7 +399,6 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
     /**
      * Execute from executor function was called on the account
-     * @dev this function will revert as the module does not allow direct execution
      *
      * @param target address of the target
      * @param value value to be sent by account

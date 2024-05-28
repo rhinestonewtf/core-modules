@@ -356,6 +356,7 @@ contract OwnableValidatorTest is BaseTest {
         // it should decrement owner count
         // it should remove the owner
         test_OnInstallWhenOwnersIncludeNoDuplicates();
+        validator.setThreshold(1);
 
         validator.removeOwner(SENTINEL, _owners[1]);
 

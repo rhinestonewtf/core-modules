@@ -86,7 +86,7 @@ contract ColdStorageFlashloan is FlashloanCallback {
      * @param addressToRemove The address to remove
      * @param prevAddress The previous address in the list
      */
-    function removeAddress(address addressToRemove, address prevAddress) external {
+    function removeAddress(address prevAddress, address addressToRemove) external {
         // remove the address from the whitelist
         whitelist[msg.sender].pop({ prevEntry: prevAddress, popEntry: addressToRemove });
     }

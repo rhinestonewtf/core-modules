@@ -381,6 +381,7 @@ contract SocialRecoveryTest is BaseTest {
         // it should decrement guardian count
         // it should remove the guardian
         test_OnInstallWhenGuardiansIncludeNoDuplicates();
+        validator.setThreshold(1);
 
         validator.removeGuardian(_guardians[1], _guardians[0]);
 
@@ -552,7 +553,7 @@ contract SocialRecoveryTest is BaseTest {
 
     function test_IsValidSignatureWithSenderShouldRevert() public {
         // it should revert
-        vm.expectRevert(abi.encodeWithSelector(SocialRecovery.UnsopportedOperation.selector));
+        vm.expectRevert(abi.encodeWithSelector(SocialRecovery.UnsupportedOperation.selector));
         validator.isValidSignatureWithSender(address(1), bytes32(keccak256("hash")), "");
     }
 

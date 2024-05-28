@@ -69,10 +69,29 @@ contract AutoSavingsTest is BaseTest {
         _configs[1] = AutoSavings.Config(100, address(vault2), 1);
     }
 
+    function formatConfigs(
+        address[] memory _tokens,
+        AutoSavings.Config[] memory _configs
+    )
+        public
+        returns (AutoSavings.ConfigWithToken[] memory _configsWithToken)
+    {
+        _configsWithToken = new AutoSavings.ConfigWithToken[](_configs.length);
+
+        for (uint256 i; i < _configs.length; i++) {
+            _configsWithToken[i] = AutoSavings.ConfigWithToken({
+                token: _tokens[i],
+                percentage: _configs[i].percentage,
+                vault: _configs[i].vault,
+                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
+            });
+        }
+    }
+
     function installFromAccount(address account) public {
         AutoSavings.Config[] memory _configs = getConfigs();
-
-        bytes memory data = abi.encode(_tokens, _configs);
+        AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
+        bytes memory data = abi.encode(_configsWithToken);
 
         vm.prank(account);
         executor.onInstall(data);
@@ -95,7 +114,9 @@ contract AutoSavingsTest is BaseTest {
 
     function test_OnInstallRevertWhen_ModuleIsIntialized() public {
         // it should revert
-        bytes memory data = abi.encode(_tokens, getConfigs());
+        AutoSavings.Config[] memory _configs = getConfigs();
+        AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
+        bytes memory data = abi.encode(_configsWithToken);
 
         executor.onInstall(data);
 
@@ -107,14 +128,18 @@ contract AutoSavingsTest is BaseTest {
         // it should revert
         uint256 maxTokens = 100;
 
-        address[] memory tokens = new address[](maxTokens + 1);
-        AutoSavings.Config[] memory configs = new AutoSavings.Config[](maxTokens + 1);
+        AutoSavings.ConfigWithToken[] memory configs =
+            new AutoSavings.ConfigWithToken[](maxTokens + 1);
         for (uint256 i = 0; i < maxTokens; i++) {
-            tokens[i] = makeAddr(vm.toString(i));
-            configs[i] = AutoSavings.Config(100, address(0), 0);
+            configs[i] = AutoSavings.ConfigWithToken({
+                token: makeAddr(vm.toString(i)),
+                percentage: 100,
+                vault: address(0),
+                sqrtPriceLimitX96: 0
+            });
         }
 
-        bytes memory data = abi.encode(tokens, configs);
+        bytes memory data = abi.encode(configs);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.TooManyTokens.selector));
         executor.onInstall(data);
@@ -128,8 +153,9 @@ contract AutoSavingsTest is BaseTest {
         // it should revert
         AutoSavings.Config[] memory _configs = getConfigs();
         _configs[0].sqrtPriceLimitX96 = 0;
+        AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
 
-        bytes memory data = abi.encode(_tokens, _configs);
+        bytes memory data = abi.encode(_configsWithToken);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.InvalidSqrtPriceLimitX96.selector));
         executor.onInstall(data);
@@ -143,8 +169,8 @@ contract AutoSavingsTest is BaseTest {
         // it should set the configs for each token
         // it should add all tokens
         AutoSavings.Config[] memory _configs = getConfigs();
-
-        bytes memory data = abi.encode(_tokens, _configs);
+        AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
+        bytes memory data = abi.encode(_configsWithToken);
 
         executor.onInstall(data);
 

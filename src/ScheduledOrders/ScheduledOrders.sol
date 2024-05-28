@@ -14,6 +14,8 @@ import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
  * @author Rhinestone
  */
 contract ScheduledOrders is SchedulingBase {
+    error InvalidSqrtPriceLimitX96();
+
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
     //////////////////////////////////////////////////////////////////////////*/
@@ -30,6 +32,8 @@ contract ScheduledOrders is SchedulingBase {
         // decode from executionData: tokenIn, tokenOut, amountIn and sqrtPriceLimitX96
         (address tokenIn, address tokenOut, uint256 amountIn, uint160 sqrtPriceLimitX96) =
             abi.decode(executionConfig.executionData, (address, address, uint256, uint160));
+
+        if (sqrtPriceLimitX96 == 0) revert InvalidSqrtPriceLimitX96();
 
         // approve and swap
         Execution[] memory executions = UniswapV3Integration.approveAndSwap({

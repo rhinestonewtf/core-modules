@@ -24,12 +24,13 @@ contract SocialRecovery is ERC7579ValidatorBase {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    error UnsopportedOperation();
+    error UnsupportedOperation();
     error InvalidGuardian(address guardian);
     error NotSortedAndUnique();
     error MaxGuardiansReached();
     error ThresholdNotSet();
     error InvalidThreshold();
+    error CannotRemoveGuardian();
 
     // maximum number of guardians per account
     uint256 constant MAX_GUARDIANS = 32;
@@ -188,11 +189,21 @@ contract SocialRecovery is ERC7579ValidatorBase {
      * @param guardian address of the guardian to remove
      */
     function removeGuardian(address prevGuardian, address guardian) external {
+        // cache the account address
+        address account = msg.sender;
+
+        // check if an guardian can be removed
+        if (guardianCount[account] == threshold[account]) {
+            // if the guardian count is equal to the threshold, revert
+            // this means that removing an guardian would make the threshold unreachable
+            revert CannotRemoveGuardian();
+        }
+
         // remove the guardian from the list
-        guardians.pop(msg.sender, prevGuardian, guardian);
+        guardians.pop(account, prevGuardian, guardian);
 
         // decrement the guardian count
-        guardianCount[msg.sender]--;
+        guardianCount[account]--;
     }
 
     /**
@@ -228,6 +239,7 @@ contract SocialRecovery is ERC7579ValidatorBase {
         bytes32 userOpHash
     )
         external
+        view
         override
         returns (ValidationData)
     {
@@ -275,7 +287,7 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
     /**
      * Validates an ERC-1271 signature with the sender
-     * @dev ERC-1271 not supported for DeadmanSwitch
+     * @dev ERC-1271 not supported for SocialRecovery
      */
     function isValidSignatureWithSender(
         address,
@@ -287,7 +299,7 @@ contract SocialRecovery is ERC7579ValidatorBase {
         override
         returns (bytes4)
     {
-        revert UnsopportedOperation();
+        revert UnsupportedOperation();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,6 @@ import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
  * @author Rhinestone
  */
 contract AutoSavings is ERC7579ExecutorBase {
-    using ERC4626Integration for *;
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -30,6 +29,13 @@ contract AutoSavings is ERC7579ExecutorBase {
     uint256 internal constant MAX_TOKENS = 100;
 
     struct Config {
+        uint16 percentage; // percentage to be saved to the vault
+        address vault; // address of the vault
+        uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
+    }
+
+    struct ConfigWithToken {
+        address token; // address of the token
         uint16 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
         uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
@@ -62,29 +68,33 @@ contract AutoSavings is ERC7579ExecutorBase {
         address account = msg.sender;
 
         // decode the data to get the tokens and their configurations
-        (address[] memory _tokens, Config[] memory _configs) =
-            abi.decode(data, (address[], Config[]));
+        (ConfigWithToken[] memory _configs) = abi.decode(data, (ConfigWithToken[]));
 
         // initialize the sentinel list
         tokens[account].init();
 
         // get the length of the tokens
-        uint256 tokenLength = _tokens.length;
+        uint256 length = _configs.length;
 
         // check that the length of tokens is less than max
-        if (tokenLength > MAX_TOKENS) revert TooManyTokens();
+        if (length > MAX_TOKENS) revert TooManyTokens();
 
         // loop through the tokens, add them to the list and set their configurations
-        for (uint256 i; i < tokenLength; i++) {
-            address _token = _tokens[i];
+        for (uint256 i; i < length; i++) {
+            address _token = _configs[i].token;
+            Config memory _config = Config({
+                percentage: _configs[i].percentage,
+                vault: _configs[i].vault,
+                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
+            });
 
             // check that sqrtPriceLimitX96 > 0
             // sqrtPriceLimitX96 = 0 means unlimitted slippage
-            if (_configs[i].sqrtPriceLimitX96 == 0) {
+            if (_config.sqrtPriceLimitX96 == 0) {
                 revert InvalidSqrtPriceLimitX96();
             }
 
-            config[account][_token] = _configs[i];
+            config[account][_token] = _config;
             tokens[account].push(_token);
         }
     }

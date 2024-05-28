@@ -14,7 +14,6 @@ import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
  * @author Rhinestone
  */
 abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase {
-    using SentinelListLib for SentinelListLib.SentinelList;
     using SignatureCheckerLib for address;
 
     /*//////////////////////////////////////////////////////////////////////////

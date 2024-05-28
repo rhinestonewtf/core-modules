@@ -52,6 +52,9 @@ contract RegistryHook is ERC7579HookDestruct {
     function onUninstall(bytes calldata) external override {
         // delete the registry
         delete registry[msg.sender];
+
+        // clear the trusted forwarder
+        clearTrustedForwarder();
     }
 
     /**
