@@ -20,12 +20,12 @@ import { LibSort } from "solady/utils/LibSort.sol";
 import { IERC7484 } from "modulekit/Interfaces.sol";
 
 /**
- * @title HookMultiPlexer
+ * @title HookMultiplexer
  * @dev A module that allows to add multiple hooks to a smart account
  * @author Rhinestone
  */
-contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdapter {
-    using HookMultiPlexerLib for *;
+contract HookMultiplexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdapter {
+    using HookMultiplexerLib for *;
     using LibSort for uint256[];
     using LibSort for address[];
 
@@ -613,7 +613,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
      * @return name of the module
      */
     function name() external pure virtual returns (string memory) {
-        return "HookMultiPlexer";
+        return "HookMultiplexer";
     }
 
     /**

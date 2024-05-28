@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
+import { SentinelListLib } from "sentinellist/SentinelList.sol";
 import "../Flashloan/FlashloanCallback.sol";
 
 /**
@@ -62,7 +62,7 @@ contract ColdStorageFlashloan is FlashloanCallback {
      *
      * @return True if the module is initialized
      */
-    function isInitialized(address smartAccount) public view override returns (bool) {
+    function isInitialized(address smartAccount) external view override returns (bool) {
         return whitelist[smartAccount].alreadyInitialized();
     }
 
