@@ -20,7 +20,7 @@ import {
 uint256 constant EXEC_OFFSET = 100;
 
 /**
- * @title HookMultiplexerLib
+ * @title HookMultiPlexerLib
  * @dev Library for multiplexing hooks
  * @author Rhinestone
  */

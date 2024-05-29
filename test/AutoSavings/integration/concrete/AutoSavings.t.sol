@@ -62,8 +62,8 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         _tokens[1] = address(weth);
 
         AutoSavings.Config[] memory _configs = getConfigs();
-
-        bytes memory data = abi.encode(_tokens, _configs);
+        AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
+        bytes memory data = abi.encode(_configsWithToken);
 
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
@@ -80,6 +80,25 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         _configs = new AutoSavings.Config[](2);
         _configs[0] = AutoSavings.Config(100, address(vault1), 10);
         _configs[1] = AutoSavings.Config(100, address(vault2), 10);
+    }
+
+    function formatConfigs(
+        address[] memory _tokens,
+        AutoSavings.Config[] memory _configs
+    )
+        public
+        returns (AutoSavings.ConfigWithToken[] memory _configsWithToken)
+    {
+        _configsWithToken = new AutoSavings.ConfigWithToken[](_configs.length);
+
+        for (uint256 i; i < _configs.length; i++) {
+            _configsWithToken[i] = AutoSavings.ConfigWithToken({
+                token: _tokens[i],
+                percentage: _configs[i].percentage,
+                vault: _configs[i].vault,
+                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
+            });
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

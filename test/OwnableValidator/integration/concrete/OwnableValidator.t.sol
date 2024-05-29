@@ -144,6 +144,9 @@ contract OwnableValidatorIntegrationTest is BaseIntegrationTest {
     function test_RemoveOwner() public {
         // it should remove an owner
         // it should decrement the owner count
+
+        test_SetThreshold();
+
         instance.getExecOps({
             target: address(validator),
             value: 0,

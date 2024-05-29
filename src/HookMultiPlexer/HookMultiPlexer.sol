@@ -11,7 +11,7 @@ import { LibSort } from "solady/utils/LibSort.sol";
 import { IERC7484 } from "modulekit/Interfaces.sol";
 
 /**
- * @title HookMultiplexer
+ * @title HookMultiPlexer
  * @dev A module that allows to add multiple hooks to a smart account
  * @author Rhinestone
  */
@@ -252,6 +252,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
         $sigHooks.sigHooks[sig].popAddress(hook);
         if (length == 1) {
             $sigHooks.allSigs.popBytes4(sig);
+
         }
         emit SigHookRemoved(msg.sender, hook, hookType, sig);
     }

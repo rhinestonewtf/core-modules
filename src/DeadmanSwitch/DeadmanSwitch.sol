@@ -28,10 +28,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
     // account => config
     mapping(address account => DeadmanSwitchStorage) public config;
 
-    event Recovery(address account, address nominee);
-
-    error UnsopportedOperation();
-    error MissingCondition();
+    error UnsupportedOperation();
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -155,12 +152,18 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
             signature: userOp.signature
         });
 
+        uint48 validAfter = _config.lastAccess + _config.timeout;
+
+        if (sigValid) {
+            _config.timeout = 0;
+        }
+
         // return validation data
         // if signature is invalid, validation fails
         // if the timeout has not passed, validAfter will be when the timeout will pass
         return _packValidationData({
             sigFailed: !sigValid,
-            validAfter: _config.lastAccess + _config.timeout,
+            validAfter: validAfter,
             validUntil: type(uint48).max
         });
     }
@@ -179,7 +182,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
         override
         returns (bytes4)
     {
-        revert UnsopportedOperation();
+        revert UnsupportedOperation();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

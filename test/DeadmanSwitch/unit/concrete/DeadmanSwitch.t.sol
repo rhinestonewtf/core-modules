@@ -192,7 +192,7 @@ contract DeadmanSwitchTest is BaseTest {
         bytes32 hash = bytes32(keccak256("hash"));
         bytes memory signature = "";
 
-        vm.expectRevert(DeadmanSwitch.UnsopportedOperation.selector);
+        vm.expectRevert(DeadmanSwitch.UnsupportedOperation.selector);
         dms.isValidSignatureWithSender(sender, hash, signature);
     }
 

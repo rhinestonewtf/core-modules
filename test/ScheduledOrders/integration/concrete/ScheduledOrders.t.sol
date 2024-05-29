@@ -54,7 +54,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         _executionData =
-            abi.encode(address(address(usdc)), address(address(weth)), uint256(100), uint160(0));
+            abi.encode(address(address(usdc)), address(address(weth)), uint256(100), uint160(1));
 
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,

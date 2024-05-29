@@ -17,7 +17,6 @@ import { ECDSA } from "solady/utils/ECDSA.sol";
  */
 contract OwnableValidator is ERC7579ValidatorBase {
     using LibSort for *;
-    using SignatureCheckerLib for address;
     using SentinelList4337Lib for SentinelList4337Lib.SentinelList;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -29,6 +28,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
     error NotSortedAndUnique();
     error MaxOwnersReached();
     error InvalidOwner(address owner);
+    error CannotRemoveOwner();
 
     // maximum number of owners per account
     uint256 constant MAX_OWNERS = 32;
@@ -188,11 +188,21 @@ contract OwnableValidator is ERC7579ValidatorBase {
      * @param owner address of the owner to remove
      */
     function removeOwner(address prevOwner, address owner) external {
+        // cache the account address
+        address account = msg.sender;
+
+        // check if an owner can be removed
+        if (ownerCount[account] == threshold[account]) {
+            // if the owner count is equal to the threshold, revert
+            // this means that removing an owner would make the threshold unreachable
+            revert CannotRemoveOwner();
+        }
+
         // remove the owner
-        owners.pop(msg.sender, prevOwner, owner);
+        owners.pop(account, prevOwner, owner);
 
         // decrement the owner count
-        ownerCount[msg.sender]--;
+        ownerCount[account]--;
     }
 
     /**
