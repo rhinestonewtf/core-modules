@@ -27,6 +27,7 @@ struct SignatureHooks {
 }
 
 struct Config {
+    bool initialized;
     mapping(HookType hookType => address[]) hooks;
     mapping(HookType hookType => SignatureHooks) sigHooks;
 }

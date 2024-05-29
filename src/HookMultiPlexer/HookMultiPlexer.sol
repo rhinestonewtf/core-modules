@@ -104,6 +104,8 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
         $config.sigHooks[HookType.SIG].storeSelectorHooks(sigHooks);
         $config.sigHooks[HookType.TARGET_SIG].storeSelectorHooks(targetSigHooks);
 
+        $config.initialized = true;
+
         emit AccountInitialized(msg.sender);
     }
 
@@ -120,6 +122,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
         delete $config.hooks[HookType.VALUE];
         $config.sigHooks[HookType.SIG].deleteHooks();
         $config.sigHooks[HookType.TARGET_SIG].deleteHooks();
+        $config.initialized = false;
 
         emit AccountUninitialized(msg.sender);
     }
@@ -133,14 +136,8 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
      * @return true if the module is initialized, false otherwise
      */
     function isInitialized(address smartAccount) public view returns (bool) {
-        // // cache the storage config
         Config storage $config = $getConfig({ account: smartAccount });
-        // // if any hooks are set, the module is initialized
-        return $config.hooks[HookType.GLOBAL].length != 0
-            || $config.hooks[HookType.DELEGATECALL].length != 0
-            || $config.hooks[HookType.VALUE].length != 0
-            || $config.sigHooks[HookType.SIG].allSigs.length != 0
-            || $config.sigHooks[HookType.TARGET_SIG].allSigs.length != 0;
+        return $config.initialized;
     }
 
     /**
