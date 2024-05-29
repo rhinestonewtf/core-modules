@@ -31,6 +31,8 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
     event SigHookRemoved(
         address indexed account, address indexed hook, HookType hookType, bytes4 sig
     );
+    event AccountInitialized(address indexed account);
+    event AccountUninitialized(address indexed account);
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                          Storage                           */
@@ -101,6 +103,8 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
         // storeSelectorHooks function is used to uniquify and sstore sig specific hooks
         $config.sigHooks[HookType.SIG].storeSelectorHooks(sigHooks);
         $config.sigHooks[HookType.TARGET_SIG].storeSelectorHooks(targetSigHooks);
+
+        emit AccountInitialized(msg.sender);
     }
 
     /**
@@ -116,6 +120,8 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
         delete $config.hooks[HookType.VALUE];
         $config.sigHooks[HookType.SIG].deleteHooks();
         $config.sigHooks[HookType.TARGET_SIG].deleteHooks();
+
+        emit AccountUninitialized(msg.sender);
     }
 
     /**

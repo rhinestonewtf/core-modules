@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { EnumerableMap } from "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
-
 // Hook types
 enum HookType {
     GLOBAL,
@@ -21,18 +19,6 @@ struct SigHookInit {
 struct HookAndContext {
     address hook;
     bytes context;
-}
-
-// Config for an account
-// We also need to store an array of sigs and target sigs to be able to remove them on uninstall
-struct ConfigOLD {
-    address[] globalHooks;
-    address[] delegatecallHooks;
-    address[] valueHooks;
-    bytes4[] sigs;
-    mapping(bytes4 => address[]) sigHooks;
-    bytes4[] targetSigs;
-    mapping(bytes4 => address[]) targetSigHooks;
 }
 
 struct SignatureHooks {
