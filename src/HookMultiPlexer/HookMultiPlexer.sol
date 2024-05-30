@@ -3,9 +3,9 @@ pragma solidity ^0.8.25;
 
 import { ERC7579ModuleBase } from "modulekit/Modules.sol";
 import { ERC7484RegistryAdapter } from "modulekit/Modules.sol";
-import { IERC7579Account, IERC7579Hook } from "modulekit/external/ERC7579.sol";
+import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
 import { SigHookInit, SignatureHooks, Config, HookType, HookAndContext } from "./DataTypes.sol";
-import { ExecutionLib, Execution } from "erc7579/lib/ExecutionLib.sol";
+import { Execution } from "erc7579/lib/ExecutionLib.sol";
 import { HookMultiPlexerLib } from "./HookMultiPlexerLib.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
 import { IERC7484 } from "modulekit/Interfaces.sol";
@@ -48,11 +48,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
     constructor(IERC7484 _registry) ERC7484RegistryAdapter(_registry) { }
 
     modifier onlySupportedHookType(HookType hookType) {
-        if (
-            hookType == HookType.GLOBAL || hookType == HookType.VALUE
-                || hookType == HookType.DELEGATECALL || hookType == HookType.SIG
-                || hookType == HookType.TARGET_SIG
-        ) {
+        if (uint8(hookType) <= uint8(HookType.TARGET_SIG)) {
             _;
         } else {
             revert UnsupportedHookType(hookType);
@@ -252,7 +248,6 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
         $sigHooks.sigHooks[sig].popAddress(hook);
         if (length == 1) {
             $sigHooks.allSigs.popBytes4(sig);
-
         }
         emit SigHookRemoved(msg.sender, hook, hookType, sig);
     }
