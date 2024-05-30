@@ -6,6 +6,7 @@ import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 
 import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
 import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
+import { ReentrancyGuard } from "./utils/ReentrancyGuard.sol";
 
 /**
  * @title FlashloanLender
@@ -13,6 +14,7 @@ import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modul
  * @author Rhinestone
  */
 abstract contract FlashloanLender is
+    ReentrancyGuard,
     ERC7579FallbackBase,
     ERC7579ExecutorBase,
     IERC3156FlashLender
@@ -97,6 +99,7 @@ abstract contract FlashloanLender is
         external
         virtual
         onlyAllowedBorrower(address(receiver))
+        nonReentrant
         returns (bool)
     {
         // get the flashloan type
@@ -139,17 +142,17 @@ abstract contract FlashloanLender is
         // revert if the callback failed
         if (!success) revert FlashloanCallbackFailed();
 
-        // check that token was sent back
-        if (flashLoanType == FlashLoanType.ERC721) {
-            if (!availableForFlashLoan({ token: token, tokenId: value })) {
-                revert TokenNotRepaid();
-            }
-        } else if (flashLoanType == FlashLoanType.ERC20) {
-            if (IERC20(token).balanceOf(msg.sender) < balanceBefore) {
-                revert TokenNotRepaid();
-            }
-        }
+        // transfer the token back to the lender
+        _transferTokenBack({ token: token, receiver: address(receiver), value: value });
         return true;
+    }
+
+    function _transferTokenBack(address token, address receiver, uint256 value) private {
+        _execute(
+            address(token),
+            0,
+            abi.encodeCall(IERC20.transferFrom, (address(receiver), msg.sender, value))
+        );
     }
 
     /**

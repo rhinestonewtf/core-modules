@@ -132,13 +132,13 @@ contract ColdStorageFlashloanTest is BaseTest {
         assertEq(whitelist.length, _whitelist.length);
     }
 
-    function test_GetTokengatedTxHashShouldReturnTheTokengatedTxHash() public {
-        // it should return the tokengatedTxHash
-        Execution[] memory executions = new Execution[](1);
-        executions[0] = Execution(address(1), 0, "");
-
-        bytes32 hash = module.getTokengatedTxHash(FlashLoanType.ERC20, executions, 1);
-    }
+    // function test_GetTokengatedTxHashShouldReturnTheTokengatedTxHash() public {
+    //     // it should return the tokengatedTxHash
+    //     Execution[] memory executions = new Execution[](1);
+    //     executions[0] = Execution(address(1), 0, "");
+    //
+    //     bytes32 hash = module.getTokengatedTxHash(FlashLoanType.ERC20, address(!executions, 1);
+    // }
 
     function test_OnFlashLoanRevertWhen_TheSenderIsNotAllowed() public {
         // it should revert

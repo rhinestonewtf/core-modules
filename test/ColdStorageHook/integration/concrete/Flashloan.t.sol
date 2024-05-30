@@ -113,17 +113,17 @@ contract FlashloanTest is BaseIntegrationTest {
     }
 
     function test_flashloanERC20() public {
-        Execution[] memory executions = new Execution[](2);
+        Execution[] memory executions = new Execution[](1);
         executions[0] = Execution({
             target: address(target),
             value: 0,
             callData: abi.encodeCall(MockTarget.setValue, (1337))
         });
-        executions[1] = Execution({
-            target: address(token),
-            value: 0,
-            callData: abi.encodeCall(IERC20.transfer, (instance.account, 100))
-        });
+        // executions[1] = Execution({
+        //     target: address(token),
+        //     value: 0,
+        //     callData: abi.encodeCall(IERC20.approve, (owner.account, 100))
+        // });
 
         FlashLoanType flashLoanType = FlashLoanType.ERC20;
         bytes memory signature = abi.encodePacked(instance.defaultValidator, "test");
@@ -138,17 +138,17 @@ contract FlashloanTest is BaseIntegrationTest {
     }
 
     function test_flashloanERC721() public {
-        Execution[] memory executions = new Execution[](2);
+        Execution[] memory executions = new Execution[](1);
         executions[0] = Execution({
             target: address(target),
             value: 0,
             callData: abi.encodeCall(MockTarget.setValue, (1337))
         });
-        executions[1] = Execution({
-            target: address(token721),
-            value: 0,
-            callData: abi.encodeCall(IERC721.transferFrom, (owner.account, instance.account, 10))
-        });
+        // executions[1] = Execution({
+        //     target: address(token721),
+        //     value: 0,
+        //     callData: abi.encodeCall(IERC721.transferFrom, (owner.account, instance.account, 10))
+        // });
 
         FlashLoanType flashLoanType = FlashLoanType.ERC721;
         bytes memory signature = abi.encodePacked(instance.defaultValidator, "test");

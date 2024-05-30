@@ -2,18 +2,23 @@
 pragma solidity ^0.8.25;
 
 import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
-import { FlashLoanType } from "modulekit/Interfaces.sol";
+import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { SentinelListLib } from "sentinellist/SentinelList.sol";
 import { Execution } from "modulekit/external/ERC7579.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
+import "forge-std/console2.sol";
 
 /**
  * @title FlashloanCallback
  * @dev A base for flashloan callback modules
  * @author Rhinestone
  */
-abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase {
+abstract contract FlashloanCallback is
+    IERC3156FlashBorrower,
+    ERC7579FallbackBase,
+    ERC7579ExecutorBase
+{
     using SignatureCheckerLib for address;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -23,8 +28,7 @@ abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase 
     error TokenGatedTxFailed();
     error Unauthorized();
 
-    // account => nonce
-    mapping(address account => uint256 nonces) public nonce;
+    mapping(address account => mapping(address borrower => uint256 nonces)) public nonce;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -64,6 +68,8 @@ abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase 
      */
     function getTokengatedTxHash(
         FlashLoanType flashLoanType,
+        address token,
+        uint256 amount,
         Execution[] memory executions,
         uint256 _nonce
     )
@@ -72,7 +78,7 @@ abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase 
         returns (bytes32)
     {
         // return the hash
-        return keccak256(abi.encode(flashLoanType, executions, _nonce));
+        return keccak256(abi.encode(flashLoanType, token, amount, executions, _nonce));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,8 +109,8 @@ abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase 
      */
     function onFlashLoan(
         address borrower,
-        address, /*token*/
-        uint256, /*amount*/
+        address token,
+        uint256 amount,
         uint256, /*fee*/
         bytes calldata data
     )
@@ -116,9 +122,10 @@ abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase 
         (FlashLoanType flashLoanType, bytes memory signature, Execution[] memory executions) =
             abi.decode(data, (FlashLoanType, bytes, Execution[]));
         // get the hash
-        bytes32 hash = getTokengatedTxHash(flashLoanType, executions, nonce[borrower]);
+        uint256 currentNonce = nonce[msg.sender][borrower];
+        bytes32 hash = getTokengatedTxHash(flashLoanType, token, amount, executions, currentNonce);
         // increment the nonce
-        nonce[borrower]++;
+        nonce[msg.sender][borrower] = currentNonce + 1;
         // format the hash
         hash = ECDSA.toEthSignedMessageHash(hash);
         // check the signature
@@ -126,7 +133,16 @@ abstract contract FlashloanCallback is ERC7579FallbackBase, ERC7579ExecutorBase 
         // if the signature is invalid, revert
         if (!validSig) revert TokenGatedTxFailed();
         // execute the flashloan
+
+        uint256 executionsLength = executions.length;
+        assembly {
+            mstore(executions, add(executionsLength, 1))
+        }
+        executions[executionsLength] = Execution(
+            address(token), 0, abi.encodeWithSignature("approve(address,uint256)", borrower, amount)
+        );
         _execute(executions);
+        console2.log("executions", executions.length);
         // return the hash
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }
