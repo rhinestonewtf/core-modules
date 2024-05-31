@@ -92,6 +92,17 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // cache the account address
         address account = msg.sender;
 
+        // when this module gets reinstalled, the account might have still some configured
+        // executions in its module storage
+        // to avoid this case, we are deleting all pending executions from the modules storage for
+        // this account
+        bytes32[] memory executionHashes = executions[account].keys();
+        uint256 length = executionHashes.length;
+        for (uint256 i; i < length; i++) {
+            // removing executions
+            executions[account].remove(executionHashes[i]);
+        }
+
         // clear the vaultConfig
         delete vaultConfig[account];
 
