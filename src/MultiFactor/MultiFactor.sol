@@ -29,6 +29,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
 
     error ZeroThreshold();
     error InvalidThreshold(uint256 length, uint256 threshold);
+    error InvalidValidatorData();
 
     event ValidatorAdded(
         address indexed smartAccount, address indexed validator, ValidatorId id, uint256 iteration
@@ -83,8 +84,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         MFAConfig storage $config = accountConfig[account];
         // cache the current iteration
         uint256 iteration = $config.iteration;
-        // set the threshold
+
+        if (length > type(uint8).max) revert InvalidValidatorData();
         $config.threshold = threshold;
+        $config.validationLength = uint8(length);
 
         // iterate over the validators
         for (uint256 i; i < length; i++) {
@@ -132,8 +135,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         uint256 _newIteration = $config.iteration + 1;
         $config.iteration = uint128(_newIteration);
 
-        // delete the threshold
+        // delete the threshold & validationLength. these values are not part of the iterated
+        // storage mapping
         delete $config.threshold;
+        delete $config.validationLength;
 
         // emit the IterationIncreased event
         emit IterationIncreased(account, _newIteration);
@@ -190,6 +195,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
     )
         external
     {
+        // to prevent the user from overwriting an existing subvalidator configuration with 0
+        // config, we check this
+        if (newValidatorData.length == 0) revert InvalidValidatorData();
+
         // cache the account
         address account = msg.sender;
         // check if the module is initialized and revert if it is not
@@ -214,6 +223,13 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
             subValidator: validatorAddress,
             id: id
         });
+
+        // if this subvalidator is brand new, we have to iterate the validationLength counter.
+        // should the validationData be new, but the subValidator already exist,
+        // we don't need to do
+        if ($validator.load().length == 0) {
+            $config.validationLength += 1;
+        }
         // set the subValidator data
         $validator.store(newValidatorData);
 
@@ -245,6 +261,8 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
             subValidator: validatorAddress,
             id: id
         });
+
+        $config.validationLength -= 1;
         // delete the subValidator data
         $validator.clear();
 

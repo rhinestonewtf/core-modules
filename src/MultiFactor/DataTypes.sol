@@ -21,6 +21,7 @@ struct SubValidatorConfig {
 // MFA Configuration
 struct MFAConfig {
     uint8 threshold; // number of validators required to validate a signature
+    uint8 validationLength; // number of validators required to validate a signature
     uint128 iteration; // iteration number
 }
 

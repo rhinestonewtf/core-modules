@@ -95,7 +95,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
 
     function test_OnInstallSetValidatorsAndThreshold() public {
         // it should set the validators and threshold
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(instance.account));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(instance.account));
         assertEq(threshold, _threshold);
 
         bool isSubValidator1 = validator.isSubValidator(
@@ -117,7 +117,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
             data: ""
         });
 
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(instance.account));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(instance.account));
         assertEq(iteration, 1);
         assertEq(threshold, uint8(0));
     }
@@ -133,7 +133,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        (uint8 threshold,) = validator.accountConfig(address(instance.account));
+        (uint8 threshold,,) = validator.accountConfig(address(instance.account));
         assertEq(threshold, newThreshold);
     }
 
