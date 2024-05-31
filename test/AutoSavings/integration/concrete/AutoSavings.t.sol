@@ -7,6 +7,7 @@ import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 import { MockERC4626, ERC20 } from "solmate/test/utils/mocks/MockERC4626.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
+import { UD2x18, ud2x18, intoUint256, intoUD60x18 } from "@prb/math/UD2x18.sol";
 
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -78,8 +79,8 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
     function getConfigs() public returns (AutoSavings.Config[] memory _configs) {
         _configs = new AutoSavings.Config[](2);
-        _configs[0] = AutoSavings.Config(100, address(vault1), 10);
-        _configs[1] = AutoSavings.Config(100, address(vault2), 10);
+        _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1), 10);
+        _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2), 10);
     }
 
     function formatConfigs(
@@ -113,9 +114,9 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         AutoSavings.Config[] memory _configs = getConfigs();
 
         for (uint256 i; i < _tokens.length; i++) {
-            (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
                 executor.config(address(instance.account), _tokens[i]);
-            assertEq(_percentage, _configs[i].percentage);
+            assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
             assertEq(_sqrtPriceLimitX96, _configs[i].sqrtPriceLimitX96);
         }
@@ -136,9 +137,9 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         assertFalse(isInitialized);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
                 executor.config(address(instance.account), _tokens[i]);
-            assertEq(_percentage, 0);
+            assertEq(_percentage.intoUint256(), 0);
             assertEq(_vault, address(0));
             assertEq(_sqrtPriceLimitX96, 0);
         }
@@ -150,7 +151,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     function test_SetConfig() public {
         // it should add a config and token
         address token = address(2);
-        AutoSavings.Config memory config = AutoSavings.Config(10, address(1), 100);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1), 100);
 
         instance.getExecOps({
             target: address(executor),
@@ -159,9 +160,9 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
             executor.config(address(instance.account), token);
-        assertEq(_percentage, config.percentage);
+        assertEq(_percentage.intoUint256(), config.percentage.intoUint256());
         assertEq(_vault, config.vault);
         assertEq(_sqrtPriceLimitX96, config.sqrtPriceLimitX96);
     }
@@ -170,9 +171,9 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         // it should delete a config and token
         AutoSavings.Config[] memory _configs = getConfigs();
 
-        (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
             executor.config(address(instance.account), _tokens[1]);
-        assertEq(_percentage, _configs[1].percentage);
+        assertEq(_percentage.intoUint256(), _configs[1].percentage.intoUint256());
         assertEq(_vault, _configs[1].vault);
         assertEq(_sqrtPriceLimitX96, _configs[1].sqrtPriceLimitX96);
 
@@ -185,7 +186,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         (_percentage, _vault, _sqrtPriceLimitX96) =
             executor.config(address(instance.account), _tokens[1]);
-        assertEq(_percentage, 0);
+        assertEq(_percentage.intoUint256(), 0);
         assertEq(_vault, address(0));
         assertEq(_sqrtPriceLimitX96, 0);
     }
@@ -213,7 +214,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     function test_AutoSave_WithNonUnderlyingToken() public {
         // it should deposit the underlying token into the vault
         uint128 limit = 100;
-        AutoSavings.Config memory config = AutoSavings.Config(10, address(vault2), limit);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(vault2), limit);
 
         instance.getExecOps({
             target: address(executor),

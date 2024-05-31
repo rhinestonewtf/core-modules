@@ -9,6 +9,8 @@ import { IERC4626 } from "forge-std/interfaces/IERC4626.sol";
 import { Execution } from "modulekit/Accounts.sol";
 import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
+import { ud } from "@prb/math/UD60x18.sol";
 
 /**
  * @title AutoSavings
@@ -29,14 +31,14 @@ contract AutoSavings is ERC7579ExecutorBase {
     uint256 internal constant MAX_TOKENS = 100;
 
     struct Config {
-        uint16 percentage; // percentage to be saved to the vault
+        UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
         uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
 
     struct ConfigWithToken {
         address token; // address of the token
-        uint16 percentage; // percentage to be saved to the vault
+        UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
         uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
@@ -47,9 +49,7 @@ contract AutoSavings is ERC7579ExecutorBase {
     // account => tokens
     mapping(address account => SentinelListLib.SentinelList) tokens;
 
-    event AutoSaveExecuted(
-        address indexed smartAccount, address indexed token, uint256 amountReceived
-    );
+    event AutoSaveExecuted(address indexed smartAccount, address indexed token, uint256 amountIn);
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -201,7 +201,7 @@ contract AutoSavings is ERC7579ExecutorBase {
      */
     function calcDepositAmount(
         uint256 amountReceived,
-        uint256 percentage
+        UD2x18 percentage
     )
         public
         pure
@@ -209,7 +209,7 @@ contract AutoSavings is ERC7579ExecutorBase {
     {
         // calculate the amount to be saved which is the
         // percentage of the amount received
-        return (amountReceived * percentage) / 100;
+        return ud(amountReceived).mul(percentage.intoUD60x18()).intoUint256();
     }
 
     /**

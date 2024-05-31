@@ -4,6 +4,8 @@ pragma solidity ^0.8.23;
 import { BaseTest } from "test/Base.t.sol";
 import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
 import { IERC7579Module } from "modulekit/external/ERC7579.sol";
+import { UD2x18, ud2x18, intoUint256, intoUD60x18 } from "@prb/math/UD2x18.sol";
+import { ud } from "@prb/math/UD60x18.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "solmate/test/utils/mocks/MockERC4626.sol";
 import { MockAccount } from "test/mocks/MockAccount.sol";
@@ -41,11 +43,11 @@ contract AutoSavingsTest is BaseTest {
 
         token1 = new MockERC20("USDC", "USDC", 18);
         vm.label(address(token1), "USDC");
-        token1.mint(address(account), 1_000_000);
+        token1.mint(address(account), ud(1_000_000e18).intoUint256());
 
         token2 = new MockERC20("wETH", "wETH", 18);
         vm.label(address(token2), "wETH");
-        token2.mint(address(account), 1_000_000);
+        token2.mint(address(account), ud(1_000_000e18).intoUint256());
 
         vault1 = new MockERC4626(token1, "vUSDC", "vUSDC");
         vault2 = new MockERC4626(token2, "vwETH", "vwETH");
@@ -65,8 +67,8 @@ contract AutoSavingsTest is BaseTest {
 
     function getConfigs() public returns (AutoSavings.Config[] memory _configs) {
         _configs = new AutoSavings.Config[](2);
-        _configs[0] = AutoSavings.Config(100, address(vault1), 1);
-        _configs[1] = AutoSavings.Config(100, address(vault2), 1);
+        _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1), 1);
+        _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2), 1);
     }
 
     function formatConfigs(
@@ -97,9 +99,9 @@ contract AutoSavingsTest is BaseTest {
         executor.onInstall(data);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
                 executor.config(account, _tokens[i]);
-            assertEq(_percentage, _configs[i].percentage);
+            assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
             assertEq(_sqrtPriceLimitX96, _configs[i].sqrtPriceLimitX96);
         }
@@ -133,7 +135,7 @@ contract AutoSavingsTest is BaseTest {
         for (uint256 i = 0; i < maxTokens; i++) {
             configs[i] = AutoSavings.ConfigWithToken({
                 token: makeAddr(vm.toString(i)),
-                percentage: 100,
+                percentage: ud2x18(0.01e18),
                 vault: address(0),
                 sqrtPriceLimitX96: 0
             });
@@ -175,9 +177,9 @@ contract AutoSavingsTest is BaseTest {
         executor.onInstall(data);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
                 executor.config(address(this), _tokens[i]);
-            assertEq(_percentage, _configs[i].percentage);
+            assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
             assertEq(_sqrtPriceLimitX96, _configs[i].sqrtPriceLimitX96);
         }
@@ -193,9 +195,9 @@ contract AutoSavingsTest is BaseTest {
         executor.onUninstall("");
 
         for (uint256 i; i < _tokens.length; i++) {
-            (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
                 executor.config(address(this), _tokens[i]);
-            assertEq(_percentage, 0);
+            assertEq(_percentage.intoUint256(), 0);
             assertEq(_vault, address(0));
             assertEq(_sqrtPriceLimitX96, 0);
         }
@@ -238,7 +240,7 @@ contract AutoSavingsTest is BaseTest {
         test_OnInstallWhenSqrtPriceLimitX96IsNot0();
 
         address token = address(2);
-        AutoSavings.Config memory config = AutoSavings.Config(10, address(1), 0);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1), 0);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.InvalidSqrtPriceLimitX96.selector));
         executor.setConfig(token, config);
@@ -249,13 +251,13 @@ contract AutoSavingsTest is BaseTest {
         test_OnInstallWhenSqrtPriceLimitX96IsNot0();
 
         address token = address(2);
-        AutoSavings.Config memory config = AutoSavings.Config(10, address(1), 100);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1), 100);
 
         executor.setConfig(token, config);
 
-        (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
             executor.config(address(this), token);
-        assertEq(_percentage, config.percentage);
+        assertEq(_percentage.intoUint256(), config.percentage.intoUint256());
         assertEq(_vault, config.vault);
         assertEq(_sqrtPriceLimitX96, config.sqrtPriceLimitX96);
     }
@@ -273,21 +275,21 @@ contract AutoSavingsTest is BaseTest {
 
         executor.deleteConfig(SENTINEL, _tokens[1]);
 
-        (uint16 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
             executor.config(address(this), _tokens[1]);
-        assertEq(_percentage, 0);
+        assertEq(_percentage.intoUint256(), 0);
         assertEq(_vault, address(0));
         assertEq(_sqrtPriceLimitX96, 0);
     }
 
     function test_CalcDepositAmountShouldReturnTheDepositAmount() public {
         // it should return the deposit amount
-        uint256 amountReceived = 100;
-        uint256 percentage = 10;
+        uint256 amountReceived = ud(100e18).intoUint256();
+        UD2x18 percentage = ud2x18(0.01e18);
 
         uint256 depositAmount = executor.calcDepositAmount(amountReceived, percentage);
 
-        assertEq(depositAmount, 10);
+        assertEq(depositAmount, ud(amountReceived).mul(percentage.intoUD60x18()).intoUint256());
     }
 
     function test_AutoSaveRevertWhen_ModuleIsNotIntialized() public {
@@ -309,7 +311,7 @@ contract AutoSavingsTest is BaseTest {
         // it should deposit the amount to the vault
         // it should emit an AutoSaveExecuted event
         installFromAccount(address(account));
-        AutoSavings.Config memory config = AutoSavings.Config(10, address(vault2), 10);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(0.01e18), address(vault2), 10);
 
         vm.prank(address(account));
         executor.setConfig(address(token1), config);
@@ -323,13 +325,13 @@ contract AutoSavingsTest is BaseTest {
         emit AutoSavings.AutoSaveExecuted({
             smartAccount: address(account),
             token: address(token1),
-            amountReceived: amountSaved
+            amountIn: amountSaved
         });
 
         vm.prank(address(account));
         executor.autoSave(address(token1), amountReceived);
 
-        (uint16 percentage,,) = executor.config(address(account), address(token1));
+        (UD2x18 percentage,,) = executor.config(address(account), address(token1));
 
         uint256 assetsAfter = vault2.totalAssets();
         assertEq(assetsAfter, amountSaved);
@@ -346,22 +348,25 @@ contract AutoSavingsTest is BaseTest {
         uint256 assetsBefore = vault1.totalAssets();
 
         address token = _tokens[0];
-        uint256 amountReceived = 100;
+        uint256 amountReceived = ud(100e18).intoUint256();
 
         vm.expectEmit(true, true, true, true, address(executor));
         emit AutoSavings.AutoSaveExecuted({
             smartAccount: address(account),
             token: token,
-            amountReceived: amountReceived
+            amountIn: ud(amountReceived).mul(ud(0.01e18)).intoUint256()
         });
 
         vm.prank(address(account));
         executor.autoSave(token, amountReceived);
 
-        (uint16 percentage,,) = executor.config(address(account), token);
+        (UD2x18 percentage,,) = executor.config(address(account), token);
 
         uint256 assetsAfter = vault1.totalAssets();
-        assertEq(assetsAfter, assetsBefore + (amountReceived * percentage) / 100);
+        assertEq(
+            assetsAfter,
+            assetsBefore + (ud(amountReceived).mul(percentage.intoUD60x18())).intoUint256()
+        );
     }
 
     function test_NameShouldReturnAutoSavings() public {
