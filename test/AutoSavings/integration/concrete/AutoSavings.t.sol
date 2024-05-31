@@ -195,6 +195,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         // it should deposit the underlying token into the vault
         uint256 amountReceived = 100;
         uint256 prevBalance = usdc.balanceOf(address(vault1));
+        uint256 prevBalanceAccount = usdc.balanceOf(address(instance.account));
         uint256 assetsBefore = vault1.totalAssets();
 
         instance.getExecOps({
@@ -204,8 +205,11 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        assertEq(usdc.balanceOf(address(instance.account)), 999_900);
-        assertEq(usdc.balanceOf(address(vault1)), prevBalance + amountReceived);
+        (UD2x18 _percentage,,) = executor.config(address(instance.account), address(usdc));
+        uint256 depositAmount = executor.calcDepositAmount(amountReceived, _percentage);
+
+        assertEq(usdc.balanceOf(address(instance.account)), prevBalanceAccount - depositAmount);
+        assertEq(usdc.balanceOf(address(vault1)), prevBalance + depositAmount);
 
         uint256 assetsAfter = vault1.totalAssets();
         assertGt(assetsAfter, assetsBefore);
@@ -214,7 +218,8 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     function test_AutoSave_WithNonUnderlyingToken() public {
         // it should deposit the underlying token into the vault
         uint128 limit = 100;
-        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(vault2), limit);
+        AutoSavings.Config memory config =
+            AutoSavings.Config(ud2x18(0.01e18), address(vault2), limit);
 
         instance.getExecOps({
             target: address(executor),
