@@ -20,7 +20,7 @@ contract OwnableExecutor is ERC7579ExecutorBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     event ModuleInitialized(address indexed account, address owner);
-    event AccountUninitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
     event OwnerAdded(address indexed account, address owner);
     event OwnerRemoved(address indexed account, address owner);
 
@@ -75,7 +75,7 @@ contract OwnableExecutor is ERC7579ExecutorBase {
         // clear the owner count
         ownerCount[msg.sender] = 0;
 
-        emit AccountUninitialized(msg.sender);
+        emit ModuleUninitialized(msg.sender);
     }
 
     /**

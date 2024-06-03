@@ -25,7 +25,7 @@ contract SocialRecovery is ERC7579ValidatorBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     event ModuleInitialized(address indexed account);
-    event AccountUninitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
     event GuardianAdded(address indexed account, address guardian);
     event GuardianRemoved(address indexed account, address guardian);
     event ThresholdSet(address indexed account, uint256 threshold);
@@ -125,8 +125,8 @@ contract SocialRecovery is ERC7579ValidatorBase {
         // delete the guardian count
         guardianCount[account] = 0;
 
-        // emit the AccountUninitialized event
-        emit AccountUninitialized(account);
+        // emit the ModuleUninitialized event
+        emit ModuleUninitialized(account);
     }
 
     /**

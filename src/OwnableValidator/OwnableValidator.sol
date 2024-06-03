@@ -24,7 +24,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     event ModuleInitialized(address indexed account);
-    event AccountUninitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
     event ThresholdSet(address indexed account, uint256 threshold);
     event OwnerAdded(address indexed account, address owner);
     event OwnerRemoved(address indexed account, address owner);
@@ -122,7 +122,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
         // remove the owner count
         ownerCount[account] = 0;
 
-        emit AccountUninitialized(account);
+        emit ModuleUninitialized(account);
     }
 
     /**

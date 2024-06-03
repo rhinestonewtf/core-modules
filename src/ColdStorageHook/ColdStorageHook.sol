@@ -44,7 +44,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     mapping(address subAccount => EnumerableMap.Bytes32ToBytes32Map) executions;
 
     event ModuleInitialized(address indexed account, uint256 waitPeriod, address owner);
-    event AccountUninitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
     event WaitPeriodSet(address indexed account, uint256 waitPeriod);
     event TimelockRequested(address indexed subAccount, bytes32 hash, uint256 executeAfter);
     event TimelockExecuted(address indexed subAccount, bytes32 hash);
@@ -113,7 +113,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // clear the trusted forwarder
         clearTrustedForwarder();
 
-        emit AccountUninitialized(account);
+        emit ModuleUninitialized(account);
     }
 
     /**

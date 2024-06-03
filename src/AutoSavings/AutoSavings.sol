@@ -50,7 +50,7 @@ contract AutoSavings is ERC7579ExecutorBase {
     mapping(address account => SentinelListLib.SentinelList) tokens;
 
     event ModuleInitialized(address indexed account);
-    event AccountUninitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
     event ConfigSet(address indexed account, address indexed token);
     event AutoSaveExecuted(address indexed smartAccount, address indexed token, uint256 amountIn);
 
@@ -122,7 +122,7 @@ contract AutoSavings is ERC7579ExecutorBase {
         // clear the tokens
         tokens[account].popAll();
 
-        emit AccountUninitialized(account);
+        emit ModuleUninitialized(account);
     }
 
     /**
