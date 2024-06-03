@@ -19,6 +19,11 @@ contract OwnableExecutor is ERC7579ExecutorBase {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    event AccountInitialized(address indexed account, address owner);
+    event AccountUninitialized(address indexed account);
+    event OwnerAdded(address indexed account, address owner);
+    event OwnerRemoved(address indexed account, address owner);
+
     error UnauthorizedAccess();
     error InvalidOwner(address owner);
 
@@ -55,6 +60,8 @@ contract OwnableExecutor is ERC7579ExecutorBase {
 
         // set the owner count
         ownerCount[account] = 1;
+
+        emit AccountInitialized(account, owner);
     }
 
     /**
@@ -67,6 +74,8 @@ contract OwnableExecutor is ERC7579ExecutorBase {
 
         // clear the owner count
         ownerCount[msg.sender] = 0;
+
+        emit AccountUninitialized(msg.sender);
     }
 
     /**
@@ -102,6 +111,8 @@ contract OwnableExecutor is ERC7579ExecutorBase {
 
         // increment the owner count
         ownerCount[account]++;
+
+        emit OwnerAdded(account, owner);
     }
 
     /**
@@ -117,6 +128,8 @@ contract OwnableExecutor is ERC7579ExecutorBase {
 
         // decrement the owner count
         ownerCount[msg.sender]--;
+
+        emit OwnerRemoved(msg.sender, owner);
     }
 
     /**

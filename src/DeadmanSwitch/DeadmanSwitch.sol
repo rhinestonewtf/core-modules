@@ -30,6 +30,11 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
 
     error UnsupportedOperation();
 
+    event AccountInitialized(address indexed account, address nominee, uint48 timeout);
+    event AccountUninitialized(address indexed account);
+    event NomineeSet(address indexed account, address nominee);
+    event TimeoutSet(address indexed account, uint48 timeout);
+
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
     //////////////////////////////////////////////////////////////////////////*/
@@ -66,6 +71,8 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
             timeout: timeout,
             nominee: nominee
         });
+
+        emit AccountInitialized(account, nominee, timeout);
     }
 
     /**
@@ -77,6 +84,8 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
         delete config[msg.sender];
         // clear the trusted forwarder
         clearTrustedForwarder();
+
+        emit AccountUninitialized(msg.sender);
     }
 
     /**
@@ -87,6 +96,38 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
      */
     function isInitialized(address smartAccount) public view returns (bool) {
         return config[smartAccount].nominee != address(0);
+    }
+
+    /**
+     * Sets the nominee for the account
+     *
+     * @param nominee address of the nominee
+     */
+    function setNominee(address nominee) external {
+        // cache the account
+        address account = msg.sender;
+        // check if the module is initialized
+        if (!isInitialized(account)) revert NotInitialized(account);
+        // set the nominee
+        config[account].nominee = nominee;
+
+        emit NomineeSet(account, nominee);
+    }
+
+    /**
+     * Sets the timeout for the account
+     *
+     * @param timeout timeout in seconds
+     */
+    function setTimeout(uint48 timeout) external {
+        // cache the account
+        address account = msg.sender;
+        // check if the module is initialized
+        if (!isInitialized(account)) revert NotInitialized(account);
+        // set the timeout
+        config[account].timeout = timeout;
+
+        emit TimeoutSet(account, timeout);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

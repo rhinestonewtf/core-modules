@@ -8,7 +8,7 @@ import { ERC7579HookDestruct } from "modulekit/Modules.sol";
 import { IERC7579Account, Execution } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
-import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
+import { IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { FlashloanLender } from "../Flashloan/FlashloanLender.sol";
 
 /**
@@ -43,8 +43,10 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     // account => executionHash => executeAfter
     mapping(address subAccount => EnumerableMap.Bytes32ToBytes32Map) executions;
 
+    event AccountInitialized(address indexed account, uint256 waitPeriod, address owner);
+    event AccountUninitialized(address indexed account);
+    event WaitPeriodSet(address indexed account, uint256 waitPeriod);
     event TimelockRequested(address indexed subAccount, bytes32 hash, uint256 executeAfter);
-
     event TimelockExecuted(address indexed subAccount, bytes32 hash);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -82,6 +84,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         VaultConfig storage _config = vaultConfig[account];
         _config.waitPeriod = waitPeriod;
         _config.owner = owner;
+
+        emit AccountInitialized(account, waitPeriod, owner);
     }
 
     /**
@@ -108,6 +112,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
         // clear the trusted forwarder
         clearTrustedForwarder();
+
+        emit AccountUninitialized(account);
     }
 
     /**
@@ -137,6 +143,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
         // set the waitPeriod in the vaultConfig
         vaultConfig[account].waitPeriod = uint128(waitPeriod);
+
+        emit WaitPeriodSet(account, waitPeriod);
     }
 
     /**

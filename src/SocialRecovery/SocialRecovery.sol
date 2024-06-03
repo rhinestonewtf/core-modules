@@ -24,6 +24,12 @@ contract SocialRecovery is ERC7579ValidatorBase {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    event AccountInitialized(address indexed account);
+    event AccountUninitialized(address indexed account);
+    event GuardianAdded(address indexed account, address guardian);
+    event GuardianRemoved(address indexed account, address guardian);
+    event ThresholdSet(address indexed account, uint256 threshold);
+
     error UnsupportedOperation();
     error InvalidGuardian(address guardian);
     error NotSortedAndUnique();
@@ -97,6 +103,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
             }
             guardians.push(account, _guardian);
         }
+
+        // emit the AccountInitialized event
+        emit AccountInitialized(account);
     }
 
     /**
@@ -115,6 +124,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // delete the guardian count
         guardianCount[account] = 0;
+
+        // emit the AccountUninitialized event
+        emit AccountUninitialized(account);
     }
 
     /**
@@ -150,6 +162,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // set the threshold
         threshold[account] = _threshold;
+
+        // emit the ThresholdSet event
+        emit ThresholdSet(account, _threshold);
     }
 
     /**
@@ -179,6 +194,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // add the guardian to the list
         guardians.push(account, guardian);
+
+        // emit the GuardianAdded event
+        emit GuardianAdded(account, guardian);
     }
 
     /**
@@ -204,6 +222,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // decrement the guardian count
         guardianCount[account]--;
+
+        // emit the GuardianRemoved event
+        emit GuardianRemoved(account, guardian);
     }
 
     /**

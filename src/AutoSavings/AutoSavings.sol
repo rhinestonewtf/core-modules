@@ -49,6 +49,9 @@ contract AutoSavings is ERC7579ExecutorBase {
     // account => tokens
     mapping(address account => SentinelListLib.SentinelList) tokens;
 
+    event AccountInitialized(address indexed account);
+    event AccountUninitialized(address indexed account);
+    event ConfigSet(address indexed account, address indexed token);
     event AutoSaveExecuted(address indexed smartAccount, address indexed token, uint256 amountIn);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -97,6 +100,8 @@ contract AutoSavings is ERC7579ExecutorBase {
             config[account][_token] = _config;
             tokens[account].push(_token);
         }
+
+        emit AccountInitialized(account);
     }
 
     /**
@@ -116,6 +121,8 @@ contract AutoSavings is ERC7579ExecutorBase {
 
         // clear the tokens
         tokens[account].popAll();
+
+        emit AccountUninitialized(account);
     }
 
     /**
@@ -156,6 +163,8 @@ contract AutoSavings is ERC7579ExecutorBase {
         if (!tokens[account].contains(token)) {
             tokens[account].push(token);
         }
+
+        emit ConfigSet(account, token);
     }
 
     /**
@@ -174,6 +183,8 @@ contract AutoSavings is ERC7579ExecutorBase {
 
         // remove the token from the list
         tokens[account].pop(prevToken, token);
+
+        emit ConfigSet(account, token);
     }
 
     /**

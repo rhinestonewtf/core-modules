@@ -16,6 +16,11 @@ contract ColdStorageFlashloan is FlashloanCallback {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    event AccountInitialized(address indexed account);
+    event AccountUninitialized(address indexed account);
+    event AddressAdded(address indexed account, address addressToAdd);
+    event AddressRemoved(address indexed account, address addressToRemove);
+
     // account => whitelist
     mapping(address account => SentinelListLib.SentinelList) internal whitelist;
 
@@ -45,6 +50,8 @@ contract ColdStorageFlashloan is FlashloanCallback {
         for (uint256 i; i < length; i++) {
             list.push(addresses[i]);
         }
+
+        emit AccountInitialized(msg.sender);
     }
 
     /**
@@ -53,6 +60,8 @@ contract ColdStorageFlashloan is FlashloanCallback {
     function onUninstall(bytes calldata) external override {
         // remove the list
         whitelist[msg.sender].popAll();
+
+        emit AccountUninitialized(msg.sender);
     }
 
     /**
@@ -78,6 +87,8 @@ contract ColdStorageFlashloan is FlashloanCallback {
         if (!isInitialized(account)) revert NotInitialized(account);
         // add the address to the whitelist
         whitelist[account].push(addressToAdd);
+
+        emit AddressAdded(account, addressToAdd);
     }
 
     /**
@@ -89,6 +100,8 @@ contract ColdStorageFlashloan is FlashloanCallback {
     function removeAddress(address prevAddress, address addressToRemove) external {
         // remove the address from the whitelist
         whitelist[msg.sender].pop({ prevEntry: prevAddress, popEntry: addressToRemove });
+
+        emit AddressRemoved(msg.sender, addressToRemove);
     }
 
     /**
