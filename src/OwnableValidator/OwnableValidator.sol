@@ -23,7 +23,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    event AccountInitialized(address indexed account);
+    event ModuleInitialized(address indexed account);
     event AccountUninitialized(address indexed account);
     event ThresholdSet(address indexed account, uint256 threshold);
     event OwnerAdded(address indexed account, address owner);
@@ -102,7 +102,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
             owners.push(account, _owner);
         }
 
-        emit AccountInitialized(account);
+        emit ModuleInitialized(account);
     }
 
     /**

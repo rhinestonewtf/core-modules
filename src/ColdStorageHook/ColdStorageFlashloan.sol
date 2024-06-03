@@ -16,7 +16,7 @@ contract ColdStorageFlashloan is FlashloanCallback {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    event AccountInitialized(address indexed account);
+    event ModuleInitialized(address indexed account);
     event AccountUninitialized(address indexed account);
     event AddressAdded(address indexed account, address addressToAdd);
     event AddressRemoved(address indexed account, address addressToRemove);
@@ -51,7 +51,7 @@ contract ColdStorageFlashloan is FlashloanCallback {
             list.push(addresses[i]);
         }
 
-        emit AccountInitialized(msg.sender);
+        emit ModuleInitialized(msg.sender);
     }
 
     /**

@@ -30,7 +30,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
 
     error UnsupportedOperation();
 
-    event AccountInitialized(address indexed account, address nominee, uint48 timeout);
+    event ModuleInitialized(address indexed account, address nominee, uint48 timeout);
     event AccountUninitialized(address indexed account);
     event NomineeSet(address indexed account, address nominee);
     event TimeoutSet(address indexed account, uint48 timeout);
@@ -72,7 +72,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
             nominee: nominee
         });
 
-        emit AccountInitialized(account, nominee, timeout);
+        emit ModuleInitialized(account, nominee, timeout);
     }
 
     /**

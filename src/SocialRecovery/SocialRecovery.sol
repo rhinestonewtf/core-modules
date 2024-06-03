@@ -24,7 +24,7 @@ contract SocialRecovery is ERC7579ValidatorBase {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    event AccountInitialized(address indexed account);
+    event ModuleInitialized(address indexed account);
     event AccountUninitialized(address indexed account);
     event GuardianAdded(address indexed account, address guardian);
     event GuardianRemoved(address indexed account, address guardian);
@@ -104,8 +104,8 @@ contract SocialRecovery is ERC7579ValidatorBase {
             guardians.push(account, _guardian);
         }
 
-        // emit the AccountInitialized event
-        emit AccountInitialized(account);
+        // emit the ModuleInitialized event
+        emit ModuleInitialized(account);
     }
 
     /**
