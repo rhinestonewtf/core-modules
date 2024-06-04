@@ -38,6 +38,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         address indexed smartAccount, address indexed validator, ValidatorId id, uint256 iteration
     );
     event IterationIncreased(address indexed smartAccount, uint256 iteration);
+    event ThesholdSet(address indexed smartAccount, uint8 threshold);
 
     // account => MFAConfig
     mapping(address account => MFAConfig config) public accountConfig;
@@ -88,6 +89,8 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         if (length > type(uint8).max) revert InvalidValidatorData();
         $config.threshold = threshold;
         $config.validationLength = uint8(length);
+
+        emit ThesholdSet(account, threshold);
 
         // iterate over the validators
         for (uint256 i; i < length; i++) {
@@ -178,6 +181,8 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         if (threshold == 0) revert ZeroThreshold();
         // set the threshold
         $config.threshold = threshold;
+
+        emit ThesholdSet(account, threshold);
     }
 
     /**
