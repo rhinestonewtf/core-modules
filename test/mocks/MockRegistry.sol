@@ -42,32 +42,13 @@ contract MockRegistry is IERC7484 {
     /*              Check with external attester(s)               */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    function check(address module, address attester) external view {
+    function check(address module, address[] calldata attesters, uint256 threshold) external view {
         if (module == address(0x420)) {
             revert();
         }
     }
 
-    function check(address module, uint256 moduleType, address attester) external view {
-        if (module == address(0x420)) {
-            revert();
-        }
-    }
-
-    function checkN(
-        address module,
-        address[] calldata attesters,
-        uint256 threshold
-    )
-        external
-        view
-    {
-        if (module == address(0x420)) {
-            revert();
-        }
-    }
-
-    function checkN(
+    function check(
         address module,
         uint256 moduleType,
         address[] calldata attesters,
