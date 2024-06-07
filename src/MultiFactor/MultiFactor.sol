@@ -13,7 +13,7 @@ import {
     ValidatorId
 } from "./DataTypes.sol";
 import { MultiFactorLib } from "./MultiFactorLib.sol";
-import { AssociatedBytesLib } from "associatedbytes/BytesLib.sol";
+import { FlatBytesLib } from "flatbytes/BytesLib.sol";
 
 /**
  * @title MultiFactor
@@ -21,7 +21,7 @@ import { AssociatedBytesLib } from "associatedbytes/BytesLib.sol";
  * @author Rhinestone
  */
 contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
-    using AssociatedBytesLib for *;
+    using FlatBytesLib for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
@@ -103,7 +103,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
                 MultiFactorLib.unpack(_validator.packedValidatorAndId);
 
             // get storage reference to subValidator config
-            AssociatedBytesLib.Bytes storage $validator = $subValidatorData({
+            FlatBytesLib.Bytes storage $validator = $subValidatorData({
                 account: account,
                 iteration: iteration,
                 subValidator: validatorAddress,
@@ -222,7 +222,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         });
 
         // get storage reference to subValidator config
-        AssociatedBytesLib.Bytes storage $validator = $subValidatorData({
+        FlatBytesLib.Bytes storage $validator = $subValidatorData({
             account: account,
             iteration: iteration,
             subValidator: validatorAddress,
@@ -260,7 +260,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         uint256 iteration = $config.iteration;
 
         // get storage reference to subValidator config
-        AssociatedBytesLib.Bytes storage $validator = $subValidatorData({
+        FlatBytesLib.Bytes storage $validator = $subValidatorData({
             account: account,
             iteration: iteration,
             subValidator: validatorAddress,
@@ -297,7 +297,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         MFAConfig storage $config = accountConfig[account];
 
         // get storage reference to subValidator config
-        AssociatedBytesLib.Bytes storage $validator = $subValidatorData({
+        FlatBytesLib.Bytes storage $validator = $subValidatorData({
             account: account,
             iteration: $config.iteration,
             subValidator: subValidator,
@@ -420,7 +420,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
                 MultiFactorLib.unpack(validator.packedValidatorAndId);
 
             // get storage reference to subValidator config
-            AssociatedBytesLib.Bytes storage $validator = $subValidatorData({
+            FlatBytesLib.Bytes storage $validator = $subValidatorData({
                 account: account,
                 iteration: iteration,
                 subValidator: validatorAddress,
@@ -469,7 +469,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
     )
         internal
         view
-        returns (AssociatedBytesLib.Bytes storage $validatorData)
+        returns (FlatBytesLib.Bytes storage $validatorData)
     {
         // get storage reference to subValidator config
         return iterationToSubValidator[iteration][subValidator].subValidators[id][account];
