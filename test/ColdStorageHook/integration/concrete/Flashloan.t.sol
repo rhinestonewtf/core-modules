@@ -128,7 +128,10 @@ contract FlashloanTest is BaseIntegrationTest {
         });
 
         FlashLoanType flashLoanType = FlashLoanType.ERC20;
-        bytes memory signature = abi.encodePacked(instance.defaultValidator, "test");
+        bytes memory signature = instance.formatERC1271Signature({
+            validator: address(instance.defaultValidator),
+            signature: "test"
+        });
 
         vm.startPrank(address(owner.account));
         IERC3156FlashLender(address(instance.account)).flashLoan({
@@ -153,7 +156,10 @@ contract FlashloanTest is BaseIntegrationTest {
         });
 
         FlashLoanType flashLoanType = FlashLoanType.ERC721;
-        bytes memory signature = abi.encodePacked(instance.defaultValidator, "test");
+        bytes memory signature = instance.formatERC1271Signature({
+            validator: address(instance.defaultValidator),
+            signature: "test"
+        });
 
         vm.startPrank(address(owner.account));
         IERC3156FlashLender(address(instance.account)).flashLoan({

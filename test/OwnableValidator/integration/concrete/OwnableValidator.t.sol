@@ -190,9 +190,11 @@ contract OwnableValidatorIntegrationTest is BaseIntegrationTest {
         bytes memory signature2 = signHash(_ownerPks[1], hash);
         bytes memory data = abi.encodePacked(signature1, signature2);
 
-        bytes4 result = IERC1271(instance.account).isValidSignature(
-            hash, abi.encodePacked(address(validator), data)
+        bool isValid = instance.isValidSignature(
+            address(validator),
+            instance.formatERC1271Hash({ validator: address(validator), hash: hash }),
+            data
         );
-        assertEq(result, EIP1271_MAGIC_VALUE);
+        assertTrue(isValid);
     }
 }

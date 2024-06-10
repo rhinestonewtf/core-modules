@@ -229,9 +229,11 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
         validators[0].data = encodedSig;
         validators[1].data = encodedSig;
 
-        bytes4 result = IERC1271(instance.account).isValidSignature(
-            hash, abi.encodePacked(address(validator), abi.encode(validators))
+        bool isValid = instance.isValidSignature(
+            address(validator),
+            instance.formatERC1271Hash({ validator: address(validator), hash: hash }),
+            abi.encode(validators)
         );
-        assertEq(result, EIP1271_MAGIC_VALUE);
+        assertTrue(isValid);
     }
 }

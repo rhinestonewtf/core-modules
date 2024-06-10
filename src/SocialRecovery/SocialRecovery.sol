@@ -2,7 +2,7 @@
 pragma solidity ^0.8.25;
 
 import { ERC7579ValidatorBase } from "modulekit/Modules.sol";
-import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
+import { PackedUserOperation, IAccountExecute } from "modulekit/external/ERC4337.sol";
 import { SentinelList4337Lib, SENTINEL } from "sentinellist/SentinelList4337.sol";
 import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { IERC7579Account } from "modulekit/Accounts.sol";
@@ -297,6 +297,12 @@ contract SocialRecovery is ERC7579ValidatorBase {
             // decode and check the execution
             // only single executions to installed validators are allowed
             isAllowedExecution = _decodeAndCheckExecution(account, userOp.callData);
+        } else if (selector == IAccountExecute.executeUserOp.selector) {
+            if (bytes4(userOp.callData[4:8]) == IERC7579Account.execute.selector) {
+                // decode and check the execution
+                // only single executions to installed validators are allowed
+                isAllowedExecution = _decodeAndCheckExecution(account, userOp.callData[4:]);
+            }
         }
 
         // check if the threshold is met and the execution is allowed and return the result
