@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579ModuleBase } from "modulekit/Modules.sol";
-import { ERC7484RegistryAdapter } from "modulekit/Modules.sol";
+import { ERC7579ModuleBase, ERC7484RegistryAdapter } from "modulekit/Modules.sol";
 import { IERC7579Account, IERC7579Hook } from "modulekit/external/ERC7579.sol";
 import { SigHookInit, Config, HookType, HookAndContext } from "./DataTypes.sol";
 import { IERC7579Account } from "modulekit/external/ERC7579.sol";

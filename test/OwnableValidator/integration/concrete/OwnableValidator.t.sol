@@ -185,16 +185,14 @@ contract OwnableValidatorIntegrationTest is BaseIntegrationTest {
         // it should return the magic value
         address sender = address(1);
         bytes32 hash = bytes32(keccak256("hash"));
+        bytes32 encodedHash =
+            instance.formatERC1271Hash({ validator: address(validator), hash: hash });
 
-        bytes memory signature1 = signHash(_ownerPks[0], hash);
-        bytes memory signature2 = signHash(_ownerPks[1], hash);
+        bytes memory signature1 = signHash(_ownerPks[0], encodedHash);
+        bytes memory signature2 = signHash(_ownerPks[1], encodedHash);
         bytes memory data = abi.encodePacked(signature1, signature2);
 
-        bool isValid = instance.isValidSignature(
-            address(validator),
-            instance.formatERC1271Hash({ validator: address(validator), hash: hash }),
-            data
-        );
+        bool isValid = instance.isValidSignature(address(validator), hash, data);
         assertTrue(isValid);
     }
 }
