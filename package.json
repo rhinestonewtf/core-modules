@@ -26,9 +26,9 @@
     "test:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   },
   "dependencies": {
-    "@rhinestone/associatedBytesLib": "github:rhinestonewtf/associatedBytesLib",
+    "@rhinestone/flatbytes": "github:rhinestonewtf/flatbytes",
     "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
-    "@rhinestone/modulekit": "^0.4.5",
+    "@rhinestone/modulekit": "github:rhinestonewtf/modulekit#feature/kernel-hook-support",
     "solmate": "github:transmissions11/solmate"
   },
   "files": [
