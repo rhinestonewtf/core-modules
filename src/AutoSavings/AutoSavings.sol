@@ -266,7 +266,7 @@ contract AutoSavings is ERC7579ExecutorBase {
 
             // get return data of swap, and set it as amountIn.
             // this will be the actual amount that is subject to be saved
-            amountIn = abi.decode(results[1], (uint256));
+            amountIn = abi.decode(results[2], (uint256));
 
             // change tokenToSave to underlying
             tokenToSave = IERC20(underlying);
@@ -276,9 +276,10 @@ contract AutoSavings is ERC7579ExecutorBase {
         }
 
         // approve and deposit to vault
-        Execution[] memory approveAndDeposit = new Execution[](2);
-        approveAndDeposit[0] = ERC20Integration.approve(tokenToSave, address(vault), amountIn);
-        approveAndDeposit[1] = ERC4626Integration.deposit(vault, amountIn, account);
+        Execution[] memory approveAndDeposit = new Execution[](3);
+        (approveAndDeposit[0], approveAndDeposit[1]) =
+            ERC20Integration.safeApprove(tokenToSave, address(vault), amountIn);
+        approveAndDeposit[2] = ERC4626Integration.deposit(vault, amountIn, account);
 
         // execute deposit to vault on account
         _execute(approveAndDeposit);
