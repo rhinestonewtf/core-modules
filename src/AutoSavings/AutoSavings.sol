@@ -9,6 +9,8 @@ import { IERC4626 } from "forge-std/interfaces/IERC4626.sol";
 import { Execution } from "modulekit/Accounts.sol";
 import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
+import { ud } from "@prb/math/UD60x18.sol";
 
 /**
  * @title AutoSavings
@@ -17,7 +19,6 @@ import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
  * @author Rhinestone
  */
 contract AutoSavings is ERC7579ExecutorBase {
-    using ERC4626Integration for *;
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -30,7 +31,14 @@ contract AutoSavings is ERC7579ExecutorBase {
     uint256 internal constant MAX_TOKENS = 100;
 
     struct Config {
-        uint16 percentage; // percentage to be saved to the vault
+        UD2x18 percentage; // percentage to be saved to the vault
+        address vault; // address of the vault
+        uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
+    }
+
+    struct ConfigWithToken {
+        address token; // address of the token
+        UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
         uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
@@ -41,9 +49,10 @@ contract AutoSavings is ERC7579ExecutorBase {
     // account => tokens
     mapping(address account => SentinelListLib.SentinelList) tokens;
 
-    event AutoSaveExecuted(
-        address indexed smartAccount, address indexed token, uint256 amountReceived
-    );
+    event ModuleInitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
+    event ConfigSet(address indexed account, address indexed token);
+    event AutoSaveExecuted(address indexed smartAccount, address indexed token, uint256 amountIn);
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -62,31 +71,37 @@ contract AutoSavings is ERC7579ExecutorBase {
         address account = msg.sender;
 
         // decode the data to get the tokens and their configurations
-        (address[] memory _tokens, Config[] memory _configs) =
-            abi.decode(data, (address[], Config[]));
+        (ConfigWithToken[] memory _configs) = abi.decode(data, (ConfigWithToken[]));
 
         // initialize the sentinel list
         tokens[account].init();
 
         // get the length of the tokens
-        uint256 tokenLength = _tokens.length;
+        uint256 length = _configs.length;
 
         // check that the length of tokens is less than max
-        if (tokenLength > MAX_TOKENS) revert TooManyTokens();
+        if (length > MAX_TOKENS) revert TooManyTokens();
 
         // loop through the tokens, add them to the list and set their configurations
-        for (uint256 i; i < tokenLength; i++) {
-            address _token = _tokens[i];
+        for (uint256 i; i < length; i++) {
+            address _token = _configs[i].token;
+            Config memory _config = Config({
+                percentage: _configs[i].percentage,
+                vault: _configs[i].vault,
+                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
+            });
 
             // check that sqrtPriceLimitX96 > 0
             // sqrtPriceLimitX96 = 0 means unlimitted slippage
-            if (_configs[i].sqrtPriceLimitX96 == 0) {
+            if (_config.sqrtPriceLimitX96 == 0) {
                 revert InvalidSqrtPriceLimitX96();
             }
 
-            config[account][_token] = _configs[i];
+            config[account][_token] = _config;
             tokens[account].push(_token);
         }
+
+        emit ModuleInitialized(account);
     }
 
     /**
@@ -106,6 +121,8 @@ contract AutoSavings is ERC7579ExecutorBase {
 
         // clear the tokens
         tokens[account].popAll();
+
+        emit ModuleUninitialized(account);
     }
 
     /**
@@ -146,6 +163,8 @@ contract AutoSavings is ERC7579ExecutorBase {
         if (!tokens[account].contains(token)) {
             tokens[account].push(token);
         }
+
+        emit ConfigSet(account, token);
     }
 
     /**
@@ -164,6 +183,8 @@ contract AutoSavings is ERC7579ExecutorBase {
 
         // remove the token from the list
         tokens[account].pop(prevToken, token);
+
+        emit ConfigSet(account, token);
     }
 
     /**
@@ -191,7 +212,7 @@ contract AutoSavings is ERC7579ExecutorBase {
      */
     function calcDepositAmount(
         uint256 amountReceived,
-        uint256 percentage
+        UD2x18 percentage
     )
         public
         pure
@@ -199,7 +220,7 @@ contract AutoSavings is ERC7579ExecutorBase {
     {
         // calculate the amount to be saved which is the
         // percentage of the amount received
-        return (amountReceived * percentage) / 100;
+        return ud(amountReceived).mul(percentage.intoUD60x18()).intoUint256();
     }
 
     /**
@@ -245,7 +266,7 @@ contract AutoSavings is ERC7579ExecutorBase {
 
             // get return data of swap, and set it as amountIn.
             // this will be the actual amount that is subject to be saved
-            amountIn = abi.decode(results[1], (uint256));
+            amountIn = abi.decode(results[2], (uint256));
 
             // change tokenToSave to underlying
             tokenToSave = IERC20(underlying);
@@ -255,9 +276,10 @@ contract AutoSavings is ERC7579ExecutorBase {
         }
 
         // approve and deposit to vault
-        Execution[] memory approveAndDeposit = new Execution[](2);
-        approveAndDeposit[0] = ERC20Integration.approve(tokenToSave, address(vault), amountIn);
-        approveAndDeposit[1] = ERC4626Integration.deposit(vault, amountIn, account);
+        Execution[] memory approveAndDeposit = new Execution[](3);
+        (approveAndDeposit[0], approveAndDeposit[1]) =
+            ERC20Integration.safeApprove(tokenToSave, address(vault), amountIn);
+        approveAndDeposit[2] = ERC4626Integration.deposit(vault, amountIn, account);
 
         // execute deposit to vault on account
         _execute(approveAndDeposit);

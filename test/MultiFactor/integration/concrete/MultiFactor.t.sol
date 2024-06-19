@@ -95,7 +95,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
 
     function test_OnInstallSetValidatorsAndThreshold() public {
         // it should set the validators and threshold
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(instance.account));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(instance.account));
         assertEq(threshold, _threshold);
 
         bool isSubValidator1 = validator.isSubValidator(
@@ -117,7 +117,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
             data: ""
         });
 
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(instance.account));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(instance.account));
         assertEq(iteration, 1);
         assertEq(threshold, uint8(0));
     }
@@ -133,7 +133,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        (uint8 threshold,) = validator.accountConfig(address(instance.account));
+        (uint8 threshold,,) = validator.accountConfig(address(instance.account));
         assertEq(threshold, newThreshold);
     }
 
@@ -220,18 +220,18 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
         // it should return the magic value
         address sender = address(1);
         bytes32 hash = bytes32(keccak256("hash"));
+        bytes32 encodedHash =
+            instance.formatERC1271Hash({ validator: address(validator), hash: hash });
         Validator[] memory validators = _getValidators();
 
-        bytes memory signature1 = signHash(_ownerPks[0], hash);
-        bytes memory signature2 = signHash(_ownerPks[1], hash);
+        bytes memory signature1 = signHash(_ownerPks[0], encodedHash);
+        bytes memory signature2 = signHash(_ownerPks[1], encodedHash);
         bytes memory encodedSig = abi.encodePacked(signature1, signature2);
 
         validators[0].data = encodedSig;
         validators[1].data = encodedSig;
 
-        bytes4 result = IERC1271(instance.account).isValidSignature(
-            hash, abi.encodePacked(address(validator), abi.encode(validators))
-        );
-        assertEq(result, EIP1271_MAGIC_VALUE);
+        bool isValid = instance.isValidSignature(address(validator), hash, abi.encode(validators));
+        assertTrue(isValid);
     }
 }

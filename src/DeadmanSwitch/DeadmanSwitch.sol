@@ -28,10 +28,12 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
     // account => config
     mapping(address account => DeadmanSwitchStorage) public config;
 
-    event Recovery(address account, address nominee);
+    error UnsupportedOperation();
 
-    error UnsopportedOperation();
-    error MissingCondition();
+    event ModuleInitialized(address indexed account, address nominee, uint48 timeout);
+    event ModuleUninitialized(address indexed account);
+    event NomineeSet(address indexed account, address nominee);
+    event TimeoutSet(address indexed account, uint48 timeout);
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -69,6 +71,8 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
             timeout: timeout,
             nominee: nominee
         });
+
+        emit ModuleInitialized(account, nominee, timeout);
     }
 
     /**
@@ -80,6 +84,8 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
         delete config[msg.sender];
         // clear the trusted forwarder
         clearTrustedForwarder();
+
+        emit ModuleUninitialized(msg.sender);
     }
 
     /**
@@ -90,6 +96,38 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
      */
     function isInitialized(address smartAccount) public view returns (bool) {
         return config[smartAccount].nominee != address(0);
+    }
+
+    /**
+     * Sets the nominee for the account
+     *
+     * @param nominee address of the nominee
+     */
+    function setNominee(address nominee) external {
+        // cache the account
+        address account = msg.sender;
+        // check if the module is initialized
+        if (!isInitialized(account)) revert NotInitialized(account);
+        // set the nominee
+        config[account].nominee = nominee;
+
+        emit NomineeSet(account, nominee);
+    }
+
+    /**
+     * Sets the timeout for the account
+     *
+     * @param timeout timeout in seconds
+     */
+    function setTimeout(uint48 timeout) external {
+        // cache the account
+        address account = msg.sender;
+        // check if the module is initialized
+        if (!isInitialized(account)) revert NotInitialized(account);
+        // set the timeout
+        config[account].timeout = timeout;
+
+        emit TimeoutSet(account, timeout);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -155,12 +193,18 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
             signature: userOp.signature
         });
 
+        uint48 validAfter = _config.lastAccess + _config.timeout;
+
+        if (sigValid) {
+            _config.timeout = 0;
+        }
+
         // return validation data
         // if signature is invalid, validation fails
         // if the timeout has not passed, validAfter will be when the timeout will pass
         return _packValidationData({
             sigFailed: !sigValid,
-            validAfter: _config.lastAccess + _config.timeout,
+            validAfter: validAfter,
             validUntil: type(uint48).max
         });
     }
@@ -179,7 +223,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
         override
         returns (bytes4)
     {
-        revert UnsopportedOperation();
+        revert UnsupportedOperation();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

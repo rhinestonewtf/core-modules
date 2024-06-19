@@ -12,7 +12,7 @@ import { ColdStorageHook, Execution } from "src/ColdStorageHook/ColdStorageHook.
 import { ColdStorageFlashloan } from "src/ColdStorageHook/ColdStorageFlashloan.sol";
 import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { OwnableExecutor } from "src/OwnableExecutor/OwnableExecutor.sol";
-import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol";
+import { IERC7579Module, IERC7579Account, CALLTYPE_SINGLE } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
@@ -25,7 +25,6 @@ import {
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 import { MockERC721 } from "solmate/test/utils/mocks/MockERC721.sol";
 import { MockTarget } from "../../../mocks/MockTarget.sol";
-
 import "forge-std/interfaces/IERC20.sol";
 import "forge-std/interfaces/IERC721.sol";
 
@@ -60,8 +59,11 @@ contract FlashloanTest is BaseIntegrationTest {
         target = new MockTarget();
         token721 = new MockERC721("ERC721", "ERC721");
         hook = new ColdStorageHook();
+        vm.label(address(hook), "ColdStorageHook");
         flashloanCallback = new ColdStorageFlashloan();
+        vm.label(address(flashloanCallback), "ColdStorageFlashloan");
         executor = new OwnableExecutor();
+        vm.label(address(executor), "OwnableExecutor");
 
         owner = makeAccountInstance("owner");
         vm.deal(address(owner.account), 10 ether);
@@ -72,9 +74,9 @@ contract FlashloanTest is BaseIntegrationTest {
         token721.mint(address(instance.account), 10);
 
         _waitPeriod = 100;
-        bytes memory init = abi.encodePacked(
+        bytes memory init = abi.encode(
             IERC3156FlashLender.flashLoan.selector,
-            bytes1(0),
+            CALLTYPE_SINGLE,
             abi.encodePacked(_waitPeriod, owner.account)
         );
 
@@ -97,8 +99,8 @@ contract FlashloanTest is BaseIntegrationTest {
         instance.installModule({ moduleTypeId: MODULE_TYPE_HOOK, module: address(hook), data: "" });
 
         address[] memory allowedCallback = Solarray.addresses(instance.account);
-        init = abi.encodePacked(
-            IERC3156FlashBorrower.onFlashLoan.selector, bytes1(0), abi.encode(allowedCallback)
+        init = abi.encode(
+            IERC3156FlashBorrower.onFlashLoan.selector, CALLTYPE_SINGLE, abi.encode(allowedCallback)
         );
         owner.installModule({
             moduleTypeId: MODULE_TYPE_FALLBACK,
@@ -126,9 +128,12 @@ contract FlashloanTest is BaseIntegrationTest {
         });
 
         FlashLoanType flashLoanType = FlashLoanType.ERC20;
-        bytes memory signature = abi.encodePacked(instance.defaultValidator, "test");
+        bytes memory signature = instance.formatERC1271Signature({
+            validator: address(instance.defaultValidator),
+            signature: "test"
+        });
 
-        vm.startPrank(address(executor));
+        vm.startPrank(address(owner.account));
         IERC3156FlashLender(address(instance.account)).flashLoan({
             receiver: IERC3156FlashBorrower(address(owner.account)),
             token: address(token),
@@ -151,9 +156,12 @@ contract FlashloanTest is BaseIntegrationTest {
         });
 
         FlashLoanType flashLoanType = FlashLoanType.ERC721;
-        bytes memory signature = abi.encodePacked(instance.defaultValidator, "test");
+        bytes memory signature = instance.formatERC1271Signature({
+            validator: address(instance.defaultValidator),
+            signature: "test"
+        });
 
-        vm.startPrank(address(executor));
+        vm.startPrank(address(owner.account));
         IERC3156FlashLender(address(instance.account)).flashLoan({
             receiver: IERC3156FlashBorrower(address(owner.account)),
             token: address(token721),

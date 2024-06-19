@@ -41,6 +41,7 @@ contract RegistryHook is ERC7579HookDestruct {
 
         // set the registry
         registry[account] = registryAddress;
+
         // emit the RegistrySet event
         emit RegistrySet({ smartAccount: account, registry: registryAddress });
     }
@@ -52,6 +53,12 @@ contract RegistryHook is ERC7579HookDestruct {
     function onUninstall(bytes calldata) external override {
         // delete the registry
         delete registry[msg.sender];
+
+        // clear the trusted forwarder
+        clearTrustedForwarder();
+
+        // emit the RegistrySet event
+        emit RegistrySet({ smartAccount: msg.sender, registry: address(0) });
     }
 
     /**

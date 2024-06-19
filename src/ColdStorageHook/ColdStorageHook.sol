@@ -8,7 +8,7 @@ import { ERC7579HookDestruct } from "modulekit/Modules.sol";
 import { IERC7579Account, Execution } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
-import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
+import { IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { FlashloanLender } from "../Flashloan/FlashloanLender.sol";
 
 /**
@@ -43,8 +43,10 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     // account => executionHash => executeAfter
     mapping(address subAccount => EnumerableMap.Bytes32ToBytes32Map) executions;
 
+    event ModuleInitialized(address indexed account, uint256 waitPeriod, address owner);
+    event ModuleUninitialized(address indexed account);
+    event WaitPeriodSet(address indexed account, uint256 waitPeriod);
     event TimelockRequested(address indexed subAccount, bytes32 hash, uint256 executeAfter);
-
     event TimelockExecuted(address indexed subAccount, bytes32 hash);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -82,6 +84,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         VaultConfig storage _config = vaultConfig[account];
         _config.waitPeriod = waitPeriod;
         _config.owner = owner;
+
+        emit ModuleInitialized(account, waitPeriod, owner);
     }
 
     /**
@@ -92,11 +96,24 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // cache the account address
         address account = msg.sender;
 
+        // when this module gets reinstalled, the account might have still some configured
+        // executions in its module storage
+        // to avoid this case, we are deleting all pending executions from the modules storage for
+        // this account
+        bytes32[] memory executionHashes = executions[account].keys();
+        uint256 length = executionHashes.length;
+        for (uint256 i; i < length; i++) {
+            // removing executions
+            executions[account].remove(executionHashes[i]);
+        }
+
         // clear the vaultConfig
         delete vaultConfig[account];
 
         // clear the trusted forwarder
         clearTrustedForwarder();
+
+        emit ModuleUninitialized(account);
     }
 
     /**
@@ -126,6 +143,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
         // set the waitPeriod in the vaultConfig
         vaultConfig[account].waitPeriod = uint128(waitPeriod);
+
+        emit WaitPeriodSet(account, waitPeriod);
     }
 
     /**
@@ -147,8 +166,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         returns (bytes32 executeAfter)
     {
         // get the executeAfter timestamp
-        bool success;
-        (success, executeAfter) = executions[account].tryGet(hash);
+        (, executeAfter) = executions[account].tryGet(hash);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -187,6 +205,10 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
                     // if not, revert
                     revert InvalidTransferReceiver();
                 }
+                if (_exec.value != 0) {
+                    // if value is not 0, revert
+                    revert InvalidTransferReceiver();
+                }
             }
         } else {
             // check that the transaction is a native token transfer to the owner
@@ -209,9 +231,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     }
 
     /**
-     * Requests the execution of a transaction after a certain time period
-     * @dev the function will revert if the transaction is not a transfer to the owner or a call to
-     * setWaitPeriod
+     * Requests the execution of a module config after a certain time period
+     * @dev the function will revert if the module config has not been correctly scheduled
      *
      * @param moduleTypeId type of the module
      * @param module address of the module
@@ -344,7 +365,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
      *
      * @param executionHash bytes32 hash of the execution
      */
-    function _checkTimelockedExecution(address account, bytes32 executionHash) internal view {
+    function _checkTimelockedExecution(address account, bytes32 executionHash) internal {
         // get the executeAfter timestamp
         (bool success, bytes32 executeAfter) = executions[account].tryGet(executionHash);
 
@@ -354,6 +375,9 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // determine if the transaction can be executed and revert if not
         uint256 requestTimeStamp = uint256(executeAfter);
         if (requestTimeStamp > block.timestamp) revert UnauthorizedAccess();
+
+        // clear the execution hash
+        executions[account].remove(executionHash);
     }
 
     /**
@@ -394,7 +418,6 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
     /**
      * Execute from executor function was called on the account
-     * @dev this function will revert as the module does not allow direct execution
      *
      * @param target address of the target
      * @param value value to be sent by account
@@ -420,12 +443,10 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
         // This condition is true, if this coldstorage hook is making executions.
         if (msgSender == address(this)) {
-            bytes4 targetSelector = bytes4(callData[:4]);
-
             if (
-                targetSelector == IERC20.transfer.selector
-                    || targetSelector == IERC721.transferFrom.selector
-                    || targetSelector == IERC3156FlashBorrower.onFlashLoan.selector
+                functionSig == IERC20.transfer.selector
+                    || functionSig == IERC721.transferFrom.selector
+                    || functionSig == IERC3156FlashBorrower.onFlashLoan.selector
             ) {
                 return "";
             }
@@ -582,7 +603,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
      * @return true if the type is a module type, false otherwise
      */
     function isModuleType(uint256 typeID) external pure virtual returns (bool) {
-        if (typeID == TYPE_HOOK || typeID == TYPE_FALLBACK) {
+        if (typeID == TYPE_EXECUTOR || typeID == TYPE_HOOK || typeID == TYPE_FALLBACK) {
             return true;
         }
     }

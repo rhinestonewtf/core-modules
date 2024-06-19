@@ -109,7 +109,7 @@ contract ColdStorageFlashloanTest is BaseTest {
     function test_RemoveAddressRevertWhen_ModuleIsNotIntialized() public {
         // it should revert
         vm.expectRevert();
-        module.removeAddress(address(5), address(0));
+        module.removeAddress(address(0), address(5));
     }
 
     function test_RemoveAddressWhenModuleIsIntialized() public {
@@ -118,7 +118,7 @@ contract ColdStorageFlashloanTest is BaseTest {
 
         address[] memory prevWhitelist = module.getWhitelist(address(this));
 
-        module.removeAddress(_whitelist[1], address(1));
+        module.removeAddress(address(1), _whitelist[1]);
 
         address[] memory whitelist = module.getWhitelist(address(this));
         assertEq(whitelist.length, prevWhitelist.length - 1);

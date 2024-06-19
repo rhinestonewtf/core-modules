@@ -133,6 +133,9 @@ contract SocialRecoveryIntegrationTest is BaseIntegrationTest {
 
     function test_RemoveGuardian() public {
         // it should remove an guardian
+
+        test_SetThreshold();
+
         instance.getExecOps({
             target: address(validator),
             value: 0,

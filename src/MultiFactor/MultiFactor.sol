@@ -13,6 +13,7 @@ import {
     ValidatorId
 } from "./DataTypes.sol";
 import { MultiFactorLib } from "./MultiFactorLib.sol";
+import { FlatBytesLib } from "flatbytes/BytesLib.sol";
 
 /**
  * @title MultiFactor
@@ -20,12 +21,15 @@ import { MultiFactorLib } from "./MultiFactorLib.sol";
  * @author Rhinestone
  */
 contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
+    using FlatBytesLib for *;
+
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
     error ZeroThreshold();
     error InvalidThreshold(uint256 length, uint256 threshold);
+    error InvalidValidatorData();
 
     event ValidatorAdded(
         address indexed smartAccount, address indexed validator, ValidatorId id, uint256 iteration
@@ -34,6 +38,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         address indexed smartAccount, address indexed validator, ValidatorId id, uint256 iteration
     );
     event IterationIncreased(address indexed smartAccount, uint256 iteration);
+    event ThesholdSet(address indexed smartAccount, uint8 threshold);
 
     // account => MFAConfig
     mapping(address account => MFAConfig config) public accountConfig;
@@ -80,8 +85,12 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         MFAConfig storage $config = accountConfig[account];
         // cache the current iteration
         uint256 iteration = $config.iteration;
-        // set the threshold
+
+        if (length > type(uint8).max) revert InvalidValidatorData();
         $config.threshold = threshold;
+        $config.validationLength = uint8(length);
+
+        emit ThesholdSet(account, threshold);
 
         // iterate over the validators
         for (uint256 i; i < length; i++) {
@@ -94,7 +103,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
                 MultiFactorLib.unpack(_validator.packedValidatorAndId);
 
             // get storage reference to subValidator config
-            SubValidatorConfig storage $validator = $subValidatorData({
+            FlatBytesLib.Bytes storage $validator = $subValidatorData({
                 account: account,
                 iteration: iteration,
                 subValidator: validatorAddress,
@@ -108,7 +117,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
                 moduleType: MODULE_TYPE_VALIDATOR
             });
             // set the subValidator data
-            $validator.data = _validator.data;
+            $validator.store(_validator.data);
 
             // emit the ValidatorAdded event
             emit ValidatorAdded(account, validatorAddress, id, iteration);
@@ -129,8 +138,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         uint256 _newIteration = $config.iteration + 1;
         $config.iteration = uint128(_newIteration);
 
-        // delete the threshold
+        // delete the threshold & validationLength. these values are not part of the iterated
+        // storage mapping
         delete $config.threshold;
+        delete $config.validationLength;
 
         // emit the IterationIncreased event
         emit IterationIncreased(account, _newIteration);
@@ -170,6 +181,8 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         if (threshold == 0) revert ZeroThreshold();
         // set the threshold
         $config.threshold = threshold;
+
+        emit ThesholdSet(account, threshold);
     }
 
     /**
@@ -187,6 +200,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
     )
         external
     {
+        // to prevent the user from overwriting an existing subvalidator configuration with 0
+        // config, we check this
+        if (newValidatorData.length == 0) revert InvalidValidatorData();
+
         // cache the account
         address account = msg.sender;
         // check if the module is initialized and revert if it is not
@@ -205,14 +222,21 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         });
 
         // get storage reference to subValidator config
-        SubValidatorConfig storage $validator = $subValidatorData({
+        FlatBytesLib.Bytes storage $validator = $subValidatorData({
             account: account,
             iteration: iteration,
             subValidator: validatorAddress,
             id: id
         });
+
+        // if this subvalidator is brand new, we have to iterate the validationLength counter.
+        // should the validationData be new, but the subValidator already exist,
+        // we don't need to do
+        if ($validator.load().length == 0) {
+            $config.validationLength += 1;
+        }
         // set the subValidator data
-        $validator.data = newValidatorData;
+        $validator.store(newValidatorData);
 
         // emit the ValidatorAdded event
         emit ValidatorAdded(account, validatorAddress, id, iteration);
@@ -236,14 +260,16 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         uint256 iteration = $config.iteration;
 
         // get storage reference to subValidator config
-        SubValidatorConfig storage $validator = $subValidatorData({
+        FlatBytesLib.Bytes storage $validator = $subValidatorData({
             account: account,
             iteration: iteration,
             subValidator: validatorAddress,
             id: id
         });
+
+        $config.validationLength -= 1;
         // delete the subValidator data
-        delete $validator.data;
+        $validator.clear();
 
         // emit the ValidatorRemoved event
         emit ValidatorRemoved(account, validatorAddress, id, iteration);
@@ -271,14 +297,14 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         MFAConfig storage $config = accountConfig[account];
 
         // get storage reference to subValidator config
-        SubValidatorConfig storage $validator = $subValidatorData({
+        FlatBytesLib.Bytes storage $validator = $subValidatorData({
             account: account,
             iteration: $config.iteration,
             subValidator: subValidator,
             id: id
         });
         // check if the subValidator data is not empty
-        return $validator.data.length != 0;
+        return $validator.load().length != 0;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -394,7 +420,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
                 MultiFactorLib.unpack(validator.packedValidatorAndId);
 
             // get storage reference to subValidator config
-            SubValidatorConfig storage $validator = $subValidatorData({
+            FlatBytesLib.Bytes storage $validator = $subValidatorData({
                 account: account,
                 iteration: iteration,
                 subValidator: validatorAddress,
@@ -402,7 +428,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
             });
 
             // check if the subValidator data is empty and return false if it is
-            bytes memory validatorStorageData = $validator.data;
+            bytes memory validatorStorageData = $validator.load();
             if (validatorStorageData.length == 0) {
                 return false;
             }
@@ -443,7 +469,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
     )
         internal
         view
-        returns (SubValidatorConfig storage $validatorData)
+        returns (FlatBytesLib.Bytes storage $validatorData)
     {
         // get storage reference to subValidator config
         return iterationToSubValidator[iteration][subValidator].subValidators[id][account];

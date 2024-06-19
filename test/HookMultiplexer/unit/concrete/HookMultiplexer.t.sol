@@ -90,19 +90,25 @@ contract HookMultiPlexerTest is BaseTest {
         }
     }
 
-    function _getInitData(bool sort) internal view returns (bytes memory) {
+    function _getInitData(bool sort) internal returns (bytes memory) {
         address[] memory allHooks = _getHooks(sort);
 
         address[] memory globalHooks = new address[](1);
         globalHooks[0] = address(allHooks[0]);
+        vm.label((allHooks[0]), "globalHook");
         address[] memory valueHooks = new address[](1);
         valueHooks[0] = address(allHooks[1]);
+        vm.label((allHooks[1]), "valueHooks");
         address[] memory delegatecallHooks = new address[](1);
         delegatecallHooks[0] = address(allHooks[2]);
+        vm.label((allHooks[2]), "delegatecallHooks");
 
         address[] memory _sigHooks = new address[](2);
         _sigHooks[0] = address(allHooks[3]);
+        vm.label((allHooks[3]), "sigHooks1 index 3");
+
         _sigHooks[1] = address(allHooks[4]);
+        vm.label((allHooks[4]), "sigHooks2 index 4");
 
         SigHookInit[] memory sigHooks = new SigHookInit[](1);
         sigHooks[0] =
@@ -110,7 +116,9 @@ contract HookMultiPlexerTest is BaseTest {
 
         address[] memory _targetSigHooks = new address[](2);
         _targetSigHooks[0] = address(allHooks[5]);
+        vm.label((allHooks[5]), "targetSigHook1 index 5");
         _targetSigHooks[1] = address(allHooks[6]);
+        vm.label((allHooks[6]), "targetSigHook2 index 6");
 
         SigHookInit[] memory targetSigHooks = new SigHookInit[](1);
         targetSigHooks[0] =
@@ -344,7 +352,11 @@ contract HookMultiPlexerTest is BaseTest {
         );
 
         address[] memory _hooks = _getHooks(true);
+        for (uint256 i; i < _hooks.length; i++) {
+            console2.log("hook", i, _hooks[i]);
+        }
         vm.expectCall(_hooks[0], 0, getPreCheckHookCallData(msgSender, msgValue, msgData), 1);
+        vm.expectCall(_hooks[1], 0, getPreCheckHookCallData(msgSender, msgValue, msgData), 1);
         vm.expectCall(_hooks[5], 0, getPreCheckHookCallData(msgSender, msgValue, msgData), 1);
         vm.expectCall(_hooks[6], 0, getPreCheckHookCallData(msgSender, msgValue, msgData), 1);
 

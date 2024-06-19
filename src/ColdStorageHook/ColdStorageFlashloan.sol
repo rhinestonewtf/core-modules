@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { SentinelListLib } from "sentinellist/SentinelList.sol";
+import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import "../Flashloan/FlashloanCallback.sol";
 
 /**
@@ -15,6 +15,11 @@ contract ColdStorageFlashloan is FlashloanCallback {
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    event ModuleInitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
+    event AddressAdded(address indexed account, address addressToAdd);
+    event AddressRemoved(address indexed account, address addressToRemove);
 
     // account => whitelist
     mapping(address account => SentinelListLib.SentinelList) internal whitelist;
@@ -45,6 +50,8 @@ contract ColdStorageFlashloan is FlashloanCallback {
         for (uint256 i; i < length; i++) {
             list.push(addresses[i]);
         }
+
+        emit ModuleInitialized(msg.sender);
     }
 
     /**
@@ -53,6 +60,8 @@ contract ColdStorageFlashloan is FlashloanCallback {
     function onUninstall(bytes calldata) external override {
         // remove the list
         whitelist[msg.sender].popAll();
+
+        emit ModuleUninitialized(msg.sender);
     }
 
     /**
@@ -62,8 +71,53 @@ contract ColdStorageFlashloan is FlashloanCallback {
      *
      * @return True if the module is initialized
      */
-    function isInitialized(address smartAccount) external view override returns (bool) {
+    function isInitialized(address smartAccount) public view override returns (bool) {
         return whitelist[smartAccount].alreadyInitialized();
+    }
+
+    /**
+     * Add an address to the whitelist
+     *
+     * @param addressToAdd The address to add
+     */
+    function addAddress(address addressToAdd) external {
+        // cache the account
+        address account = msg.sender;
+        // check if the module is initialized
+        if (!isInitialized(account)) revert NotInitialized(account);
+        // add the address to the whitelist
+        whitelist[account].push(addressToAdd);
+
+        emit AddressAdded(account, addressToAdd);
+    }
+
+    /**
+     * Remove an address from the whitelist
+     *
+     * @param addressToRemove The address to remove
+     * @param prevAddress The previous address in the list
+     */
+    function removeAddress(address prevAddress, address addressToRemove) external {
+        // remove the address from the whitelist
+        whitelist[msg.sender].pop({ prevEntry: prevAddress, popEntry: addressToRemove });
+
+        emit AddressRemoved(msg.sender, addressToRemove);
+    }
+
+    /**
+     * Get the whitelist of a smart account
+     *
+     * @param smartAccount The smart account address
+     *
+     * @return whitelistArray The whitelist of the smart account
+     */
+    function getWhitelist(address smartAccount)
+        external
+        view
+        returns (address[] memory whitelistArray)
+    {
+        // get the whitelist
+        (whitelistArray,) = whitelist[smartAccount].getEntriesPaginated(SENTINEL, 100);
     }
 
     /**

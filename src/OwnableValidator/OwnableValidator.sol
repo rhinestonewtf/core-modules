@@ -17,18 +17,24 @@ import { ECDSA } from "solady/utils/ECDSA.sol";
  */
 contract OwnableValidator is ERC7579ValidatorBase {
     using LibSort for *;
-    using SignatureCheckerLib for address;
     using SentinelList4337Lib for SentinelList4337Lib.SentinelList;
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    event ModuleInitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
+    event ThresholdSet(address indexed account, uint256 threshold);
+    event OwnerAdded(address indexed account, address owner);
+    event OwnerRemoved(address indexed account, address owner);
+
     error ThresholdNotSet();
     error InvalidThreshold();
     error NotSortedAndUnique();
     error MaxOwnersReached();
     error InvalidOwner(address owner);
+    error CannotRemoveOwner();
 
     // maximum number of owners per account
     uint256 constant MAX_OWNERS = 32;
@@ -95,6 +101,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
             }
             owners.push(account, _owner);
         }
+
+        emit ModuleInitialized(account);
     }
 
     /**
@@ -113,6 +121,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // remove the owner count
         ownerCount[account] = 0;
+
+        emit ModuleUninitialized(account);
     }
 
     /**
@@ -149,6 +159,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // set the threshold
         threshold[account] = _threshold;
+
+        emit ThresholdSet(account, _threshold);
     }
 
     /**
@@ -178,6 +190,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // add the owner to the linked list
         owners.push(account, owner);
+
+        emit OwnerAdded(account, owner);
     }
 
     /**
@@ -188,11 +202,23 @@ contract OwnableValidator is ERC7579ValidatorBase {
      * @param owner address of the owner to remove
      */
     function removeOwner(address prevOwner, address owner) external {
+        // cache the account address
+        address account = msg.sender;
+
+        // check if an owner can be removed
+        if (ownerCount[account] == threshold[account]) {
+            // if the owner count is equal to the threshold, revert
+            // this means that removing an owner would make the threshold unreachable
+            revert CannotRemoveOwner();
+        }
+
         // remove the owner
-        owners.pop(msg.sender, prevOwner, owner);
+        owners.pop(account, prevOwner, owner);
 
         // decrement the owner count
-        ownerCount[msg.sender]--;
+        ownerCount[account]--;
+
+        emit OwnerRemoved(account, owner);
     }
 
     /**
