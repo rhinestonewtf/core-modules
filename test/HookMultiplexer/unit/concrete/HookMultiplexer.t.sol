@@ -3,9 +3,9 @@ pragma solidity ^0.8.23;
 
 import { BaseTest, console2 } from "test/Base.t.sol";
 import {
-    HookMultiPlexer,
+    HookMultiplexer,
     SigHookInit,
-    HookMultiPlexerLib,
+    HookMultiplexerLib,
     HookType,
     HookAndContext
 } from "src/HookMultiPlexer/HookMultiPlexer.sol";
@@ -33,7 +33,7 @@ contract HookMultiPlexerTest is BaseTest {
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    HookMultiPlexer internal hook;
+    HookMultiplexer internal hook;
     MockRegistry internal _registry;
     MockHook internal subHook1;
     MockHook internal subHook2;
@@ -57,7 +57,7 @@ contract HookMultiPlexerTest is BaseTest {
     function setUp() public virtual override {
         BaseTest.setUp();
         _registry = new MockRegistry();
-        hook = new HookMultiPlexer(_registry);
+        hook = new HookMultiplexer(_registry);
 
         mockModuleCode = address(new MockModule());
 
@@ -489,7 +489,7 @@ contract HookMultiPlexerTest is BaseTest {
     function test_NameShouldReturnHookMultiPlexer() public {
         // it should return HookMultiPlexer
         string memory name = hook.name();
-        assertEq(name, "HookMultiPlexer");
+        assertEq(name, "HookMultiplexer");
     }
 
     function test_VersionShouldReturn100() public {

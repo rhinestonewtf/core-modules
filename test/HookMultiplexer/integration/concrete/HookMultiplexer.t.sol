@@ -12,7 +12,7 @@ import {
     IERC7579Module
 } from "modulekit/external/ERC7579.sol";
 
-import { HookMultiPlexer, HookType } from "src/HookMultiPlexer/HookMultiPlexer.sol";
+import { HookMultiplexer, HookType } from "src/HookMultiPlexer/HookMultiPlexer.sol";
 import "forge-std/interfaces/IERC20.sol";
 import { MockHook } from "test/mocks/MockHook.sol";
 import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
@@ -45,7 +45,7 @@ contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    HookMultiPlexer internal hook;
+    HookMultiplexer internal hook;
 
     MockHook internal subHook1;
     MockHook internal subHook2;
@@ -82,7 +82,7 @@ contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
 
         mockModuleCode = address(new MockModule());
 
-        hook = new HookMultiPlexer(instance.aux.registry);
+        hook = new HookMultiplexer(instance.aux.registry);
         subHook1 = new MockHook();
         subHook2 = new MockHook();
         subHook3 = new MockHook();
@@ -363,7 +363,7 @@ contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(hook),
             value: 0,
-            callData: abi.encodeCall(HookMultiPlexer.addHook, (address(deadmanSwitch), HookType.GLOBAL)),
+            callData: abi.encodeCall(HookMultiplexer.addHook, (address(deadmanSwitch), HookType.GLOBAL)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
@@ -387,7 +387,7 @@ contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
             target: address(hook),
             value: 0,
             callData: abi.encodeCall(
-                HookMultiPlexer.addSigHook,
+                HookMultiplexer.addSigHook,
                 (address(registryHook), IERC7579Account.installModule.selector, HookType.SIG)
             ),
             txValidator: address(instance.defaultValidator)
@@ -415,7 +415,7 @@ contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
             target: address(hook),
             value: 0,
             callData: abi.encodeCall(
-                HookMultiPlexer.addSigHook,
+                HookMultiplexer.addSigHook,
                 (address(coldStorage), IERC7579Account.executeFromExecutor.selector, HookType.SIG)
             ),
             txValidator: address(instance.defaultValidator)
@@ -450,7 +450,7 @@ contract HookMultiPlexerIntegrationTest is BaseIntegrationTest {
             target: address(hook),
             value: 0,
             callData: abi.encodeCall(
-                HookMultiPlexer.addSigHook,
+                HookMultiplexer.addSigHook,
                 (address(coldStorage), IERC7579Account.executeFromExecutor.selector, HookType.SIG)
             ),
             txValidator: address(instance.defaultValidator)

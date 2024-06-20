@@ -8,7 +8,7 @@ import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
 import { ColdStorageHook } from "src/ColdStorageHook/ColdStorageHook.sol";
 import { ColdStorageFlashloan } from "src/ColdStorageHook/ColdStorageFlashloan.sol";
 import { DeadmanSwitch } from "src/DeadmanSwitch/DeadmanSwitch.sol";
-import { HookMultiPlexer } from "src/HookMultiPlexer/HookMultiPlexer.sol";
+import { HookMultiplexer } from "src/HookMultiPlexer/HookMultiPlexer.sol";
 import { MultiFactor } from "src/MultiFactor/MultiFactor.sol";
 import { OwnableExecutor } from "src/OwnableExecutor/OwnableExecutor.sol";
 import { OwnableValidator } from "src/OwnableValidator/OwnableValidator.sol";

@@ -15,7 +15,7 @@ import {
     CALLTYPE_DELEGATECALL
 } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib, Execution } from "erc7579/lib/ExecutionLib.sol";
-import { HookMultiPlexerLib } from "./HookMultiPlexerLib.sol";
+import { HookMultiplexerLib } from "./HookMultiPlexerLib.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
 import { IERC7484 } from "modulekit/Interfaces.sol";
 

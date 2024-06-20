@@ -3,9 +3,9 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import {
-    HookMultiPlexer,
+    HookMultiplexer,
     SigHookInit,
-    HookMultiPlexerLib,
+    HookMultiplexerLib,
     HookType,
     HookAndContext
 } from "src/HookMultiPlexer/HookMultiPlexer.sol";
@@ -24,10 +24,9 @@ import { MockHook } from "test/mocks/MockHook.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
-import { HookMultiPlexerLib } from "src/HookMultiPlexer/HookMultiPlexerLib.sol";
 
-contract HookMultiPlexerLibExternal {
-    using HookMultiPlexerLib for *;
+contract HookMultiplexerLibExternal {
+    using HookMultiplexerLib for *;
 
     address[] public array;
     bytes4[] public bytes4Array;
@@ -86,13 +85,13 @@ contract HookMultiPlexerLibExternal {
 contract HookMultiPlexerLibFuzzTest is BaseTest {
     using LibSort for address[];
     using LibSort for uint256[];
-    using HookMultiPlexerLib for *;
+    using HookMultiplexerLib for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    HookMultiPlexerLibExternal libExternal;
+    HookMultiplexerLibExternal libExternal;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
@@ -105,7 +104,7 @@ contract HookMultiPlexerLibFuzzTest is BaseTest {
     function setUp() public virtual override {
         BaseTest.setUp();
 
-        libExternal = new HookMultiPlexerLibExternal();
+        libExternal = new HookMultiplexerLibExternal();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
