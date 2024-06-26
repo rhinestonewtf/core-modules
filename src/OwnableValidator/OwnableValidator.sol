@@ -23,6 +23,12 @@ contract OwnableValidator is ERC7579ValidatorBase {
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    event ModuleInitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
+    event ThresholdSet(address indexed account, uint256 threshold);
+    event OwnerAdded(address indexed account, address owner);
+    event OwnerRemoved(address indexed account, address owner);
+
     error ThresholdNotSet();
     error InvalidThreshold();
     error NotSortedAndUnique();
@@ -95,6 +101,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
             }
             owners.push(account, _owner);
         }
+
+        emit ModuleInitialized(account);
     }
 
     /**
@@ -113,6 +121,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // remove the owner count
         ownerCount[account] = 0;
+
+        emit ModuleUninitialized(account);
     }
 
     /**
@@ -149,6 +159,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // set the threshold
         threshold[account] = _threshold;
+
+        emit ThresholdSet(account, _threshold);
     }
 
     /**
@@ -178,6 +190,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // add the owner to the linked list
         owners.push(account, owner);
+
+        emit OwnerAdded(account, owner);
     }
 
     /**
@@ -203,6 +217,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // decrement the owner count
         ownerCount[account]--;
+
+        emit OwnerRemoved(account, owner);
     }
 
     /**

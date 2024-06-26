@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { AssociatedBytesLib } from "associatedbytes/BytesLib.sol";
+import { FlatBytesLib } from "flatbytes/BytesLib.sol";
 
 // Validator ID
 type ValidatorId is bytes12;
@@ -21,6 +21,7 @@ struct SubValidatorConfig {
 // MFA Configuration
 struct MFAConfig {
     uint8 threshold; // number of validators required to validate a signature
+    uint8 validationLength; // number of validators required to validate a signature
     uint128 iteration; // iteration number
 }
 
@@ -28,6 +29,5 @@ struct MFAConfig {
 // a ValidatorId is used so that validators can be used multiple times
 // ValidatorId => account => SubValidatorConfig
 struct IterativeSubvalidatorRecord {
-    mapping(ValidatorId id => mapping(address account => AssociatedBytesLib.Bytes config))
-        subValidators;
+    mapping(ValidatorId id => mapping(address account => FlatBytesLib.Bytes config)) subValidators;
 }

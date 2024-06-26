@@ -2,7 +2,7 @@
 pragma solidity ^0.8.25;
 
 import { ERC7579ValidatorBase } from "modulekit/Modules.sol";
-import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
+import { PackedUserOperation, IAccountExecute } from "modulekit/external/ERC4337.sol";
 import { SentinelList4337Lib, SENTINEL } from "sentinellist/SentinelList4337.sol";
 import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { IERC7579Account } from "modulekit/Accounts.sol";
@@ -23,6 +23,12 @@ contract SocialRecovery is ERC7579ValidatorBase {
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    event ModuleInitialized(address indexed account);
+    event ModuleUninitialized(address indexed account);
+    event GuardianAdded(address indexed account, address guardian);
+    event GuardianRemoved(address indexed account, address guardian);
+    event ThresholdSet(address indexed account, uint256 threshold);
 
     error UnsupportedOperation();
     error InvalidGuardian(address guardian);
@@ -97,6 +103,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
             }
             guardians.push(account, _guardian);
         }
+
+        // emit the ModuleInitialized event
+        emit ModuleInitialized(account);
     }
 
     /**
@@ -115,6 +124,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // delete the guardian count
         guardianCount[account] = 0;
+
+        // emit the ModuleUninitialized event
+        emit ModuleUninitialized(account);
     }
 
     /**
@@ -150,6 +162,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // set the threshold
         threshold[account] = _threshold;
+
+        // emit the ThresholdSet event
+        emit ThresholdSet(account, _threshold);
     }
 
     /**
@@ -179,6 +194,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // add the guardian to the list
         guardians.push(account, guardian);
+
+        // emit the GuardianAdded event
+        emit GuardianAdded(account, guardian);
     }
 
     /**
@@ -204,6 +222,9 @@ contract SocialRecovery is ERC7579ValidatorBase {
 
         // decrement the guardian count
         guardianCount[account]--;
+
+        // emit the GuardianRemoved event
+        emit GuardianRemoved(account, guardian);
     }
 
     /**
@@ -276,6 +297,12 @@ contract SocialRecovery is ERC7579ValidatorBase {
             // decode and check the execution
             // only single executions to installed validators are allowed
             isAllowedExecution = _decodeAndCheckExecution(account, userOp.callData);
+        } else if (selector == IAccountExecute.executeUserOp.selector) {
+            if (bytes4(userOp.callData[4:8]) == IERC7579Account.execute.selector) {
+                // decode and check the execution
+                // only single executions to installed validators are allowed
+                isAllowedExecution = _decodeAndCheckExecution(account, userOp.callData[4:]);
+            }
         }
 
         // check if the threshold is met and the execution is allowed and return the result

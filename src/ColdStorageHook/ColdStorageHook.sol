@@ -8,7 +8,7 @@ import { ERC7579HookDestruct } from "modulekit/Modules.sol";
 import { IERC7579Account, Execution } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
-import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
+import { IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { FlashloanLender } from "../Flashloan/FlashloanLender.sol";
 
 /**
@@ -44,8 +44,10 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     // account => executionHash => executeAfter
     mapping(address subAccount => EnumerableMap.Bytes32ToBytes32Map) executions;
 
+    event ModuleInitialized(address indexed account, uint256 waitPeriod, address owner);
+    event ModuleUninitialized(address indexed account);
+    event WaitPeriodSet(address indexed account, uint256 waitPeriod);
     event TimelockRequested(address indexed subAccount, bytes32 hash, uint256 executeAfter);
-
     event TimelockExecuted(address indexed subAccount, bytes32 hash);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -83,6 +85,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         VaultConfig storage _config = vaultConfig[account];
         _config.waitPeriod = waitPeriod;
         _config.owner = owner;
+
+        emit ModuleInitialized(account, waitPeriod, owner);
     }
 
     /**
@@ -93,11 +97,24 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // cache the account address
         address account = msg.sender;
 
+        // when this module gets reinstalled, the account might have still some configured
+        // executions in its module storage
+        // to avoid this case, we are deleting all pending executions from the modules storage for
+        // this account
+        bytes32[] memory executionHashes = executions[account].keys();
+        uint256 length = executionHashes.length;
+        for (uint256 i; i < length; i++) {
+            // removing executions
+            executions[account].remove(executionHashes[i]);
+        }
+
         // clear the vaultConfig
         delete vaultConfig[account];
 
         // clear the trusted forwarder
         clearTrustedForwarder();
+
+        emit ModuleUninitialized(account);
     }
 
     /**
@@ -127,6 +144,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
         // set the waitPeriod in the vaultConfig
         vaultConfig[account].waitPeriod = uint128(waitPeriod);
+
+        emit WaitPeriodSet(account, waitPeriod);
     }
 
     /**

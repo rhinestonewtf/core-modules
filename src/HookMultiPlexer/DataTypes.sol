@@ -21,14 +21,13 @@ struct HookAndContext {
     bytes context;
 }
 
-// Config for an account
-// We also need to store an array of sigs and target sigs to be able to remove them on uninstall
-struct Config {
-    address[] globalHooks;
-    address[] delegatecallHooks;
-    address[] valueHooks;
-    bytes4[] sigs;
+struct SignatureHooks {
+    bytes4[] allSigs;
     mapping(bytes4 => address[]) sigHooks;
-    bytes4[] targetSigs;
-    mapping(bytes4 => address[]) targetSigHooks;
+}
+
+struct Config {
+    bool initialized;
+    mapping(HookType hookType => address[]) hooks;
+    mapping(HookType hookType => SignatureHooks) sigHooks;
 }

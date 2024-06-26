@@ -141,7 +141,7 @@ contract MultiFactorTest is BaseTest {
 
         validator.onInstall(data);
 
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(this));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(this));
         assertEq(threshold, _threshold);
 
         bool isSubValidator1 = validator.isSubValidator(
@@ -161,7 +161,7 @@ contract MultiFactorTest is BaseTest {
 
         validator.onUninstall("");
 
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(this));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(this));
         assertEq(iteration, 1);
     }
 
@@ -171,7 +171,7 @@ contract MultiFactorTest is BaseTest {
 
         validator.onUninstall("");
 
-        (uint8 threshold, uint128 iteration) = validator.accountConfig(address(this));
+        (uint8 threshold,, uint128 iteration) = validator.accountConfig(address(this));
         assertEq(threshold, uint8(0));
     }
 
@@ -212,7 +212,7 @@ contract MultiFactorTest is BaseTest {
         uint8 newThreshold = 1;
         validator.setThreshold(newThreshold);
 
-        (uint8 threshold,) = validator.accountConfig(address(this));
+        (uint8 threshold,,) = validator.accountConfig(address(this));
         assertEq(threshold, newThreshold);
     }
 

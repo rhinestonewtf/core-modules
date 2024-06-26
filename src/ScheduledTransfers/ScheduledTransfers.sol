@@ -6,6 +6,7 @@ import { SchedulingBase } from "modulekit/Modules.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
+import { ERC20Integration } from "modulekit/Integrations.sol";
 
 /**
  * @title ScheduledTransfers
@@ -13,6 +14,10 @@ import { IERC20 } from "forge-std/interfaces/IERC20.sol";
  * @author Rhinestone
  */
 contract ScheduledTransfers is SchedulingBase {
+    using ERC20Integration for IERC20;
+
+    error ERC20TransferFailed();
+
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
     //////////////////////////////////////////////////////////////////////////*/
@@ -36,17 +41,9 @@ contract ScheduledTransfers is SchedulingBase {
 
         if (token == address(0)) {
             // execute native token transfer
-            IERC7579Account(msg.sender).executeFromExecutor(
-                ModeLib.encodeSimpleSingle(), ExecutionLib.encodeSingle(recipient, amount, "")
-            );
+            _execute(recipient, amount, "");
         } else {
-            // execute ERC20 token transfer
-            IERC7579Account(msg.sender).executeFromExecutor(
-                ModeLib.encodeSimpleSingle(),
-                ExecutionLib.encodeSingle(
-                    token, 0, abi.encodeCall(IERC20.transfer, (recipient, amount))
-                )
-            );
+            IERC20(token).safeTransfer({ to: recipient, amount: amount });
         }
 
         // emit the ExecutionTriggered event
