@@ -1,6 +1,7 @@
 
 [profile.default]
-emv_version = "paris"
+solc = "0.8.25"
+evm_version = "cancun"
 src = "src"
 out = "out"
 script = "script"
