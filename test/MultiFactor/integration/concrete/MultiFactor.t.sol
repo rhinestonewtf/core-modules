@@ -174,6 +174,8 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
 
     function test_RemoveValidator() public {
         // it should remove a validator
+        test_SetThreshold();
+
         instance.getExecOps({
             target: address(validator),
             value: 0,
