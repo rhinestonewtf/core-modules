@@ -28,6 +28,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
     error InvalidWaitPeriod();
     error InvalidTransferReceiver();
     error UnsupportedExecution();
+    error UnsupportedToken(address token);
     error UnauthorizedAccess();
     error InvalidExecutionHash(bytes32 executionHash);
 
@@ -611,8 +612,8 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         return IERC20(token).balanceOf(msg.sender);
     }
 
-    function flashFee(address token, uint256 amount) external view override returns (uint256) {
-        return 0;
+    function flashFee(address token, uint256 amount) external pure override returns (uint256) {
+        revert UnsupportedToken(token);
     }
 
     function flashFeeToken() external view virtual override returns (address) {
