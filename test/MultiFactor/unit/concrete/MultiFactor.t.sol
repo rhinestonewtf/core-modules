@@ -262,7 +262,10 @@ contract MultiFactorTest is BaseTest {
     function test_RemoveValidatorWhenModuleIsIntialized() public {
         // it should emit a ValidatorRemoved event
         // it should remove the validator
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        Validator[] memory validators = _getValidators();
+        bytes memory data = abi.encodePacked(uint8(1), abi.encode(validators));
+
+        validator.onInstall(data);
 
         vm.expectEmit(true, true, true, true, address(validator));
         emit MultiFactor.ValidatorRemoved({

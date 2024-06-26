@@ -177,6 +177,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         // get storage reference to account config
         MFAConfig storage $config = accountConfig[account];
 
+        if ($config.validationLength < threshold) {
+            revert InvalidThreshold($config.validationLength, threshold);
+        }
+
         // check if threshold is 0 and revert if it is
         if (threshold == 0) revert ZeroThreshold();
         // set the threshold
@@ -238,6 +242,12 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         // set the subValidator data
         $validator.store(newValidatorData);
 
+        if (newValidatorData.length == 0) {
+            if ($config.validationLength < $config.threshold) {
+                revert InvalidThreshold($config.validationLength, $config.threshold);
+            }
+        }
+
         // emit the ValidatorAdded event
         emit ValidatorAdded(account, validatorAddress, id, iteration);
     }
@@ -270,6 +280,10 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         $config.validationLength -= 1;
         // delete the subValidator data
         $validator.clear();
+
+        if ($config.validationLength < $config.threshold) {
+            revert InvalidThreshold($config.validationLength, $config.threshold);
+        }
 
         // emit the ValidatorRemoved event
         emit ValidatorRemoved(account, validatorAddress, id, iteration);
