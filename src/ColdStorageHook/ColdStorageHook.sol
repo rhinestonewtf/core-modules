@@ -197,6 +197,11 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
 
         if (_exec.callData.length != 0) {
             // check that transaction is only a token transfer
+            if (_exec.value != 0) {
+                // if value is not 0, revert
+                revert InvalidTransferReceiver();
+            }
+
             address tokenReceiver = _getTokenTxReceiver(_exec.callData);
 
             // if tokenReceiver is the owner, continue
@@ -204,10 +209,6 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
                 // Else check that transaction is to setWaitPeriod
                 if (bytes4(_exec.callData[0:4]) != this.setWaitPeriod.selector) {
                     // if not, revert
-                    revert InvalidTransferReceiver();
-                }
-                if (_exec.value != 0) {
-                    // if value is not 0, revert
                     revert InvalidTransferReceiver();
                 }
             }
