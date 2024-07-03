@@ -7,6 +7,7 @@ import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
 import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { ReentrancyGuard } from "./utils/ReentrancyGuard.sol";
+import { ERC20Integration } from "modulekit/Integrations.sol";
 
 /**
  * @title FlashloanLender
@@ -19,6 +20,8 @@ abstract contract FlashloanLender is
     ERC7579ExecutorBase,
     IERC3156FlashLender
 {
+    using ERC20Integration for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -120,12 +123,7 @@ abstract contract FlashloanLender is
             );
         } else if (flashLoanType == FlashLoanType.ERC20) {
             balanceBefore = IERC20(token).balanceOf(account);
-            _execute(
-                msg.sender,
-                address(token),
-                0,
-                abi.encodeCall(IERC20.transfer, (address(receiver), value))
-            );
+            IERC20(token).safeTransfer(msg.sender, address(receiver), value);
         } else {
             revert UnsupportedTokenType();
         }
@@ -148,11 +146,7 @@ abstract contract FlashloanLender is
     }
 
     function _transferTokenBack(address token, address receiver, uint256 value) private {
-        _execute(
-            address(token),
-            0,
-            abi.encodeCall(IERC20.transferFrom, (address(receiver), msg.sender, value))
-        );
+        IERC20(token).safeTransferFrom(msg.sender, receiver, msg.sender, value);
     }
 
     /**
