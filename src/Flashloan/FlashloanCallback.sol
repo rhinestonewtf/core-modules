@@ -7,7 +7,6 @@ import { SentinelListLib } from "sentinellist/SentinelList.sol";
 import { Execution } from "modulekit/external/ERC7579.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
-import "forge-std/console2.sol";
 
 /**
  * @title FlashloanCallback
@@ -134,15 +133,11 @@ abstract contract FlashloanCallback is
         if (!validSig) revert TokenGatedTxFailed();
         // execute the flashloan
 
-        uint256 executionsLength = executions.length;
-        assembly {
-            mstore(executions, add(executionsLength, 1))
-        }
-        executions[executionsLength] = Execution(
+        _execute(executions);
+        _execute(
             address(token), 0, abi.encodeWithSignature("approve(address,uint256)", borrower, amount)
         );
-        _execute(executions);
-        console2.log("executions", executions.length);
+
         // return the hash
         return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }
