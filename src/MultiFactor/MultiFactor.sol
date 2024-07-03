@@ -88,9 +88,9 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
 
         if (length > type(uint8).max) revert InvalidValidatorData();
         $config.threshold = threshold;
-        $config.validationLength = uint8(length);
-
         emit ThesholdSet(account, threshold);
+
+        uint8 _validationLength;
 
         // iterate over the validators
         for (uint256 i; i < length; i++) {
@@ -119,9 +119,15 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
             // set the subValidator data
             $validator.store(_validator.data);
 
+            if (_validator.data.length != 0) {
+                _validationLength++;
+            }
+
             // emit the ValidatorAdded event
             emit ValidatorAdded(account, validatorAddress, id, iteration);
         }
+
+        $config.validationLength = _validationLength;
     }
 
     /**
@@ -277,7 +283,9 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
             id: id
         });
 
-        $config.validationLength -= 1;
+        if ($validator.load().length != 0) {
+            $config.validationLength -= 1;
+        }
         // delete the subValidator data
         $validator.clear();
 
