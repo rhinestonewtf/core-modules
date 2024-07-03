@@ -243,7 +243,9 @@ contract ColdStorageFlashloanTest is BaseTest {
         external
         payable
         returns (bytes[] memory returnData)
-    { }
+    {
+        returnData = new bytes[](1);
+    }
 
     function isValidSignature(
         bytes32 _hash,
