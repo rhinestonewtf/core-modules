@@ -194,9 +194,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
 
         uint48 validAfter = _config.lastAccess + _config.timeout;
 
-        if (sigValid) {
-            config[userOp.sender].timeout = 0;
-        }
+        config[userOp.sender].timeout = 0;
 
         // return validation data
         // if signature is invalid, validation fails
