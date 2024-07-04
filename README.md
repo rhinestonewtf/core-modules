@@ -14,7 +14,7 @@ Modules:
 - **OwnableValidator**: Own your account using an EOA or a set of EOAs
 - **RegistryHook**: Use the Rhinestone Registry to ensure you only install secure modules
 - **ScheduledOrders**: Automate swaps on a schedule
-- **ScheduledTransactions**: Automate transactions on a schedule
+- **ScheduledTransfers**: Automate transfers on a schedule
 - **SocialRecovery**: Recover your account using a set of trusted friends
 
 ## Using the modules
