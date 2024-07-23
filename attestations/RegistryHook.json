@@ -1,0 +1,49 @@
+{
+  "title": "RegistryHook",
+  "auditor": {
+    "name": "Ackee",
+    "uri": "http://audit.corp",
+    "authors": ["auditor1", "auditor2"]
+  },
+  "reportUrl": "http://audit.corp/report",
+  "moduleAttributes": {
+    "moduleAddress": "tbd",
+    "globalAttributes": {
+      "reentrancyProtection": true,
+      "importantDataValidation": true,
+      "inputManipulationProtection": true,
+      "emitsEvents": true,
+      "moduleOwnerCantRug": true,
+      "upgradeable": false,
+      "pausable": false,
+      "licensedModule": false,
+      "erc7562StorageCompliant": true,
+      "uninstallCleanUp": true
+    },
+    "validatorAttributes": {},
+    "executorAttributes": {},
+    "fallbackAttributes": {},
+    "hookAttributes": {
+      "classifications": {
+        "defaultAllow": true,
+        "defaultDeny": false,
+        "accessControl": true,
+        "moduleControl": false,
+        "userControl": true
+      }
+    },
+    "externalDependency": {
+      "oracle": false,
+      "bridges": false,
+      "dexs": false,
+      "vaults": false,
+      "registry": true,
+      "lending": false,
+      "liquidityProvision": false,
+      "governance": false,
+      "privacy": false,
+      "zkProvers": false,
+      "ercDeps": []
+    }
+  }
+}

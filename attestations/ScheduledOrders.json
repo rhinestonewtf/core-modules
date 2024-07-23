@@ -1,0 +1,49 @@
+{
+  "title": "ScheduledOrders",
+  "auditor": {
+    "name": "Ackee",
+    "uri": "http://audit.corp",
+    "authors": ["auditor1", "auditor2"]
+  },
+  "reportUrl": "http://audit.corp/report",
+  "moduleAttributes": {
+    "moduleAddress": "tbd",
+    "globalAttributes": {
+      "reentrancyProtection": true,
+      "importantDataValidation": true,
+      "inputManipulationProtection": true,
+      "emitsEvents": true,
+      "moduleOwnerCantRug": true,
+      "upgradeable": false,
+      "pausable": false,
+      "licensedModule": false,
+      "erc7562StorageCompliant": false,
+      "uninstallCleanUp": true
+    },
+    "validatorAttributes": {},
+    "executorAttributes": {
+      "handlesUserAssets": true,
+      "noDelegateCall": true,
+      "classifications": {
+        "triggeredByAccount": true,
+        "triggeredByRelayer": false,
+        "deterministicExecution": true
+      }
+    },
+    "fallbackAttributes": {},
+    "hookAttributes": {},
+    "externalDependency": {
+      "oracle": false,
+      "bridges": false,
+      "dexs": false,
+      "vaults": false,
+      "registry": false,
+      "lending": false,
+      "liquidityProvision": false,
+      "governance": false,
+      "privacy": false,
+      "zkProvers": false,
+      "ercDeps": []
+    }
+  }
+}
