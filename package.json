@@ -35,6 +35,7 @@
   },
   "files": [
     "src",
+    "attestations",
     "foundry.toml",
     "remappings.txt"
   ],
