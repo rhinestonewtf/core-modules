@@ -8,7 +8,7 @@
   },
   "reportUrl": "http://audit.corp/report",
   "moduleAttributes": {
-    "moduleAddress": "tbd",
+    "moduleAddress": "0x6a5E91D13abd07582D7268d91764A3627dfb9b29",
     "globalAttributes": {
       "reentrancyProtection": true,
       "importantDataValidation": true,
@@ -29,7 +29,7 @@
     },
     "executorAttributes": {
       "handlesUserAssets": true,
-      "noDelegateCall": true,
+      "delegateCall": true,
       "triggeredByAccount": false,
       "triggeredByRelayer": true,
       "deterministicExecution": false

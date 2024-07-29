@@ -16,6 +16,8 @@ import { RegistryHook } from "src/RegistryHook/RegistryHook.sol";
 import { ScheduledOrders } from "src/ScheduledOrders/ScheduledOrders.sol";
 import { ScheduledTransfers } from "src/ScheduledTransfers/ScheduledTransfers.sol";
 import { SocialRecovery } from "src/SocialRecovery/SocialRecovery.sol";
+import { FlashloanCallback } from "src/Flashloan/FlashloanCallback.sol";
+import { FlashloanLender } from "src/Flashloan/flashloanLender.sol";
 
 import "forge-std/console2.sol";
 
@@ -35,6 +37,9 @@ interface IRegistry {
 struct Deployments {
     address ownableValidator;
     address ownableExecutor;
+    address autosavings;
+    address flashloanCallback;
+    address flashloanLender;
     address coldStorageHook;
     address coldStorageFlashloan;
     address deadmanSwitch;
@@ -76,6 +81,10 @@ contract DeployScript is Script {
         env.coldStorageFlashloan = _registry.deployModule(
             salt, resolverUID, type(ColdStorageFlashloan).creationCode, "", ""
         );
+
+        env.autosavings =
+            _registry.deployModule(salt, resolverUID, type(AutoSavings).creationCode, "", "");
+
         env.deadmanSwitch =
             _registry.deployModule(salt, resolverUID, type(DeadmanSwitch).creationCode, "", "");
         env.hookMultiPlexer = _registry.deployModule(
