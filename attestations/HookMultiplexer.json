@@ -1,5 +1,6 @@
 {
   "title": "HookMultiPlexer",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -20,18 +21,28 @@
       "erc7562StorageCompliant": false,
       "uninstallCleanUp": true
     },
-    "validatorAttributes": {},
-    "executorAttributes": {},
-    "fallbackAttributes": {},
+    "validatorAttributes": {
+      "unscopedValidator": false,
+      "recoveryModule": false,
+      "multiplexer": false
+    },
+    "executorAttributes": {
+      "handlesUserAssets": false,
+      "noDelegateCall": false,
+      "triggeredByAccount": false,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
+    },
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
+    },
     "hookAttributes": {
-      "classifications": {
-        "defaultAllow": true,
-        "defaultDeny": false,
-        "accessControl": true,
-        "moduleControl": false,
-        "userControl": true,
-        "multiplexer": true
-      }
+      "defaultAllow": true,
+      "defaultDeny": false,
+      "accessControl": true,
+      "moduleControl": false,
+      "userControl": true
     },
     "externalDependency": {
       "oracle": false,

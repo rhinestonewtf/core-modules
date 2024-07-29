@@ -1,5 +1,6 @@
 {
   "title": "DeadmanSwitch",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -21,22 +22,29 @@
       "uninstallCleanUp": true
     },
     "validatorAttributes": {
-      "classifications": {
-        "unscopedValidator": false,
-        "recoveryModule": false,
-        "multiplexer": false
-      }
+      "unscopedValidator": false,
+      "recoveryModule": false,
+      "multiplexer": false
+    },
+    "executorAttributes": {
+      "handlesUserAssets": false,
+      "delegateCall": false,
+      "triggeredByAccount": false,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
+    },
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
     },
     "executorAttributes": {},
     "fallbackAttributes": {},
     "hookAttributes": {
-      "classifications": {
-        "defaultAllow": true,
-        "defaultDeny": false,
-        "accessControl": true,
-        "moduleControl": false,
-        "userControl": true
-      }
+      "defaultAllow": true,
+      "defaultDeny": false,
+      "accessControl": true,
+      "moduleControl": false,
+      "userControl": true
     },
     "externalDependency": {
       "oracle": false,

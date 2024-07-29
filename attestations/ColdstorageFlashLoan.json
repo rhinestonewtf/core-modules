@@ -1,5 +1,5 @@
 {
-  "title": "RegistryHook",
+  "title": "ColdstorageFlashloan",
   "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
@@ -27,29 +27,29 @@
       "multiplexer": false
     },
     "executorAttributes": {
-      "handlesUserAssets": false,
+      "handlesUserAssets": true,
       "delegateCall": false,
-      "triggeredByAccount": false,
+      "triggeredByAccount": true,
       "triggeredByRelayer": false,
       "deterministicExecution": false
     },
     "fallbackAttributes": {
       "compatibilityFeature": false,
-      "callbacks": false
+      "callbacks": true
     },
     "hookAttributes": {
-      "defaultAllow": true,
+      "defaultAllow": false,
       "defaultDeny": false,
-      "accessControl": true,
+      "accessControl": false,
       "moduleControl": false,
-      "userControl": true
+      "userControl": false
     },
     "externalDependency": {
       "oracle": false,
       "bridges": false,
       "dexs": false,
       "vaults": false,
-      "registry": true,
+      "registry": false,
       "lending": false,
       "liquidityProvision": false,
       "governance": false,

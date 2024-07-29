@@ -1,5 +1,6 @@
 {
   "title": "OwnableValidator",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -20,18 +21,30 @@
       "erc7562StorageCompliant": true,
       "uninstallCleanUp": true
     },
-    "validatorAttributes": {},
+
+    "validatorAttributes": {
+      "unscopedValidator": false,
+      "recoveryModule": false,
+      "multiplexer": false
+    },
     "executorAttributes": {
       "handlesUserAssets": true,
       "noDelegateCall": true,
-      "classifications": {
-        "triggeredByAccount": false,
-        "triggeredByRelayer": true,
-        "deterministicExecution": false
-      }
+      "triggeredByAccount": false,
+      "triggeredByRelayer": true,
+      "deterministicExecution": false
     },
-    "fallbackAttributes": {},
-    "hookAttributes": {},
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
+    },
+    "hookAttributes": {
+      "defaultAllow": false,
+      "defaultDeny": false,
+      "accessControl": false,
+      "moduleControl": false,
+      "userControl": false
+    },
     "externalDependency": {
       "oracle": false,
       "bridges": false,

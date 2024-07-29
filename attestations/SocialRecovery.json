@@ -1,5 +1,6 @@
 {
   "title": "SocialRecovery",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -21,15 +22,28 @@
       "uninstallCleanUp": true
     },
     "validatorAttributes": {
-      "classifications": {
-        "unscopedValidator": false,
-        "recoveryModule": true,
-        "multiplexer": false
-      }
+      "unscopedValidator": false,
+      "recoveryModule": true,
+      "multiplexer": false
     },
-    "executorAttributes": {},
-    "fallbackAttributes": {},
-    "hookAttributes": {},
+    "executorAttributes": {
+      "handlesUserAssets": false,
+      "delegateCall": false,
+      "triggeredByAccount": false,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
+    },
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
+    },
+    "hookAttributes": {
+      "defaultAllow": false,
+      "defaultDeny": false,
+      "accessControl": false,
+      "moduleControl": false,
+      "userControl": false
+    },
     "externalDependency": {
       "oracle": false,
       "bridges": false,

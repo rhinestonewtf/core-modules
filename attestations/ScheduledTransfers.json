@@ -1,5 +1,6 @@
 {
   "title": "ScheduledTransfers",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -20,18 +21,30 @@
       "erc7562StorageCompliant": false,
       "uninstallCleanUp": true
     },
-    "validatorAttributes": {},
+
+    "validatorAttributes": {
+      "unscopedValidator": false,
+      "recoveryModule": false,
+      "multiplexer": false
+    },
     "executorAttributes": {
       "handlesUserAssets": true,
-      "noDelegateCall": true,
-      "classifications": {
-        "triggeredByAccount": true,
-        "triggeredByRelayer": false,
-        "deterministicExecution": false
-      }
+      "delegateCall": true,
+      "triggeredByAccount": true,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
     },
-    "fallbackAttributes": {},
-    "hookAttributes": {},
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
+    },
+    "hookAttributes": {
+      "defaultAllow": false,
+      "defaultDeny": false,
+      "accessControl": false,
+      "moduleControl": false,
+      "userControl": false
+    },
     "externalDependency": {
       "oracle": false,
       "bridges": false,

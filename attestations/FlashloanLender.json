@@ -1,5 +1,6 @@
 {
   "title": "FlashloanLender",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -20,23 +21,30 @@
       "erc7562StorageCompliant": true,
       "uninstallCleanUp": true
     },
-    "validatorAttributes": {},
+
+    "validatorAttributes": {
+      "unscopedValidator": false,
+      "recoveryModule": false,
+      "multiplexer": false
+    },
     "executorAttributes": {
       "handlesUserAssets": true,
-      "noDelegateCall": true,
-      "classifications": {
-        "triggeredByAccount": true,
-        "triggeredByRelayer": false,
-        "deterministicExecution": false
-      }
+      "delegateCall": false,
+      "triggeredByAccount": true,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
     },
     "fallbackAttributes": {
-      "classifications": {
-        "compatibilityFeature": false,
-        "callbacks": true
-      }
+      "compatibilityFeature": false,
+      "callbacks": true
     },
-    "hookAttributes": {},
+    "hookAttributes": {
+      "defaultAllow": false,
+      "defaultDeny": false,
+      "accessControl": false,
+      "moduleControl": false,
+      "userControl": false
+    },
     "externalDependency": {
       "oracle": false,
       "bridges": false,

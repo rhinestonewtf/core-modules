@@ -1,5 +1,6 @@
 {
   "title": "AutoSavings",
+  "signer": "0x1234567890123456789012345678901234567890",
   "auditor": {
     "name": "Ackee",
     "uri": "http://audit.corp",
@@ -7,7 +8,7 @@
   },
   "reportUrl": "http://audit.corp/report",
   "moduleAttributes": {
-    "moduleAddress": "tbd",
+    "moduleAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     "globalAttributes": {
       "reentrancyProtection": true,
       "importantDataValidation": true,
@@ -21,27 +22,40 @@
       "uninstallCleanUp": true
     },
     "validatorAttributes": {
-      "classifications": {
-        "unscopedValidator": true,
-        "recoveryModule": false,
-        "multiplexer": false
-      }
+      "unscopedValidator": true,
+      "recoveryModule": false,
+      "multiplexer": false
     },
-    "executorAttributes": {},
-    "fallbackAttributes": {},
-    "hookAttributes": {},
+    "executorAttributes": {
+      "handlesUserAssets": false,
+      "delegateCall": false,
+      "triggeredByAccount": false,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
+    },
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
+    },
+    "hookAttributes": {
+      "defaultAllow": false,
+      "defaultDeny": false,
+      "accessControl": false,
+      "moduleControl": false,
+      "userControl": false
+    },
     "externalDependency": {
-      "oracle": false,
-      "bridges": false,
-      "dexs": false,
-      "vaults": false,
-      "registry": false,
-      "lending": false,
-      "liquidityProvision": false,
-      "governance": false,
-      "privacy": false,
-      "zkProvers": false,
-      "ercDeps": []
+      "oracle": true,
+      "bridges": true,
+      "dexs": true,
+      "vaults": true,
+      "registry": true,
+      "lending": true,
+      "liquidityProvision": true,
+      "governance": true,
+      "privacy": true,
+      "zkProvers": true,
+      "ercDeps": [20, 721, 1155]
     }
   }
 }
