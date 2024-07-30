@@ -58,13 +58,13 @@ struct Deployments {
  * @author @kopy-kat
  */
 contract DeployScript is Script {
-    address registry = 0x0000000000E1AA5927a7B55DDD5D21BeD5E482a7;
+    address registry =0x0000000000E23E0033C3e93D9D4eBc2FF2AB2AEF;
     IRegistry _registry = IRegistry(registry);
 
     function run() public {
         bytes32 salt = bytes32(0x0000000000000000000000000000000000000000000000000000000000001337);
         bytes32 resolverUID =
-            bytes32(0xdd2c64b8887a40c9fc770c64b7182cf3be4fa15d568c0322b3ae587f05c32261);
+            bytes32(0xFE66F9C6A821ADB32A629E5441F5F6BC2E808608FB72AB66E2034FD7537C9CF4);
         vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
 
         Deployments memory env;
