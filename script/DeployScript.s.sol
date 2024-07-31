@@ -62,9 +62,9 @@ contract DeployScript is Script {
     IRegistry _registry = IRegistry(registry);
 
     function run() public {
-        bytes32 salt = bytes32(0x0000000000000000000000000000000000000000000000000000000000001337);
+        bytes32 salt = bytes32(0x0000000000000000000000000000000000000000000000000000000000001338);
         bytes32 resolverUID =
-            bytes32(0xFE66F9C6A821ADB32A629E5441F5F6BC2E808608FB72AB66E2034FD7537C9CF4);
+            bytes32(0xDBCA873B13C783C0C9C6DDFC4280E505580BF6CC3DAC83F8A0F7B44ACAAFCA4F);
         vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
 
         Deployments memory env;
@@ -178,6 +178,14 @@ contract DeployScript is Script {
         vm.serializeAddress(item, "deployer", env.deployer);
         item = vm.serializeAddress(item, "factory", registry);
         vm.serializeString(deployments, "registryHook", item);
+
+
+        item = "AutoSavings";
+        vm.serializeAddress(item, "address", env.autosavings);
+        vm.serializeBytes32(item, "salt", env.salt);
+        vm.serializeAddress(item, "deployer", env.deployer);
+        item = vm.serializeAddress(item, "factory", registry);
+        vm.serializeString(deployments, "autoSavings", item);
 
         item = "ScheduledOrders";
         vm.serializeAddress(item, "address", env.scheduledOrders);
