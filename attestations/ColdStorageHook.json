@@ -8,7 +8,7 @@
   },
   "reportUrl": "http://audit.corp/report",
   "moduleAttributes": {
-    "moduleAddress": "0xd2456ae08FB22908b115Bdb5F373ECf9Acc2D72c",
+    "moduleAddress": "0x6d44b3c9c75DB6D027767FF65877A957e22807a4",
     "globalAttributes": {
       "reentrancyProtection": true,
       "importantDataValidation": true,
