@@ -4,35 +4,64 @@ pragma solidity ^0.8.25;
 import { ERC7579FallbackBase } from "modulekit/Modules.sol";
 
 import { IERC165 } from "forge-std/interfaces/IERC165.sol";
+import { LinkedBytes32Lib } from "@rhinestone/sentinellist/src/SentinelListBytes32.sol";
 
 interface IERC7579Defaults {
     function foobar() external;
 }
 
 contract SupportsInterface is ERC7579FallbackBase, IERC165 {
-    mapping(address account => mapping(bytes4 interfaceID => bool)) internal $accountInterfaces;
+    using LinkedBytes32Lib for LinkedBytes32Lib.LinkedBytes32;
+
+    mapping(address account => LinkedBytes32Lib.LinkedBytes32 list) internal $allInterfaces;
+
+    error Unauthorized();
 
     /**
      * Called when the module is installed on a smart account
      *
      * @param data The data passed during installation
      */
-    function onInstall(bytes calldata data) external virtual { }
+    function onInstall(bytes calldata data) external virtual {
+        bytes4[] memory ids = abi.decode(data, (bytes4[]));
 
-    /**
-     * Called when the module is uninstalled from a smart account
-     *
-     * @param data The data passed during uninstallation
-     */
-    function onUninstall(bytes calldata data) external virtual { }
+        LinkedBytes32Lib.LinkedBytes32 storage $list = $allInterfaces[msg.sender];
+        $list.init();
+
+        for (uint256 i; i < ids.length; i++) {
+            bytes4 _id = ids[i];
+            bytes32 newId;
+            assembly {
+                newId := _id
+            }
+            $list.push(newId);
+        }
+    }
+
+    function onUninstall(bytes calldata) external virtual {
+        $allInterfaces[msg.sender].popAll();
+    }
+
+    function setInterfaceId(bytes4 supportedInterface) external {
+        if (_msgSender() != msg.sender) revert Unauthorized();
+
+        bytes32 _id;
+        assembly {
+            _id := supportedInterface
+        }
+        $allInterfaces[msg.sender].push(_id);
+    }
 
     function supportsInterface(bytes4 interfaceID) external view override returns (bool) {
         if (interfaceID == type(IERC7579Defaults).interfaceId) {
             return true;
         }
-        if ($accountInterfaces[msg.sender][interfaceID]) {
-            return true;
+
+        bytes32 _id;
+        assembly {
+            _id := interfaceID
         }
+        return $allInterfaces[msg.sender].contains(_id);
     }
 
     /**
