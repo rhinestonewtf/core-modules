@@ -13,9 +13,11 @@ interface IERC7579Defaults {
 contract SupportsInterface is ERC7579FallbackBase, IERC165 {
     using LinkedBytes32Lib for LinkedBytes32Lib.LinkedBytes32;
 
-    mapping(address account => LinkedBytes32Lib.LinkedBytes32 list) internal $allInterfaces;
-
     error Unauthorized();
+
+    event SupportedInterfaceAdded(address indexed account, bytes4 interfaceId);
+
+    mapping(address account => LinkedBytes32Lib.LinkedBytes32 list) internal $allInterfaces;
 
     /**
      * Called when the module is installed on a smart account
@@ -35,11 +37,14 @@ contract SupportsInterface is ERC7579FallbackBase, IERC165 {
                 newId := _id
             }
             $list.push(newId);
+            emit SupportedInterfaceAdded(msg.sender, _id);
         }
     }
 
     function onUninstall(bytes calldata) external virtual {
         $allInterfaces[msg.sender].popAll();
+
+        // TODO: emit events
     }
 
     function setInterfaceId(bytes4 supportedInterface) external {
@@ -50,6 +55,7 @@ contract SupportsInterface is ERC7579FallbackBase, IERC165 {
             _id := supportedInterface
         }
         $allInterfaces[msg.sender].push(_id);
+        emit SupportedInterfaceAdded(msg.sender, supportedInterface);
     }
 
     function supportsInterface(bytes4 interfaceID) external view override returns (bool) {
