@@ -1,12 +1,12 @@
 {
   "title": "RegistryHook",
-  "signer": "0x1234567890123456789012345678901234567890",
+  "signer": "ackee.xyz",
   "auditor": {
-    "name": "Ackee",
-    "uri": "http://audit.corp",
-    "authors": ["auditor1", "auditor2"]
+    "name": "Ackee Blockchain",
+    "uri": "https://ackee.xyz",
+    "authors": ["Štěpán Šonský", "Michal Převrátil", "Naoki Yoshida", "Jan Převrátil", "Josef Gattermayer, Ph.D."]
   },
-  "reportUrl": "http://audit.corp/report",
+  "reportUrl": "https://github.com/Ackee-Blockchain/public-audit-reports/blob/master/2024/ackee-blockchain-rhinestone-core-modules-report.pdf",
   "moduleAttributes": {
     "moduleAddress": "0xD48E4da9d16044c6c1b59C687C3df2DA19d2D0f7",
     "globalAttributes": {
@@ -18,7 +18,7 @@
       "upgradeable": false,
       "pausable": false,
       "licensedModule": false,
-      "erc7562StorageCompliant": true,
+      "erc7562StorageCompliant": false,
       "uninstallCleanUp": true
     },
     "validatorAttributes": {
@@ -40,8 +40,8 @@
     "hookAttributes": {
       "defaultAllow": true,
       "defaultDeny": false,
-      "accessControl": true,
-      "moduleControl": false,
+      "accessControl": false,
+      "moduleControl": true,
       "userControl": true
     },
     "externalDependency": {
