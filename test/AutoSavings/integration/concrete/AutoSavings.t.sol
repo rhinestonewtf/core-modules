@@ -9,6 +9,8 @@ import { SENTINEL } from "sentinellist/SentinelList.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { UD2x18, ud2x18, intoUint256, intoUD60x18 } from "@prb/math/UD2x18.sol";
 
+import "forge-std/console2.sol";
+
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
@@ -235,10 +237,12 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         bytes32 slot = bytes32(
             uint256(
                 keccak256(
-                    abi.encode(address(usdc), keccak256(abi.encode(address(instance.account), 0)))
+                    abi.encode(address(usdc), keccak256(abi.encode(address(instance.account), 1)))
                 )
             ) + 1
         );
+        console2.log("slot");
+        console2.logBytes32(slot);
         bytes32 storedLimit = vm.load(address(executor), slot);
         assertEq(uint256(storedLimit), uint256(limit));
         vm.store(address(executor), slot, bytes32(0));

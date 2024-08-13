@@ -26,11 +26,11 @@
     "test:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   },
   "dependencies": {
-    "@rhinestone/flatbytes": "github:rhinestonewtf/flatbytes",
     "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
-    "@rhinestone/modulekit": "^0.4.6",
+    "@rhinestone/flatbytes": "github:rhinestonewtf/flatbytes",
+    "@rhinestone/modulekit": "^0.4.9",
     "ds-test": "github:dapphub/ds-test#e282159d5170298eb2455a6c05280ab5a73a4ef0",
-    "forge-std": "github:foundry-rs/forge-std#v1.7.6",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.2",
     "solmate": "github:transmissions11/solmate"
   },
   "files": [
