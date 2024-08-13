@@ -58,7 +58,7 @@ struct Deployments {
  * @author @kopy-kat
  */
 contract DeployScript is Script {
-    address registry =0x0000000000E23E0033C3e93D9D4eBc2FF2AB2AEF;
+    address registry = 0x0000000000E23E0033C3e93D9D4eBc2FF2AB2AEF;
     IRegistry _registry = IRegistry(registry);
 
     function run() public {
@@ -178,7 +178,6 @@ contract DeployScript is Script {
         vm.serializeAddress(item, "deployer", env.deployer);
         item = vm.serializeAddress(item, "factory", registry);
         vm.serializeString(deployments, "registryHook", item);
-
 
         item = "AutoSavings";
         vm.serializeAddress(item, "address", env.autosavings);

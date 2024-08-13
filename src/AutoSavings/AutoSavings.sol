@@ -11,6 +11,7 @@ import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { ud } from "@prb/math/UD60x18.sol";
+import { InitializableUniswapV3Integration } from "../utils/uniswap/UniswapIntegration.sol";
 
 /**
  * @title AutoSavings
@@ -18,8 +19,10 @@ import { ud } from "@prb/math/UD60x18.sol";
  * vault
  * @author Rhinestone
  */
-contract AutoSavings is ERC7579ExecutorBase {
+contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
     using SentinelListLib for SentinelListLib.SentinelList;
+
+    constructor(address initializer) InitializableUniswapV3Integration(initializer) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
@@ -253,12 +256,13 @@ contract AutoSavings is ERC7579ExecutorBase {
         // if token is not the underlying token, swap it
         if (token != underlying) {
             // create swap from received token to underlying token
-            Execution[] memory swap = UniswapV3Integration.approveAndSwap({
+            Execution[] memory swap = _approveAndSwap({
                 smartAccount: account,
                 tokenIn: IERC20(token),
                 tokenOut: IERC20(underlying),
                 amountIn: amountIn,
-                sqrtPriceLimitX96: conf.sqrtPriceLimitX96
+                sqrtPriceLimitX96: conf.sqrtPriceLimitX96,
+                amountOutMinimum: 0
             });
 
             // execute swap on account

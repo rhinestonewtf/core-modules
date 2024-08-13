@@ -38,7 +38,8 @@ contract AutoSavingsTest is BaseTest {
 
     function setUp() public virtual override {
         BaseTest.setUp();
-        executor = new AutoSavings();
+        executor = new AutoSavings(address(this));
+        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
         account = new MockAccount();
 
         token1 = new MockERC20("USDC", "USDC", 18);
