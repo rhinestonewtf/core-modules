@@ -21,7 +21,8 @@ contract ScheduledOrdersTest is BaseTest {
     function setUp() public virtual override {
         BaseTest.setUp();
 
-        executor = new ScheduledOrders();
+        executor = new ScheduledOrders(address(this));
+        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
         target = new MockTarget();
 
         vm.warp(1_713_357_071);
@@ -69,7 +70,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -89,7 +90,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -173,7 +174,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -193,7 +194,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -254,7 +255,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -290,7 +291,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 1;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -327,7 +328,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp + 1 days);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
@@ -365,7 +366,7 @@ contract ScheduledOrdersTest is BaseTest {
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
         bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100));
+            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 

@@ -50,13 +50,15 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         deal(address(usdc), instance.account, 1_000_000);
         deal(address(weth), instance.account, 1_000_000);
 
-        executor = new ScheduledOrders();
+        executor = new ScheduledOrders(address(this));
+        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
         uint48 _executeInterval = 1 days;
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
-        _executionData =
-            abi.encode(address(address(usdc)), address(address(weth)), uint256(100), uint160(1));
+        _executionData = abi.encode(
+            address(address(usdc)), address(address(weth)), uint256(100), uint160(0), uint256(0)
+        );
 
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
