@@ -272,7 +272,9 @@ library HookMultiPlexerLib {
      * @return sigHooks array of sig hooks
      * @return targetSigHooks array of target sig hooks
      */
-    function decodeOnInstall(bytes calldata onInstallData)
+    function decodeOnInstall(
+        bytes calldata onInstallData
+    )
         internal
         pure
         returns (

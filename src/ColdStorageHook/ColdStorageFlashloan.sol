@@ -111,7 +111,9 @@ contract ColdStorageFlashloan is FlashloanCallback {
      *
      * @return whitelistArray The whitelist of the smart account
      */
-    function getWhitelist(address smartAccount)
+    function getWhitelist(
+        address smartAccount
+    )
         external
         view
         returns (address[] memory whitelistArray)

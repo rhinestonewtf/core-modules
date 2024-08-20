@@ -339,7 +339,9 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
      *
      * @return receiver address of the receiver
      */
-    function _getTokenTxReceiver(bytes calldata callData)
+    function _getTokenTxReceiver(
+        bytes calldata callData
+    )
         internal
         pure
         returns (address receiver)

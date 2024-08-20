@@ -53,16 +53,145 @@ struct Deployments {
     bytes32 salt;
 }
 
+library Inspect {
+    function isContract(address _addr) internal returns (bool isContract) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
+    }
+}
+
 /**
  * @title Deploy
  * @author @kopy-kat
  */
 contract DeployScript is Script {
-    address registry = 0x0000000000E23E0033C3e93D9D4eBc2FF2AB2AEF;
+    using Inspect for address;
+
+    address registry = 0x000000000069E2a187AEFFb852bF3cCdC95151B2;
     IRegistry _registry = IRegistry(registry);
 
     function run() public {
-        bytes32 salt = bytes32(0x0000000000000000000000000000000000000000000000000000000000001338);
+        // Arbitrum
+        // vm.createSelectFork("arbitrum");
+        // console2.log("Deploying to arbitrum");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on arbitrum");
+
+        // Avalanche
+        // vm.createSelectFork("avalanche");
+        // console2.log("Deploying to avalanche");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on avalanche");
+
+        // Avalanche Fuji
+        // vm.createSelectFork("avalanche-fuji");
+        // console2.log("Deploying to avalanche-fuji");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on avalanche-fuji");
+
+
+        // Localhost
+        // vm.createSelectFork("localhost");
+        // console2.log("Deploying to localhost");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on localhost");
+
+        // Mainnet
+        // vm.createSelectFork("mainnet");
+        // console2.log("Deploying to mainnet");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on mainnet");
+
+        // Optimism
+        vm.createSelectFork("optimism");
+        console2.log("Deploying to optimism");
+        if (registry.isContract()) deploy();
+        else console2.log("Registry not deployed on optimism");
+
+        // Optimism Sepolia
+        // vm.createSelectFork("optimism-sepolia");
+        // console2.log("Deploying to optimism-sepolia");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on optimism-sepolia");
+
+        // Polygon
+        // vm.createSelectFork("polygon");
+        // console2.log("Deploying to polygon");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on polygon");
+        //
+        // Polygon Amoy
+        // vm.createSelectFork("polygon-amoy");
+        // console2.log("Deploying to polygon-amoy");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on polygon-amoy");
+
+        // Sepolia
+          // vm.createSelectFork("sepolia");
+          // console2.log("Deploying to sepolia");
+          // if (registry.isContract()) deploy();
+          // else console2.log("Registry not deployed on sepolia");
+        //
+        // Gnosis
+          // vm.createSelectFork("gnosis");
+          // console2.log("Deploying to gnosis");
+          // if (registry.isContract()) deploy();
+          // else console2.log("Registry not deployed on gnosis");
+
+        // Gnosis Chiado
+        // vm.createSelectFork("gnosis-chidao");
+        // console2.log("Deploying to gnosis-chidao");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on gnosis-chidao");
+
+        // BSC Testnet
+        // vm.createSelectFork("bsc-testnet");
+        // console2.log("Deploying to bsc-testnet");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on bsc-testnet");
+
+        // BSC
+        // vm.createSelectFork("bsc");
+        // console2.log("Deploying to bsc");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on bsc");
+
+        // Base
+          // vm.createSelectFork("base");
+          // console2.log("Deploying to base");
+          // if (registry.isContract()) deploy();
+          // else console2.log("Registry not deployed on base");
+
+        // Base Sepolia
+          // console2.log("Deploying to base-sepolia");
+          // vm.createSelectFork("base-sepolia");
+          // if (registry.isContract()) deploy();
+          // else console2.log("Registry not deployed on base-sepolia");
+
+        // Scroll Testnet
+        // vm.createSelectFork("scroll-testnet");
+        // console2.log("Deploying to scroll-testnet");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on scroll-testnet");
+
+        // Scroll
+        // vm.createSelectFork("scroll");
+        // console2.log("Deploying to scroll");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on scroll");
+
+
+        // vm.createSelectFork("celo");
+        // console2.log("Deploying to celo");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on celo");
+    }
+
+    function deploy() public {
+        bytes32 salt = bytes32(0x0000000000000000000000000000000000000000000000000000000000001337);
         bytes32 resolverUID =
             bytes32(0xDBCA873B13C783C0C9C6DDFC4280E505580BF6CC3DAC83F8A0F7B44ACAAFCA4F);
         vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
@@ -82,8 +211,8 @@ contract DeployScript is Script {
             salt, resolverUID, type(ColdStorageFlashloan).creationCode, "", ""
         );
 
-        env.autosavings =
-            _registry.deployModule(salt, resolverUID, type(AutoSavings).creationCode, "", "");
+        // env.autosavings =
+        //     _registry.deployModule(salt, resolverUID, type(AutoSavings).creationCode, "", "");
 
         env.deadmanSwitch =
             _registry.deployModule(salt, resolverUID, type(DeadmanSwitch).creationCode, "", "");
@@ -103,8 +232,9 @@ contract DeployScript is Script {
         );
         env.registryHook =
             _registry.deployModule(salt, resolverUID, type(RegistryHook).creationCode, "", "");
-        env.scheduledOrders =
-            _registry.deployModule(salt, resolverUID, type(ScheduledOrders).creationCode, "", "");
+        // env.scheduledOrders =
+        //     _registry.deployModule(salt, resolverUID, type(ScheduledOrders).creationCode, "",
+        // "");
         env.scheduledTransfers =
             _registry.deployModule(salt, resolverUID, type(ScheduledTransfers).creationCode, "", "");
         env.socialRecovery =
