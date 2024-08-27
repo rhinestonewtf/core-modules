@@ -70,8 +70,8 @@ contract AutoSavingsConcreteTest is BaseTest {
 
     function getConfigs() public returns (AutoSavings.Config[] memory _configs) {
         _configs = new AutoSavings.Config[](2);
-        _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1), 1);
-        _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2), 1);
+        _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1));
+        _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2));
     }
 
     function formatConfigs(
@@ -87,8 +87,7 @@ contract AutoSavingsConcreteTest is BaseTest {
             _configsWithToken[i] = AutoSavings.ConfigWithToken({
                 token: _tokens[i],
                 percentage: _configs[i].percentage,
-                vault: _configs[i].vault,
-                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
+                vault: _configs[i].vault
             });
         }
     }
@@ -102,11 +101,9 @@ contract AutoSavingsConcreteTest is BaseTest {
         executor.onInstall(data);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
-                executor.config(account, _tokens[i]);
+            (UD2x18 _percentage, address _vault) = executor.config(account, _tokens[i]);
             assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
-            assertEq(_sqrtPriceLimitX96, _configs[i].sqrtPriceLimitX96);
         }
 
         address[] memory tokens = executor.getTokens(account);
@@ -138,30 +135,13 @@ contract AutoSavingsConcreteTest is BaseTest {
             configs[i] = AutoSavings.ConfigWithToken({
                 token: makeAddr(vm.toString(i)),
                 percentage: ud2x18(0.01e18),
-                vault: address(0),
-                sqrtPriceLimitX96: 0
+                vault: address(0)
             });
         }
 
         bytes memory data = abi.encode(SWAP_ROUTER, FEE, configs);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.TooManyTokens.selector));
-        executor.onInstall(data);
-    }
-
-    function test_OnInstallRevertWhen_SqrtPriceLimitX96Is0()
-        public
-        whenModuleIsNotIntialized
-        whenTokensIsNotGreaterThanMax
-    {
-        // it should revert
-        AutoSavings.Config[] memory _configs = getConfigs();
-        _configs[0].sqrtPriceLimitX96 = 0;
-        AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-
-        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
-
-        vm.expectRevert(abi.encodeWithSelector(AutoSavings.InvalidSqrtPriceLimitX96.selector));
         executor.onInstall(data);
     }
 
@@ -179,11 +159,9 @@ contract AutoSavingsConcreteTest is BaseTest {
         executor.onInstall(data);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
-                executor.config(address(this), _tokens[i]);
+            (UD2x18 _percentage, address _vault) = executor.config(address(this), _tokens[i]);
             assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
-            assertEq(_sqrtPriceLimitX96, _configs[i].sqrtPriceLimitX96);
         }
 
         address[] memory tokens = executor.getTokens(address(this));
@@ -197,11 +175,9 @@ contract AutoSavingsConcreteTest is BaseTest {
         executor.onUninstall("");
 
         for (uint256 i; i < _tokens.length; i++) {
-            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
-                executor.config(address(this), _tokens[i]);
+            (UD2x18 _percentage, address _vault) = executor.config(address(this), _tokens[i]);
             assertEq(_percentage.intoUint256(), 0);
             assertEq(_vault, address(0));
-            assertEq(_sqrtPriceLimitX96, 0);
         }
     }
 
@@ -237,31 +213,18 @@ contract AutoSavingsConcreteTest is BaseTest {
         executor.setConfig(_tokens[0], getConfigs()[0]);
     }
 
-    function test_SetConfigRevertWhen_SqrtPriceLimitX96Is0() public whenModuleIsIntialized {
-        // it should revert
-        test_OnInstallWhenSqrtPriceLimitX96IsNot0();
-
-        address token = address(2);
-        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1), 0);
-
-        vm.expectRevert(abi.encodeWithSelector(AutoSavings.InvalidSqrtPriceLimitX96.selector));
-        executor.setConfig(token, config);
-    }
-
     function test_SetConfigWhenSqrtPriceLimitX96IsNot0() public whenModuleIsIntialized {
         // it should set the config for the token
         test_OnInstallWhenSqrtPriceLimitX96IsNot0();
 
         address token = address(2);
-        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1), 100);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1));
 
         executor.setConfig(token, config);
 
-        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
-            executor.config(address(this), token);
+        (UD2x18 _percentage, address _vault) = executor.config(address(this), token);
         assertEq(_percentage.intoUint256(), config.percentage.intoUint256());
         assertEq(_vault, config.vault);
-        assertEq(_sqrtPriceLimitX96, config.sqrtPriceLimitX96);
     }
 
     function test_DeleteConfigRevertWhen_ModuleIsNotIntialized() public {
@@ -277,11 +240,9 @@ contract AutoSavingsConcreteTest is BaseTest {
 
         executor.deleteConfig(SENTINEL, _tokens[1]);
 
-        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
-            executor.config(address(this), _tokens[1]);
+        (UD2x18 _percentage, address _vault) = executor.config(address(this), _tokens[1]);
         assertEq(_percentage.intoUint256(), 0);
         assertEq(_vault, address(0));
-        assertEq(_sqrtPriceLimitX96, 0);
     }
 
     function test_CalcDepositAmountShouldReturnTheDepositAmount() public {
@@ -302,7 +263,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         vm.expectRevert(
             abi.encodeWithSelector(IERC7579Module.NotInitialized.selector, address(this))
         );
-        executor.autoSave(token, amountReceived);
+        executor.autoSave(token, amountReceived, 1, 0);
     }
 
     function test_AutoSaveWhenTheTokenProvidedIsNotTheUnderlyingAsset()
@@ -313,7 +274,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         // it should deposit the amount to the vault
         // it should emit an AutoSaveExecuted event
         installFromAccount(address(account));
-        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(0.01e18), address(vault2), 10);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(0.01e18), address(vault2));
 
         vm.prank(address(account));
         executor.setConfig(address(token1), config);
@@ -331,9 +292,9 @@ contract AutoSavingsConcreteTest is BaseTest {
         });
 
         vm.prank(address(account));
-        executor.autoSave(address(token1), amountReceived);
+        executor.autoSave(address(token1), amountReceived, 1, 0);
 
-        (UD2x18 percentage,,) = executor.config(address(account), address(token1));
+        (UD2x18 percentage,) = executor.config(address(account), address(token1));
 
         uint256 assetsAfter = vault2.totalAssets();
         assertEq(assetsAfter, amountSaved);
@@ -360,9 +321,9 @@ contract AutoSavingsConcreteTest is BaseTest {
         });
 
         vm.prank(address(account));
-        executor.autoSave(token, amountReceived);
+        executor.autoSave(token, amountReceived, 1, 0);
 
-        (UD2x18 percentage,,) = executor.config(address(account), token);
+        (UD2x18 percentage,) = executor.config(address(account), token);
 
         uint256 assetsAfter = vault1.totalAssets();
         assertEq(

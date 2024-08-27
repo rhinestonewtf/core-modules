@@ -34,14 +34,12 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
     struct Config {
         UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
-        uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
 
     struct ConfigWithToken {
         address token; // address of the token
         UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
-        uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
 
     // account => token => Config
@@ -88,17 +86,8 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
         // loop through the tokens, add them to the list and set their configurations
         for (uint256 i; i < length; i++) {
             address _token = _configs[i].token;
-            Config memory _config = Config({
-                percentage: _configs[i].percentage,
-                vault: _configs[i].vault,
-                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
-            });
-
-            // check that sqrtPriceLimitX96 > 0
-            // sqrtPriceLimitX96 = 0 means unlimitted slippage
-            if (_config.sqrtPriceLimitX96 == 0) {
-                revert InvalidSqrtPriceLimitX96();
-            }
+            Config memory _config =
+                Config({ percentage: _configs[i].percentage, vault: _configs[i].vault });
 
             config[account][_token] = _config;
             tokens[account].push(_token);
@@ -154,12 +143,6 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
         address account = msg.sender;
         // check if the module is not initialized and revert if it is not
         if (!isInitialized(account)) revert NotInitialized(account);
-
-        // check that sqrtPriceLimitX96 > 0
-        // sqrtPriceLimitX96 = 0 means unlimitted slippage
-        if (_config.sqrtPriceLimitX96 == 0) {
-            revert InvalidSqrtPriceLimitX96();
-        }
 
         // set the configuration for the token
         config[account][token] = _config;
@@ -234,7 +217,14 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
      * @param token address of the token received
      * @param amountReceived amount received by the user
      */
-    function autoSave(address token, uint256 amountReceived) external {
+    function autoSave(
+        address token,
+        uint256 amountReceived,
+        uint128 sqrtPriceLimitX96,
+        uint256 amountOutMinimum
+    )
+        external
+    {
         // cache the account address
         address account = msg.sender;
 
@@ -263,8 +253,8 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
                 tokenIn: IERC20(token),
                 tokenOut: IERC20(underlying),
                 amountIn: amountIn,
-                sqrtPriceLimitX96: conf.sqrtPriceLimitX96,
-                amountOutMinimum: 0
+                sqrtPriceLimitX96: sqrtPriceLimitX96,
+                amountOutMinimum: amountOutMinimum
             });
 
             // execute swap on account
