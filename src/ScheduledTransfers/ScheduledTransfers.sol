@@ -35,7 +35,7 @@ contract ScheduledTransfers is SchedulingBase {
      *
      * @param jobId unique identifier for the job
      */
-    function executeOrder(uint256 jobId) external override canExecute(jobId) {
+    function executeOrder(uint256 jobId) external canExecute(jobId) {
         // get the execution config
         ExecutionConfig storage executionConfig = executionLog[msg.sender][jobId];
 

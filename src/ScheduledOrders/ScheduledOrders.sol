@@ -39,20 +39,20 @@ contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
      *
      * @param jobId unique identifier for the job
      */
-    function executeOrder(uint256 jobId) external override canExecute(jobId) {
+    function executeOrder(
+        uint256 jobId,
+        uint160 sqrtPriceLimitX96,
+        uint256 amountOutMinimum
+    )
+        external
+        canExecute(jobId)
+    {
         // get the execution config
         ExecutionConfig storage executionConfig = executionLog[msg.sender][jobId];
 
         // decode from executionData: tokenIn, tokenOut, amountIn and sqrtPriceLimitX96
-        (
-            address tokenIn,
-            address tokenOut,
-            uint256 amountIn,
-            uint160 sqrtPriceLimitX96,
-            uint256 amountOutMinimum
-        ) = abi.decode(executionConfig.executionData, (address, address, uint256, uint160, uint256));
-
-        if (sqrtPriceLimitX96 == 0) revert InvalidSqrtPriceLimitX96();
+        (address tokenIn, address tokenOut, uint256 amountIn) =
+            abi.decode(executionConfig.executionData, (address, address, uint256));
 
         // approve and swap
         Execution[] memory executions = _approveAndSwap({

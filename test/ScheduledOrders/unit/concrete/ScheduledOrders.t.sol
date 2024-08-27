@@ -252,7 +252,7 @@ contract ScheduledOrdersTest is BaseTest {
 
         vm.startPrank(address(target));
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
         vm.stopPrank();
     }
 
@@ -282,10 +282,10 @@ contract ScheduledOrdersTest is BaseTest {
         );
 
         vm.startPrank(address(target));
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
 
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
         vm.stopPrank();
     }
 
@@ -319,10 +319,10 @@ contract ScheduledOrdersTest is BaseTest {
         );
 
         vm.startPrank(address(target));
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
 
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
         vm.stopPrank();
     }
 
@@ -358,7 +358,7 @@ contract ScheduledOrdersTest is BaseTest {
 
         vm.startPrank(address(target));
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
         vm.stopPrank();
     }
 
@@ -397,7 +397,7 @@ contract ScheduledOrdersTest is BaseTest {
 
         vm.startPrank(address(target));
         vm.warp(block.timestamp + 1 days);
-        executor.executeOrder(jobId);
+        executor.executeOrder(jobId, 0, 0);
         vm.stopPrank();
 
         uint256 value = target.value();

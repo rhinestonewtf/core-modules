@@ -194,7 +194,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeWithSelector(SchedulingBase.executeOrder.selector, jobId),
+            callData: abi.encodeCall(ScheduledOrders.executeOrder, (jobId, uint160(0), 0)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
