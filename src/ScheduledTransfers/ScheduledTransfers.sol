@@ -22,6 +22,14 @@ contract ScheduledTransfers is SchedulingBase {
                                      MODULE LOGIC
     //////////////////////////////////////////////////////////////////////////*/
 
+    function onInstall(bytes calldata data) external override {
+        _onInstall(data);
+    }
+
+    function onUninstall(bytes calldata) external override {
+        _onUninstall();
+    }
+
     /**
      * Executes a scheduled transfer order
      *

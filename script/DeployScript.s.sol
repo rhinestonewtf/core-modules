@@ -92,7 +92,6 @@ contract DeployScript is Script {
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on avalanche-fuji");
 
-
         // Localhost
         // vm.createSelectFork("localhost");
         // console2.log("Deploying to localhost");
@@ -130,16 +129,16 @@ contract DeployScript is Script {
         // else console2.log("Registry not deployed on polygon-amoy");
 
         // Sepolia
-          // vm.createSelectFork("sepolia");
-          // console2.log("Deploying to sepolia");
-          // if (registry.isContract()) deploy();
-          // else console2.log("Registry not deployed on sepolia");
+        // vm.createSelectFork("sepolia");
+        // console2.log("Deploying to sepolia");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on sepolia");
         //
         // Gnosis
-          // vm.createSelectFork("gnosis");
-          // console2.log("Deploying to gnosis");
-          // if (registry.isContract()) deploy();
-          // else console2.log("Registry not deployed on gnosis");
+        // vm.createSelectFork("gnosis");
+        // console2.log("Deploying to gnosis");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on gnosis");
 
         // Gnosis Chiado
         // vm.createSelectFork("gnosis-chidao");
@@ -160,16 +159,16 @@ contract DeployScript is Script {
         // else console2.log("Registry not deployed on bsc");
 
         // Base
-          // vm.createSelectFork("base");
-          // console2.log("Deploying to base");
-          // if (registry.isContract()) deploy();
-          // else console2.log("Registry not deployed on base");
+        // vm.createSelectFork("base");
+        // console2.log("Deploying to base");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on base");
 
         // Base Sepolia
-          // console2.log("Deploying to base-sepolia");
-          // vm.createSelectFork("base-sepolia");
-          // if (registry.isContract()) deploy();
-          // else console2.log("Registry not deployed on base-sepolia");
+        // console2.log("Deploying to base-sepolia");
+        // vm.createSelectFork("base-sepolia");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on base-sepolia");
 
         // Scroll Testnet
         // vm.createSelectFork("scroll-testnet");
@@ -182,7 +181,6 @@ contract DeployScript is Script {
         // console2.log("Deploying to scroll");
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on scroll");
-
 
         // vm.createSelectFork("celo");
         // console2.log("Deploying to celo");

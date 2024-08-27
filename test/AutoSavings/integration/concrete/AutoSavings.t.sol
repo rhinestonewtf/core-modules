@@ -14,6 +14,9 @@ import "forge-std/console2.sol";
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
+address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+uint24 constant FEE = 3000;
+
 contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
     using ModuleKitUserOp for *;
@@ -51,8 +54,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         BaseIntegrationTest.setUp();
 
-        executor = new AutoSavings(address(this));
-        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+        executor = new AutoSavings();
 
         vm.label(address(usdc), "USDC");
         vm.label(address(weth), "WETH");
@@ -69,7 +71,8 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(_configsWithToken);
+
+        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
 
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,

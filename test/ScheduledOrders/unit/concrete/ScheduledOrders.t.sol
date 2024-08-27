@@ -6,6 +6,9 @@ import { ScheduledOrders, SchedulingBase } from "src/ScheduledOrders/ScheduledOr
 import { IERC7579Module } from "modulekit/external/ERC7579.sol";
 import { MockTarget } from "test/mocks/MockTarget.sol";
 
+address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+uint24 constant FEE = 3000;
+
 contract ScheduledOrdersTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
@@ -21,8 +24,7 @@ contract ScheduledOrdersTest is BaseTest {
     function setUp() public virtual override {
         BaseTest.setUp();
 
-        executor = new ScheduledOrders(address(this));
-        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+        executor = new ScheduledOrders();
         target = new MockTarget();
 
         vm.warp(1_713_357_071);
@@ -74,6 +76,8 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+
         executor.onInstall(data);
 
         vm.expectRevert(
@@ -94,6 +98,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
         vm.expectEmit(true, true, true, true, address(executor));
         emit SchedulingBase.ExecutionAdded({ smartAccount: address(this), jobId: 1 });
 
@@ -178,6 +183,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
         vm.expectRevert(
             abi.encodeWithSelector(IERC7579Module.NotInitialized.selector, address(this))
         );
@@ -197,6 +203,7 @@ contract ScheduledOrdersTest is BaseTest {
             abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
 
         uint256 prevJobCount = executor.accountJobCount(address(this));
 
@@ -259,6 +266,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
         vm.prank(address(target));
         executor.onInstall(data);
 
@@ -294,6 +302,7 @@ contract ScheduledOrdersTest is BaseTest {
             abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
 
         vm.prank(address(target));
         executor.onInstall(data);
@@ -332,6 +341,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
         vm.prank(address(target));
         executor.onInstall(data);
 
@@ -370,6 +380,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
         vm.prank(address(target));
         executor.onInstall(data);
 

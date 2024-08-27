@@ -22,8 +22,6 @@ import { InitializableUniswapV3Integration } from "../utils/uniswap/UniswapInteg
 contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
     using SentinelListLib for SentinelListLib.SentinelList;
 
-    constructor(address initializer) InitializableUniswapV3Integration(initializer) { }
-
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -74,7 +72,9 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
         address account = msg.sender;
 
         // decode the data to get the tokens and their configurations
-        (ConfigWithToken[] memory _configs) = abi.decode(data, (ConfigWithToken[]));
+        (address swapRouter, uint24 swapRouterFee, ConfigWithToken[] memory _configs) =
+            abi.decode(data, (address, uint24, ConfigWithToken[]));
+        _initSwapRouter(swapRouter, swapRouterFee);
 
         // initialize the sentinel list
         tokens[account].init();
@@ -114,6 +114,8 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
     function onUninstall(bytes calldata) external override {
         // cache the account address
         address account = msg.sender;
+
+        _deinitSwapRouter();
 
         // clear the configurations
         (address[] memory tokensArray,) = tokens[account].getEntriesPaginated(SENTINEL, MAX_TOKENS);

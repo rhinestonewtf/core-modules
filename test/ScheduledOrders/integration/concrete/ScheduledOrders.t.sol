@@ -9,6 +9,9 @@ import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
+address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+uint24 constant FEE = 3000;
+
 contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
     using ModuleKitUserOp for *;
@@ -50,8 +53,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         deal(address(usdc), instance.account, 1_000_000);
         deal(address(weth), instance.account, 1_000_000);
 
-        executor = new ScheduledOrders(address(this));
-        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+        executor = new ScheduledOrders();
 
         uint48 _executeInterval = 1 days;
         uint16 _numberOfExecutions = 10;
@@ -60,10 +62,13 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
             address(address(usdc)), address(address(weth)), uint256(100), uint160(0), uint256(0)
         );
 
+        bytes memory data =
+            abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
+        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
             module: address(executor),
-            data: abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData)
+            data: data
         });
     }
 

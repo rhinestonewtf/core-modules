@@ -13,7 +13,10 @@ import { MockUniswap } from "modulekit/integrations/uniswap/MockUniswap.sol";
 import { SWAPROUTER_ADDRESS } from "modulekit/integrations/uniswap/helpers/MainnetAddresses.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 
-contract AutoSavingsTest is BaseTest {
+address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+uint24 constant FEE = 3000;
+
+contract AutoSavingsConcreteTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -38,8 +41,7 @@ contract AutoSavingsTest is BaseTest {
 
     function setUp() public virtual override {
         BaseTest.setUp();
-        executor = new AutoSavings(address(this));
-        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+        executor = new AutoSavings();
         account = new MockAccount();
 
         token1 = new MockERC20("USDC", "USDC", 18);
@@ -94,7 +96,7 @@ contract AutoSavingsTest is BaseTest {
     function installFromAccount(address account) public {
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(_configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
 
         vm.prank(account);
         executor.onInstall(data);
@@ -119,8 +121,7 @@ contract AutoSavingsTest is BaseTest {
         // it should revert
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(_configsWithToken);
-
+        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
         executor.onInstall(data);
 
         vm.expectRevert();
@@ -142,7 +143,7 @@ contract AutoSavingsTest is BaseTest {
             });
         }
 
-        bytes memory data = abi.encode(configs);
+        bytes memory data = abi.encode(SWAP_ROUTER, FEE, configs);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.TooManyTokens.selector));
         executor.onInstall(data);
@@ -158,7 +159,7 @@ contract AutoSavingsTest is BaseTest {
         _configs[0].sqrtPriceLimitX96 = 0;
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
 
-        bytes memory data = abi.encode(_configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.InvalidSqrtPriceLimitX96.selector));
         executor.onInstall(data);
@@ -173,7 +174,7 @@ contract AutoSavingsTest is BaseTest {
         // it should add all tokens
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(_configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
 
         executor.onInstall(data);
 

@@ -11,28 +11,29 @@ import { ERC20Integration } from "modulekit/Integrations.sol";
 abstract contract InitializableUniswapV3Integration {
     using ERC20Integration for IERC20;
 
-    uint24 private constant SWAPROUTER_DEFAULTFEE = 3000;
-
     error PoolDoesNotExist();
 
-    event SwapRouterInitialized(address swaprouter);
-
-    address private immutable INITIALIZER;
-    address public SWAPROUTER_ADDRESS;
+    event SwapRouterInitialized(address account, address swaprouter, uint24 fee);
 
     error Unauthorized();
-    error InvalidParam(address swaprouter);
+    error InvalidSwapRouter(address swaprouter);
 
-    constructor(address initializer) {
-        INITIALIZER = initializer;
+    struct SwapRouterConfig {
+        address swapRouter;
+        uint24 fee; // default should be 3000
     }
 
-    function initializeSwapRouter(address swaprouter) public {
-        if (msg.sender != INITIALIZER) revert Unauthorized();
-        if (SWAPROUTER_ADDRESS != address(0)) revert Unauthorized();
-        if (swaprouter == address(0)) revert InvalidParam(swaprouter);
-        SWAPROUTER_ADDRESS = swaprouter;
-        emit SwapRouterInitialized(swaprouter);
+    mapping(address account => SwapRouterConfig config) internal _swapRouters;
+
+    function _initSwapRouter(address swapRouter, uint24 fee) internal {
+        if (swapRouter == address(0)) {
+            revert InvalidSwapRouter(swapRouter);
+        }
+        _swapRouters[msg.sender] = SwapRouterConfig({ swapRouter: swapRouter, fee: fee });
+    }
+
+    function _deinitSwapRouter() internal {
+        delete _swapRouters[msg.sender];
     }
 
     function _approveAndSwap(
@@ -47,8 +48,9 @@ abstract contract InitializableUniswapV3Integration {
         view
         returns (Execution[] memory exec)
     {
+        SwapRouterConfig memory config = _swapRouters[smartAccount];
         exec = new Execution[](3);
-        (exec[0], exec[1]) = ERC20Integration.safeApprove(tokenIn, SWAPROUTER_ADDRESS, amountIn);
+        (exec[0], exec[1]) = ERC20Integration.safeApprove(tokenIn, config.swapRouter, amountIn);
         exec[2] = _swapExactInputSingle(
             smartAccount, tokenIn, tokenOut, amountIn, sqrtPriceLimitX96, amountOutMinimum
         );
@@ -66,8 +68,9 @@ abstract contract InitializableUniswapV3Integration {
         view
         returns (Execution memory exec)
     {
+        SwapRouterConfig memory config = _swapRouters[smartAccount];
         exec = Execution({
-            target: SWAPROUTER_ADDRESS,
+            target: config.swapRouter,
             value: 0,
             callData: abi.encodeCall(
                 ISwapRouter.exactInputSingle,
@@ -75,7 +78,7 @@ abstract contract InitializableUniswapV3Integration {
                     ISwapRouter.ExactInputSingleParams({
                         tokenIn: address(tokenIn),
                         tokenOut: address(tokenOut),
-                        fee: SWAPROUTER_DEFAULTFEE,
+                        fee: config.fee,
                         recipient: smartAccount,
                         deadline: block.timestamp,
                         amountIn: amountIn,
@@ -99,8 +102,9 @@ abstract contract InitializableUniswapV3Integration {
         view
         returns (Execution memory exec)
     {
+        SwapRouterConfig memory config = _swapRouters[smartAccount];
         exec = Execution({
-            target: SWAPROUTER_ADDRESS,
+            target: config.swapRouter,
             value: 0,
             callData: abi.encodeCall(
                 ISwapRouter.exactOutputSingle,
@@ -108,7 +112,7 @@ abstract contract InitializableUniswapV3Integration {
                     ISwapRouter.ExactOutputSingleParams({
                         tokenIn: address(tokenIn),
                         tokenOut: address(tokenOut),
-                        fee: SWAPROUTER_DEFAULTFEE,
+                        fee: config.fee,
                         recipient: smartAccount,
                         deadline: block.timestamp,
                         amountOut: amountOut,

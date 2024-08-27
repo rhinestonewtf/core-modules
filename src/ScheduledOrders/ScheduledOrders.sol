@@ -14,9 +14,21 @@ import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
  * @author Rhinestone
  */
 contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
-    constructor(address initializer) InitializableUniswapV3Integration(initializer) { }
-
     error InvalidSqrtPriceLimitX96();
+
+    function onInstall(bytes calldata data) external override {
+        address swapRouter = address(bytes20(data[:20]));
+        uint24 swapRouterFee = uint24(bytes3(data[20:23]));
+        bytes calldata scheduledData = data[23:];
+
+        _initSwapRouter(swapRouter, swapRouterFee);
+
+        _onInstall(scheduledData);
+    }
+
+    function onUninstall(bytes calldata) external override {
+        _onUninstall();
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
