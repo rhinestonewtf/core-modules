@@ -4,16 +4,26 @@ pragma solidity ^0.8.23;
 import { BaseTest } from "test/Base.t.sol";
 import { ScheduledOrders, SchedulingBase } from "src/ScheduledOrders/ScheduledOrders.sol";
 import { IERC7579Module } from "modulekit/external/ERC7579.sol";
+import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { MockTarget } from "test/mocks/MockTarget.sol";
 
 address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 uint24 constant FEE = 3000;
+
+address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+
+address constant FACTORY_ADDRESS = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
 contract ScheduledOrdersTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    IERC20 usdc = IERC20(USDC);
+    IERC20 weth = IERC20(WETH);
+
+    uint256 mainnetFork;
     ScheduledOrders internal executor;
     MockTarget internal target;
 
@@ -22,6 +32,12 @@ contract ScheduledOrdersTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
+        string memory mainnetUrl = vm.rpcUrl("mainnet");
+        mainnetFork = vm.createFork(mainnetUrl);
+        vm.selectFork(mainnetFork);
+        vm.rollFork(19_274_877);
+
+        vm.allowCheatcodes(0x864B12d347dafD27Ce36eD763a3D6764F182F835);
         BaseTest.setUp();
 
         executor = new ScheduledOrders();
@@ -53,13 +69,13 @@ contract ScheduledOrdersTest is BaseTest {
             uint48 lastExecutionTime,
             bytes memory executionData
         ) = executor.executionLog(smartAccount, jobId);
-        assertEq(executeInterval, _executeInterval);
-        assertEq(numberOfExecutions, _numberOfExecutions);
-        assertEq(startDate, _startDate);
-        assertEq(isEnabled, true);
-        assertEq(lastExecutionTime, 0);
-        assertEq(numberOfExecutionsCompleted, 0);
-        assertEq(executionData, _executionData);
+        assertEq(executeInterval, _executeInterval, "interval");
+        assertEq(numberOfExecutions, _numberOfExecutions, "number of executions");
+        assertEq(startDate, _startDate, "start date");
+        assertEq(isEnabled, true, "enabled");
+        assertEq(lastExecutionTime, 0, "last execution time");
+        assertEq(numberOfExecutionsCompleted, 0, "number of executions completed");
+        assertEq(executionData, _executionData, "execution data");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,12 +87,11 @@ contract ScheduledOrdersTest is BaseTest {
         uint48 _executeInterval = 1 days;
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
-        bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
+        bytes memory _executionData = abi.encode(address(0x1), address(0x2), uint256(100));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
 
         executor.onInstall(data);
 
@@ -98,7 +113,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
         vm.expectEmit(true, true, true, true, address(executor));
         emit SchedulingBase.ExecutionAdded({ smartAccount: address(this), jobId: 1 });
 
@@ -183,7 +198,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
         vm.expectRevert(
             abi.encodeWithSelector(IERC7579Module.NotInitialized.selector, address(this))
         );
@@ -203,7 +218,7 @@ contract ScheduledOrdersTest is BaseTest {
             abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
 
         uint256 prevJobCount = executor.accountJobCount(address(this));
 
@@ -252,7 +267,7 @@ contract ScheduledOrdersTest is BaseTest {
 
         vm.startPrank(address(target));
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, 0, 0, FEE);
         vm.stopPrank();
     }
 
@@ -261,12 +276,11 @@ contract ScheduledOrdersTest is BaseTest {
         uint48 _executeInterval = 1 days;
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
-        bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
+        bytes memory _executionData = abi.encode(address(usdc), address(weth), uint256(100));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
         vm.prank(address(target));
         executor.onInstall(data);
 
@@ -282,10 +296,12 @@ contract ScheduledOrdersTest is BaseTest {
         );
 
         vm.startPrank(address(target));
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, _getSqrt(), 0, FEE);
+
+        uint160 sqrt = _getSqrt();
 
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, sqrt, 0, FEE);
         vm.stopPrank();
     }
 
@@ -298,11 +314,10 @@ contract ScheduledOrdersTest is BaseTest {
         uint48 _executeInterval = 1 days;
         uint16 _numberOfExecutions = 1;
         uint48 _startDate = uint48(block.timestamp);
-        bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
+        bytes memory _executionData = abi.encode(address(0x1), address(0x2), uint256(100));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
 
         vm.prank(address(target));
         executor.onInstall(data);
@@ -319,10 +334,11 @@ contract ScheduledOrdersTest is BaseTest {
         );
 
         vm.startPrank(address(target));
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, _getSqrt(), 0, FEE);
 
+        uint160 sqrt = _getSqrt();
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, sqrt, 0, FEE);
         vm.stopPrank();
     }
 
@@ -341,7 +357,7 @@ contract ScheduledOrdersTest is BaseTest {
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
         vm.prank(address(target));
         executor.onInstall(data);
 
@@ -358,7 +374,7 @@ contract ScheduledOrdersTest is BaseTest {
 
         vm.startPrank(address(target));
         vm.expectRevert(abi.encodeWithSelector(SchedulingBase.InvalidExecution.selector));
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, 0, 0, FEE);
         vm.stopPrank();
     }
 
@@ -375,12 +391,11 @@ contract ScheduledOrdersTest is BaseTest {
         uint48 _executeInterval = 1 seconds;
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
-        bytes memory _executionData =
-            abi.encode(address(0x1), address(0x2), uint256(100), uint160(100), uint256(0));
+        bytes memory _executionData = abi.encode(address(0x1), address(0x2), uint256(100));
         bytes memory data =
             abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
 
-        data = abi.encodePacked(SWAP_ROUTER, FEE, data);
+        data = abi.encodePacked(SWAP_ROUTER, data);
         vm.prank(address(target));
         executor.onInstall(data);
 
@@ -397,7 +412,7 @@ contract ScheduledOrdersTest is BaseTest {
 
         vm.startPrank(address(target));
         vm.warp(block.timestamp + 1 days);
-        executor.executeOrder(jobId, 0, 0);
+        executor.executeOrder(jobId, _getSqrt(), 0, FEE);
         vm.stopPrank();
 
         uint256 value = target.value();
@@ -442,5 +457,25 @@ contract ScheduledOrdersTest is BaseTest {
 
     modifier whenAllExecutionsHaveNotBeenCompleted() {
         _;
+    }
+
+    function _getSqrt() internal returns (uint160) {
+        uint32 slippage = 1; // 0.1% slippage
+        address poolAddress =
+            executor.getPoolAddress(FACTORY_ADDRESS, address(usdc), address(weth), FEE);
+        uint160 sqrtPriceX96 = executor.getSqrtPriceX96(poolAddress);
+        uint256 priceRatio = executor.sqrtPriceX96toPriceRatio(sqrtPriceX96);
+        uint256 price = executor.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
+        bool swapToken0to1 = executor.checkTokenOrder(address(usdc), poolAddress);
+        uint256 priceRatioLimit;
+        if (swapToken0to1) {
+            priceRatioLimit = (priceRatio * (1000 - slippage)) / 1000;
+        } else {
+            priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
+        }
+        uint256 priceLimit = executor.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+        uint160 sqrtPriceLimitX96 = executor.priceRatioToSqrtPriceX96(priceRatioLimit);
+
+        return sqrtPriceLimitX96;
     }
 }

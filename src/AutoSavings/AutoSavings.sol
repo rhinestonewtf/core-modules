@@ -70,9 +70,9 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
         address account = msg.sender;
 
         // decode the data to get the tokens and their configurations
-        (address swapRouter, uint24 swapRouterFee, ConfigWithToken[] memory _configs) =
-            abi.decode(data, (address, uint24, ConfigWithToken[]));
-        _initSwapRouter(swapRouter, swapRouterFee);
+        (address swapRouter, ConfigWithToken[] memory _configs) =
+            abi.decode(data, (address, ConfigWithToken[]));
+        setSwapRouter(swapRouter);
 
         // initialize the sentinel list
         tokens[account].init();
@@ -220,8 +220,9 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
     function autoSave(
         address token,
         uint256 amountReceived,
-        uint128 sqrtPriceLimitX96,
-        uint256 amountOutMinimum
+        uint160 sqrtPriceLimitX96,
+        uint256 amountOutMinimum,
+        uint24 fee
     )
         external
     {
@@ -254,7 +255,8 @@ contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
                 tokenOut: IERC20(underlying),
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtPriceLimitX96,
-                amountOutMinimum: amountOutMinimum
+                amountOutMinimum: amountOutMinimum,
+                fee: fee
             });
 
             // execute swap on account

@@ -14,6 +14,7 @@ import "forge-std/console2.sol";
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
+address constant FACTORY_ADDRESS = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 uint24 constant FEE = 3000;
 
@@ -72,7 +73,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
 
-        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, _configsWithToken);
 
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
@@ -201,7 +202,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeCall(AutoSavings.autoSave, (address(usdc), amountReceived, 1, 0)),
+            callData: abi.encodeCall(AutoSavings.autoSave, (address(usdc), amountReceived, 1, 0, FEE)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
@@ -230,10 +231,34 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         uint256 amountReceived = 1000;
         uint256 assetsBefore = vault2.totalAssets();
 
+        uint32 slippage = 1; // 0.1% slippage
+        address poolAddress =
+            executor.getPoolAddress(FACTORY_ADDRESS, address(usdc), address(weth), FEE);
+        uint160 sqrtPriceX96 = executor.getSqrtPriceX96(poolAddress);
+
+        uint256 priceRatio = executor.sqrtPriceX96toPriceRatio(sqrtPriceX96);
+
+        uint256 price = executor.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
+
+        bool swapToken0to1 = executor.checkTokenOrder(address(usdc), poolAddress);
+
+        uint256 priceRatioLimit;
+        if (swapToken0to1) {
+            priceRatioLimit = (priceRatio * (1000 - slippage)) / 1000;
+        } else {
+            priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
+        }
+
+        uint256 priceLimit = executor.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+
+        uint160 sqrtPriceLimitX96 = executor.priceRatioToSqrtPriceX96(priceRatioLimit);
+
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeCall(AutoSavings.autoSave, (address(usdc), amountReceived, 0, 0)),
+            callData: abi.encodeCall(
+                AutoSavings.autoSave, (address(usdc), amountReceived, sqrtPriceLimitX96, 0, FEE)
+            ),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 

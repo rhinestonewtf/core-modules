@@ -95,7 +95,7 @@ contract AutoSavingsConcreteTest is BaseTest {
     function installFromAccount(address account) public {
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, _configsWithToken);
 
         vm.prank(account);
         executor.onInstall(data);
@@ -118,7 +118,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         // it should revert
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, _configsWithToken);
         executor.onInstall(data);
 
         vm.expectRevert();
@@ -139,7 +139,7 @@ contract AutoSavingsConcreteTest is BaseTest {
             });
         }
 
-        bytes memory data = abi.encode(SWAP_ROUTER, FEE, configs);
+        bytes memory data = abi.encode(SWAP_ROUTER, configs);
 
         vm.expectRevert(abi.encodeWithSelector(AutoSavings.TooManyTokens.selector));
         executor.onInstall(data);
@@ -154,7 +154,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         // it should add all tokens
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(SWAP_ROUTER, FEE, _configsWithToken);
+        bytes memory data = abi.encode(SWAP_ROUTER, _configsWithToken);
 
         executor.onInstall(data);
 
@@ -263,7 +263,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         vm.expectRevert(
             abi.encodeWithSelector(IERC7579Module.NotInitialized.selector, address(this))
         );
-        executor.autoSave(token, amountReceived, 1, 0);
+        executor.autoSave(token, amountReceived, 1, 0, FEE);
     }
 
     function test_AutoSaveWhenTheTokenProvidedIsNotTheUnderlyingAsset()
@@ -292,7 +292,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         });
 
         vm.prank(address(account));
-        executor.autoSave(address(token1), amountReceived, 1, 0);
+        executor.autoSave(address(token1), amountReceived, 1, 0, FEE);
 
         (UD2x18 percentage,) = executor.config(address(account), address(token1));
 
@@ -321,7 +321,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         });
 
         vm.prank(address(account));
-        executor.autoSave(token, amountReceived, 1, 0);
+        executor.autoSave(token, amountReceived, 1, 0, FEE);
 
         (UD2x18 percentage,) = executor.config(address(account), token);
 

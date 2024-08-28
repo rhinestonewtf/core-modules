@@ -18,10 +18,9 @@ contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
 
     function onInstall(bytes calldata data) external override {
         address swapRouter = address(bytes20(data[:20]));
-        uint24 swapRouterFee = uint24(bytes3(data[20:23]));
-        bytes calldata scheduledData = data[23:];
+        bytes calldata scheduledData = data[20:];
 
-        _initSwapRouter(swapRouter, swapRouterFee);
+        setSwapRouter(swapRouter);
 
         _onInstall(scheduledData);
     }
@@ -42,7 +41,8 @@ contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
     function executeOrder(
         uint256 jobId,
         uint160 sqrtPriceLimitX96,
-        uint256 amountOutMinimum
+        uint256 amountOutMinimum,
+        uint24 fee
     )
         external
         canExecute(jobId)
@@ -61,7 +61,8 @@ contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
             tokenOut: IERC20(tokenOut),
             amountIn: amountIn,
             sqrtPriceLimitX96: sqrtPriceLimitX96,
-            amountOutMinimum: amountOutMinimum
+            amountOutMinimum: amountOutMinimum,
+            fee: fee
         });
 
         // update the execution config
