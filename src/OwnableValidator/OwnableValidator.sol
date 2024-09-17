@@ -408,7 +408,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
      * @return true if the type is a module type, false otherwise
      */
     function isModuleType(uint256 typeID) external pure override returns (bool) {
-        return typeID == TYPE_VALIDATOR || typeID == 8;
+        return typeID == TYPE_VALIDATOR || typeID == 10;
     }
 
     /**
