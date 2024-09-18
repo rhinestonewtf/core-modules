@@ -1,10 +1,16 @@
 {
   "title": "SocialRecovery",
-  "signer": "0x5C4c744d489593DE486208257fF56c9Fb5cBF256",
+  "signer": "0xa1E8F5D6cCd82f2a2aC4ca5df4D51c71e48a54d5",
   "auditor": {
     "name": "Ackee Blockchain",
     "uri": "https://ackee.xyz",
-    "authors": ["Štěpán Šonský", "Michal Převrátil", "Naoki Yoshida", "Jan Převrátil", "Josef Gattermayer, Ph.D."]
+    "authors": [
+      "Štěpán Šonský",
+      "Michal Převrátil",
+      "Naoki Yoshida",
+      "Jan Převrátil",
+      "Josef Gattermayer, Ph.D."
+    ]
   },
   "reportUrl": "https://github.com/Ackee-Blockchain/public-audit-reports/blob/master/2024/ackee-blockchain-rhinestone-core-modules-report.pdf",
   "moduleAttributes": {
@@ -19,7 +25,8 @@
       "pausable": false,
       "licensedModule": false,
       "erc7562StorageCompliant": true,
-      "uninstallCleanUp": true
+      "uninstallCleanUp": true,
+      "multichainCompatible": false
     },
     "validatorAttributes": {
       "unscopedValidator": false,
@@ -57,5 +64,9 @@
       "zkProvers": false,
       "ercDeps": []
     }
+  },
+  "signature": {
+    "hash": "0x7cf82217e46776f7707883434108d3461d4b67f810b75272cb92d566e2835659",
+    "signature": "0xd4710121c1d3312e804379a90cdf60a6d0cfbdcdebb020d0b23cf63beccc8a6a56dd0ec84989dbb41e040c531f39146992808fefa8ace3c6d3addf4f252f6e4d00"
   }
 }

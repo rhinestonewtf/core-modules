@@ -1,10 +1,16 @@
 {
   "title": "DeadmanSwitch",
-  "signer": "0x5C4c744d489593DE486208257fF56c9Fb5cBF256",
+  "signer": "0xa1E8F5D6cCd82f2a2aC4ca5df4D51c71e48a54d5",
   "auditor": {
     "name": "Ackee Blockchain",
     "uri": "https://ackee.xyz",
-    "authors": ["Štěpán Šonský", "Michal Převrátil", "Naoki Yoshida", "Jan Převrátil", "Josef Gattermayer, Ph.D."]
+    "authors": [
+      "Štěpán Šonský",
+      "Michal Převrátil",
+      "Naoki Yoshida",
+      "Jan Převrátil",
+      "Josef Gattermayer, Ph.D."
+    ]
   },
   "reportUrl": "https://github.com/Ackee-Blockchain/public-audit-reports/blob/master/2024/ackee-blockchain-rhinestone-core-modules-report.pdf",
   "moduleAttributes": {
@@ -19,7 +25,8 @@
       "pausable": false,
       "licensedModule": false,
       "erc7562StorageCompliant": true,
-      "uninstallCleanUp": true
+      "uninstallCleanUp": true,
+      "multichainCompatible": false
     },
     "validatorAttributes": {
       "unscopedValidator": false,
@@ -57,5 +64,9 @@
       "zkProvers": false,
       "ercDeps": []
     }
+  },
+  "signature": {
+    "hash": "0xea0e1af12ab28fd12895485d3b9e402ddda26ad92eb60cb74454870e9283c29e",
+    "signature": "0x7e549396e3644619688f360aa75375c96df8cb73547212e41f6f10c18aac9dc86db2048d96841644e090eb7b8c5e2daf140bab0bfe9a00d2a6436fadac8c8d9700"
   }
 }

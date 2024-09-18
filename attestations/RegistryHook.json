@@ -1,10 +1,16 @@
 {
   "title": "RegistryHook",
-  "signer": "0x5C4c744d489593DE486208257fF56c9Fb5cBF256",
+  "signer": "0xa1E8F5D6cCd82f2a2aC4ca5df4D51c71e48a54d5",
   "auditor": {
     "name": "Ackee Blockchain",
     "uri": "https://ackee.xyz",
-    "authors": ["Štěpán Šonský", "Michal Převrátil", "Naoki Yoshida", "Jan Převrátil", "Josef Gattermayer, Ph.D."]
+    "authors": [
+      "Štěpán Šonský",
+      "Michal Převrátil",
+      "Naoki Yoshida",
+      "Jan Převrátil",
+      "Josef Gattermayer, Ph.D."
+    ]
   },
   "reportUrl": "https://github.com/Ackee-Blockchain/public-audit-reports/blob/master/2024/ackee-blockchain-rhinestone-core-modules-report.pdf",
   "moduleAttributes": {
@@ -19,7 +25,8 @@
       "pausable": false,
       "licensedModule": false,
       "erc7562StorageCompliant": true,
-      "uninstallCleanUp": true
+      "uninstallCleanUp": true,
+      "multichainCompatible": false
     },
     "validatorAttributes": {
       "unscopedValidator": false,
@@ -57,5 +64,9 @@
       "zkProvers": false,
       "ercDeps": []
     }
+  },
+  "signature": {
+    "hash": "0xf64c10ba7a20d0ea1c812c8b17ac34033e2f50f2ebce3b61122bd0ceb5812bed",
+    "signature": "0x45a48be7453fb293f0462d3ce97e47441c4096273a11ad8f10ba212b482a63821549e52a7807328c7708088a51e86993c259c23eaf1dec1d91d05a1d5b77cc0f01"
   }
 }
