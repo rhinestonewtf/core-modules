@@ -26,6 +26,7 @@ contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
     }
 
     function onUninstall(bytes calldata) external override {
+        _deinitSwapRouter();
         _onUninstall();
     }
 
