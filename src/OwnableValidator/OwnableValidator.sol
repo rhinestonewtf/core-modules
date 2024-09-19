@@ -9,6 +9,7 @@ import { LibSort } from "solady/utils/LibSort.sol";
 import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 
+uint256 constant TYPE_STATELESS_VALIDATOR = 7;
 /**
  * @title OwnableValidator
  * @dev Module that allows users to designate EOA owners that can validate transactions using a
@@ -408,7 +409,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
      * @return true if the type is a module type, false otherwise
      */
     function isModuleType(uint256 typeID) external pure override returns (bool) {
-        return typeID == TYPE_VALIDATOR;
+        return typeID == TYPE_VALIDATOR || typeID == TYPE_STATELESS_VALIDATOR;
     }
 
     /**
