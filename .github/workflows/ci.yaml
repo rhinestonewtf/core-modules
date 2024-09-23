@@ -2,11 +2,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - "main"
+      - "feature/build-ci"
   pull_request:
 
 env:
-  # Define your list of contract names here
   CONTRACT_NAMES: >
     ["AutoSavings"]
 
@@ -38,7 +37,6 @@ jobs:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
 
   prepare-release:
-    needs: ["test", "test-simulate"]
     runs-on: ubuntu-latest
     outputs:
       contract-names: ${{ steps.set-matrix.outputs.contract-names }}
