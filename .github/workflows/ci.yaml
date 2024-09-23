@@ -5,6 +5,11 @@ on:
       - "main"
   pull_request:
 
+env:
+  # Define your list of contract names here
+  CONTRACT_NAMES: >
+    ["AutoSavings"]
+
 jobs:
   lint:
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-lint.yaml@main"
@@ -31,3 +36,22 @@ jobs:
       match-path: "test/**/*.sol"
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+
+  prepare-release:
+    needs: ["test", "test-simulate"]
+    runs-on: ubuntu-latest
+    outputs:
+      contract-names: ${{ steps.set-matrix.outputs.contract-names }}
+    steps:
+      - id: set-matrix
+        run: echo "contract-names=${{ env.CONTRACT_NAMES }}" >> $GITHUB_OUTPUT
+
+  release-artifacts:
+    needs: prepare-release
+    strategy:
+      matrix:
+        contract-name: ${{fromJson(needs.prepare-release.outputs.contract-names)}}
+    uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-release.yaml@main"
+    with:
+      contract-name: ${{ matrix.contract-name }}
+      store-artifacts: true
