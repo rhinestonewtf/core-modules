@@ -6,11 +6,12 @@ on:
   pull_request:
 
 jobs:
-  lint:
-    uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-lint.yaml@main"
-
   build:
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-build.yaml@main"
+
+  lint:
+    needs: ["build"]
+    uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-lint.yaml@main"
 
   test:
     needs: ["lint", "build"]
@@ -19,8 +20,6 @@ jobs:
       foundry-fuzz-runs: 5000
       foundry-profile: "test"
       match-path: "test/**/*.sol"
-    secrets:
-      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
 
   test-simulate:
     needs: ["lint", "build"]
@@ -29,5 +28,13 @@ jobs:
       foundry-fuzz-runs: 5000
       foundry-profile: "test"
       match-path: "test/**/*.sol"
-    secrets:
-      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+
+  release-artifacts:
+    needs: ["build", "test"]
+    uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-release.yaml@main"
+    strategy:
+      matrix:
+        contract-name: ["AutoSavings", "ScheduledOrders", "ScheduledTransfers"]
+    with:
+      contract-name: ${{ matrix.contract-name }}
+      store-artifacts: true
