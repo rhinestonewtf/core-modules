@@ -134,16 +134,13 @@ abstract contract InitializableUniswapV3Integration {
         return sqrtPriceX96;
     }
 
-    function sqrtPriceX96toPriceRatio(
-        uint160 sqrtPriceX96
-    )
+    function sqrtPriceX96toPriceRatio(uint160 sqrtPriceX96)
         public
         pure
         returns (uint256 priceRatio)
     {
-        uint256 decodedSqrtPrice = sqrtPriceX96 / (2 ** 96);
+        uint256 decodedSqrtPrice = (sqrtPriceX96 * 10 ** 9) / (2 ** 96);
         priceRatio = decodedSqrtPrice * decodedSqrtPrice;
-        return priceRatio;
     }
 
     function priceRatioToPrice(
@@ -162,17 +159,17 @@ abstract contract InitializableUniswapV3Integration {
         uint256 token1Decimals = IERC20(poolToken1).decimals();
 
         bool swapToken0to1 = (tokenSwappedFrom == poolToken0);
+
         if (swapToken0to1) {
-            price = 10 ** token1Decimals / priceRatio;
+            price = (10 ** token1Decimals * 10 ** 18) / priceRatio;
         } else {
-            price = priceRatio * 10 ** token0Decimals;
+            price = (priceRatio * 10 ** token0Decimals) / 10 ** 18;
         }
         return price;
     }
 
     function priceRatioToSqrtPriceX96(uint256 priceRatio) public pure returns (uint160) {
-        uint256 sqrtPriceRatio = sqrt256(priceRatio * 1e18); // Scale priceRatio to 18 decimals for
-            // precision
+        uint256 sqrtPriceRatio = sqrt256(priceRatio);
 
         uint256 sqrtPriceX96 = (sqrtPriceRatio * 2 ** 96) / 1e9; // Adjust back from the scaling
 
