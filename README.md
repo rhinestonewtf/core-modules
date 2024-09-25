@@ -1,6 +1,6 @@
 # Core Modules
 
-**Rhinestone Core Modules for Smart Accounts**
+**Rhinestone core modules for smart accounts**
 
 Modules:
 
