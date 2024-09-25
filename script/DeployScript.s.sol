@@ -17,7 +17,7 @@ import { ScheduledOrders } from "src/ScheduledOrders/ScheduledOrders.sol";
 import { ScheduledTransfers } from "src/ScheduledTransfers/ScheduledTransfers.sol";
 import { SocialRecovery } from "src/SocialRecovery/SocialRecovery.sol";
 import { FlashloanCallback } from "src/Flashloan/FlashloanCallback.sol";
-import { FlashloanLender } from "src/Flashloan/flashloanLender.sol";
+import { FlashloanLender } from "src/Flashloan/FlashloanLender.sol";
 
 import "forge-std/console2.sol";
 
