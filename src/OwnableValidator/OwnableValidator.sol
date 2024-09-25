@@ -16,6 +16,7 @@ uint256 constant TYPE_STATELESS_VALIDATOR = 7;
  * threshold
  * @author Rhinestone
  */
+
 contract OwnableValidator is ERC7579ValidatorBase {
     using LibSort for *;
     using SentinelList4337Lib for SentinelList4337Lib.SentinelList;
