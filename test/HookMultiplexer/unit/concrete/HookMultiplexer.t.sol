@@ -142,9 +142,7 @@ contract HookMultiPlexerTest is BaseTest {
         );
     }
 
-    function getPostCheckHookCallData(
-        bytes memory preCheckContext
-    )
+    function getPostCheckHookCallData(bytes memory preCheckContext)
         internal
         returns (bytes memory hookData)
     {

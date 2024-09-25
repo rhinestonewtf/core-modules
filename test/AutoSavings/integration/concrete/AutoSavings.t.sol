@@ -14,6 +14,10 @@ import "forge-std/console2.sol";
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
+address constant FACTORY_ADDRESS = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+uint24 constant FEE = 3000;
+
 contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
     using ModuleKitUserOp for *;
@@ -51,8 +55,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         BaseIntegrationTest.setUp();
 
-        executor = new AutoSavings(address(this));
-        executor.initializeSwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+        executor = new AutoSavings();
 
         vm.label(address(usdc), "USDC");
         vm.label(address(weth), "WETH");
@@ -69,7 +72,8 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
-        bytes memory data = abi.encode(_configsWithToken);
+
+        bytes memory data = abi.encode(SWAP_ROUTER, _configsWithToken);
 
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
@@ -84,8 +88,8 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
     function getConfigs() public returns (AutoSavings.Config[] memory _configs) {
         _configs = new AutoSavings.Config[](2);
-        _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1), 10);
-        _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2), 10);
+        _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1));
+        _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2));
     }
 
     function formatConfigs(
@@ -101,8 +105,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             _configsWithToken[i] = AutoSavings.ConfigWithToken({
                 token: _tokens[i],
                 percentage: _configs[i].percentage,
-                vault: _configs[i].vault,
-                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
+                vault: _configs[i].vault
             });
         }
     }
@@ -119,11 +122,10 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         AutoSavings.Config[] memory _configs = getConfigs();
 
         for (uint256 i; i < _tokens.length; i++) {
-            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault) =
                 executor.config(address(instance.account), _tokens[i]);
             assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
-            assertEq(_sqrtPriceLimitX96, _configs[i].sqrtPriceLimitX96);
         }
 
         address[] memory tokens = executor.getTokens(address(instance.account));
@@ -142,11 +144,10 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         assertFalse(isInitialized);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+            (UD2x18 _percentage, address _vault) =
                 executor.config(address(instance.account), _tokens[i]);
             assertEq(_percentage.intoUint256(), 0);
             assertEq(_vault, address(0));
-            assertEq(_sqrtPriceLimitX96, 0);
         }
 
         address[] memory tokens = executor.getTokens(address(instance.account));
@@ -156,7 +157,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     function test_SetConfig() public {
         // it should add a config and token
         address token = address(2);
-        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1), 100);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(10), address(1));
 
         instance.getExecOps({
             target: address(executor),
@@ -165,22 +166,19 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
-            executor.config(address(instance.account), token);
+        (UD2x18 _percentage, address _vault) = executor.config(address(instance.account), token);
         assertEq(_percentage.intoUint256(), config.percentage.intoUint256());
         assertEq(_vault, config.vault);
-        assertEq(_sqrtPriceLimitX96, config.sqrtPriceLimitX96);
     }
 
     function test_DeleteConfig() public {
         // it should delete a config and token
         AutoSavings.Config[] memory _configs = getConfigs();
 
-        (UD2x18 _percentage, address _vault, uint128 _sqrtPriceLimitX96) =
+        (UD2x18 _percentage, address _vault) =
             executor.config(address(instance.account), _tokens[1]);
         assertEq(_percentage.intoUint256(), _configs[1].percentage.intoUint256());
         assertEq(_vault, _configs[1].vault);
-        assertEq(_sqrtPriceLimitX96, _configs[1].sqrtPriceLimitX96);
 
         instance.getExecOps({
             target: address(executor),
@@ -189,11 +187,9 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        (_percentage, _vault, _sqrtPriceLimitX96) =
-            executor.config(address(instance.account), _tokens[1]);
+        (_percentage, _vault) = executor.config(address(instance.account), _tokens[1]);
         assertEq(_percentage.intoUint256(), 0);
         assertEq(_vault, address(0));
-        assertEq(_sqrtPriceLimitX96, 0);
     }
 
     function test_AutoSave_WithUnderlyingToken() public {
@@ -206,11 +202,11 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeCall(AutoSavings.autoSave, (address(usdc), amountReceived)),
+            callData: abi.encodeCall(AutoSavings.autoSave, (address(usdc), amountReceived, 1, 0, FEE)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        (UD2x18 _percentage,,) = executor.config(address(instance.account), address(usdc));
+        (UD2x18 _percentage,) = executor.config(address(instance.account), address(usdc));
         uint256 depositAmount = executor.calcDepositAmount(amountReceived, _percentage);
 
         assertEq(usdc.balanceOf(address(instance.account)), prevBalanceAccount - depositAmount);
@@ -223,8 +219,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     function test_AutoSave_WithNonUnderlyingToken() public {
         // it should deposit the underlying token into the vault
         uint128 limit = 100;
-        AutoSavings.Config memory config =
-            AutoSavings.Config(ud2x18(0.01e18), address(vault2), limit);
+        AutoSavings.Config memory config = AutoSavings.Config(ud2x18(0.01e18), address(vault2));
 
         instance.getExecOps({
             target: address(executor),
@@ -233,27 +228,37 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        // note: this is a hack to use limit 0 instead of calculating the correct limit for the pair
-        bytes32 slot = bytes32(
-            uint256(
-                keccak256(
-                    abi.encode(address(usdc), keccak256(abi.encode(address(instance.account), 1)))
-                )
-            ) + 1
-        );
-        console2.log("slot");
-        console2.logBytes32(slot);
-        bytes32 storedLimit = vm.load(address(executor), slot);
-        assertEq(uint256(storedLimit), uint256(limit));
-        vm.store(address(executor), slot, bytes32(0));
-
         uint256 amountReceived = 1000;
         uint256 assetsBefore = vault2.totalAssets();
+
+        uint32 slippage = 1; // 0.1% slippage
+        address poolAddress =
+            executor.getPoolAddress(FACTORY_ADDRESS, address(usdc), address(weth), FEE);
+        uint160 sqrtPriceX96 = executor.getSqrtPriceX96(poolAddress);
+
+        uint256 priceRatio = executor.sqrtPriceX96toPriceRatio(sqrtPriceX96);
+
+        uint256 price = executor.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
+
+        bool swapToken0to1 = executor.checkTokenOrder(address(usdc), poolAddress);
+
+        uint256 priceRatioLimit;
+        if (swapToken0to1) {
+            priceRatioLimit = (priceRatio * (1000 - slippage)) / 1000;
+        } else {
+            priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
+        }
+
+        uint256 priceLimit = executor.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+
+        uint160 sqrtPriceLimitX96 = executor.priceRatioToSqrtPriceX96(priceRatioLimit);
 
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeCall(AutoSavings.autoSave, (address(usdc), amountReceived)),
+            callData: abi.encodeCall(
+                AutoSavings.autoSave, (address(usdc), amountReceived, sqrtPriceLimitX96, 0, FEE)
+            ),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 

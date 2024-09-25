@@ -234,9 +234,7 @@ contract SocialRecovery is ERC7579ValidatorBase {
      *
      * @return guardiansArray array of guardians
      */
-    function getGuardians(
-        address account
-    )
+    function getGuardians(address account)
         external
         view
         returns (address[] memory guardiansArray)

@@ -190,11 +190,12 @@ contract DeployScript is Script {
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on scroll");
 
-        // Celo
-        vm.createSelectFork("celo");
-        console2.log("Deploying to celo");
-        if (registry.isContract()) deploy();
-        else console2.log("Registry not deployed on celo");
+
+        // vm.createSelectFork("celo");
+        // console2.log("Deploying to celo");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on celo");
+
     }
 
     function deploy() public {
