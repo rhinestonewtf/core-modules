@@ -30,7 +30,7 @@ jobs:
       match-path: "test/**/*.sol"
 
   release-artifacts:
-    needs: ["build", "test"]
+    needs: ["build"]
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-release.yaml@main"
     strategy:
       matrix:
