@@ -34,7 +34,21 @@ jobs:
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-release.yaml@main"
     strategy:
       matrix:
-        contract-name: ["AutoSavings", "ScheduledOrders", "ScheduledTransfers"]
+        contract-name:
+          [
+            "AutoSavings",
+            "ColdStorageFlashloan",
+            "ColdStorageHook",
+            "DeadmanSwitch",
+            "HookMultiPlexer",
+            "MultiFactor",
+            "OwnableExecutor",
+            "OwnableValidator",
+            "RegistryHook",
+            "SocialRecovery",
+            "ScheduledOrders",
+            "ScheduledTransfers",
+          ]
     with:
       contract-name: ${{ matrix.contract-name }}
       store-artifacts: true
