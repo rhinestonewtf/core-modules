@@ -1,14 +1,20 @@
 {
   "title": "AutoSavings",
-  "signer": "0x1234567890123456789012345678901234567890",
+  "signer": "0xa1E8F5D6cCd82f2a2aC4ca5df4D51c71e48a54d5",
   "auditor": {
-    "name": "Ackee",
-    "uri": "http://audit.corp",
-    "authors": ["auditor1", "auditor2"]
+    "name": "Ackee Blockchain",
+    "uri": "https://ackee.xyz",
+    "authors": [
+      "Štěpán Šonský",
+      "Michal Převrátil",
+      "Naoki Yoshida",
+      "Jan Převrátil",
+      "Josef Gattermayer, Ph.D."
+    ]
   },
-  "reportUrl": "http://audit.corp/report",
+  "reportUrl": "https://github.com/Ackee-Blockchain/public-audit-reports/blob/master/2024/ackee-blockchain-rhinestone-core-modules-report.pdf",
   "moduleAttributes": {
-    "moduleAddress": "0x20f64ecC4806304Ac39b974E161662011b978a66",
+    "moduleAddress": "0x6AE48bD83B6bdc8489584Ea0814086f963d1BD95",
     "globalAttributes": {
       "reentrancyProtection": true,
       "importantDataValidation": true,
@@ -19,10 +25,11 @@
       "pausable": false,
       "licensedModule": false,
       "erc7562StorageCompliant": true,
-      "uninstallCleanUp": true
+      "uninstallCleanUp": true,
+      "multichainCompatible": false
     },
     "validatorAttributes": {
-      "unscopedValidator": true,
+      "unscopedValidator": false,
       "recoveryModule": false,
       "multiplexer": false
     },
@@ -45,17 +52,23 @@
       "userControl": false
     },
     "externalDependency": {
-      "oracle": true,
-      "bridges": true,
+      "oracle": false,
+      "bridges": false,
       "dexs": true,
       "vaults": true,
-      "registry": true,
-      "lending": true,
-      "liquidityProvision": true,
+      "registry": false,
+      "lending": false,
+      "liquidityProvision": false,
       "governance": true,
-      "privacy": true,
-      "zkProvers": true,
-      "ercDeps": [20, 721, 1155]
+      "privacy": false,
+      "zkProvers": false,
+      "ercDeps": [
+        20
+      ]
     }
+  },
+  "signature": {
+    "hash": "0x03e114306ea2c6f3e657754bc2c7e18c88719650c573b8c3e7051608b4a4fd90",
+    "signature": "0xae602d69ee7d47a9ea9344d725d9f38ba8901b254193f1afbb8cfb1ee9fc67021bd1903038be6c8596c70f8fd94d703de267f8532c5ce840c5e07504df89421500"
   }
 }
