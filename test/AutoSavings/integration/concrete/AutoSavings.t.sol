@@ -8,6 +8,7 @@ import { MockERC4626, ERC20 } from "solmate/test/utils/mocks/MockERC4626.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { UD2x18, ud2x18, intoUint256, intoUD60x18 } from "@prb/math/UD2x18.sol";
+import { UniswapIntegrationHelper } from "../../../utils/UniswapIntegrationHelper.sol";
 
 import "forge-std/console2.sol";
 
@@ -26,6 +27,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     AutoSavings internal executor;
+    UniswapIntegrationHelper uniswapHelper;
 
     MockERC4626 internal vault1;
     MockERC4626 internal vault2;
@@ -65,6 +67,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         vault1 = new MockERC4626(ERC20(address(usdc)), "vUSDC", "vUSDC");
         vault2 = new MockERC4626(ERC20(address(weth)), "vwETH", "vwETH");
+        uniswapHelper = new UniswapIntegrationHelper();
 
         _tokens = new address[](2);
         _tokens[0] = address(usdc);
@@ -236,9 +239,9 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             executor.getPoolAddress(FACTORY_ADDRESS, address(usdc), address(weth), FEE);
         uint160 sqrtPriceX96 = executor.getSqrtPriceX96(poolAddress);
 
-        uint256 priceRatio = executor.sqrtPriceX96toPriceRatio(sqrtPriceX96);
+        uint256 priceRatio = uniswapHelper.sqrtPriceX96toPriceRatio(sqrtPriceX96);
 
-        uint256 price = executor.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
+        uint256 price = uniswapHelper.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
 
         bool swapToken0to1 = executor.checkTokenOrder(address(usdc), poolAddress);
 
@@ -249,9 +252,10 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
             priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
         }
 
-        uint256 priceLimit = executor.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+        uint256 priceLimit =
+            uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
 
-        uint160 sqrtPriceLimitX96 = executor.priceRatioToSqrtPriceX96(priceRatioLimit);
+        uint160 sqrtPriceLimitX96 = uniswapHelper.priceRatioToSqrtPriceX96(priceRatioLimit);
 
         instance.getExecOps({
             target: address(executor),

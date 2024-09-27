@@ -11,22 +11,22 @@ allow_paths = ["*", "/"]
 
 
 [etherscan]
-#arbitrum = { key = "${API_KEY_ARBISCAN}", chain="arbitrum" }
-#avalanche = { key = "${API_KEY_ETHERSCAN}", chain="avalanche" }
-#avalanche-fuji = { key = "${API_KEY_ETHERSCAN}", chain="avalanche-fuji" }
+arbitrum = { key = "${API_KEY_ARBISCAN}", chain="arbitrum" }
+avalanche = { key = "${API_KEY_ETHERSCAN}", chain="avalanche" }
+avalanche-fuji = { key = "${API_KEY_ETHERSCAN}", chain="avalanche-fuji" }
 #mainnet = { key = "${API_KEY_ETHERSCAN}" }
-#optimism = { key = "${API_KEY_OPTISM_ETHERSCAN}", chain="optimism"}
-#optimism-sepolia = { key = "${API_KEY_OPTIMISM_ETHERSCAN}", chain="optimism-sepolia"}
-#polygon = { key = "${API_KEY_POLYGONSCAN}", chain="polygon"}
-#polygon-amoy = { key = "${API_KEY_POLYGONSCAN}", chain="polygon-amoy"}
-#sepolia = { key = "${API_KEY_ETHERSCAN}", chain="sepolia"}
+optimism = { key = "${API_KEY_OPTISM_ETHERSCAN}", chain="optimism"}
+optimism-sepolia = { key = "${API_KEY_OPTIMISM_ETHERSCAN}", chain="optimism-sepolia"}
+polygon = { key = "${API_KEY_POLYGONSCAN}", chain="polygon"}
+polygon-amoy = { key = "${API_KEY_POLYGONSCAN}", chain="polygon-amoy"}
+sepolia = { key = "${API_KEY_ETHERSCAN}", chain="sepolia"}
 #gnosis-chidao = { key = "${API_KEY_GNOSISSCAN}", chain="gnosis-chidao"}
-#gnosis = { key = "${API_KEY_GNOSISSCAN}", chain="gnosis"}
-#bsc = { key = "${API_KEY_BSCSCAN}", chain="bsc"}
-#bsc-testnet = { key = "${API_KEY_BSCSCAN}", chain="bsc-testnet"}
-#base = {key = "${API_KEY_BASESCAN}", chain="base"}
+gnosis = { key = "${API_KEY_GNOSISSCAN}", chain="gnosis"}
+bsc = { key = "${API_KEY_BSCSCAN}", chain="bsc"}
+bsc-testnet = { key = "${API_KEY_BSCSCAN}", chain="bsc-testnet"}
+base = {key = "${API_KEY_BASESCAN}", chain="base"}
 #base-sepolia = {key = "${API_KEY_BASESCAN}", chain="base-sepolia"}
-#scroll = {key = "${API_KEY_SCROLLSCAN}", chain="scroll"}
+scroll = {key = "${API_KEY_SCROLLSCAN}", chain="scroll"}
 #scroll-testnet = {key = "${API_KEY_SCROLLSCAN}", chain="scroll-testnet"}
 
 

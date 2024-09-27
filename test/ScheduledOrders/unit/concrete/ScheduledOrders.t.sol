@@ -7,6 +7,7 @@ import { IERC7579Module } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { MockTarget } from "test/mocks/MockTarget.sol";
 
+import { UniswapIntegrationHelper } from "../../../utils/UniswapIntegrationHelper.sol";
 address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 uint24 constant FEE = 3000;
 
@@ -25,6 +26,7 @@ contract ScheduledOrdersTest is BaseTest {
 
     uint256 mainnetFork;
     ScheduledOrders internal executor;
+    UniswapIntegrationHelper uniswapHelper;
     MockTarget internal target;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -41,6 +43,7 @@ contract ScheduledOrdersTest is BaseTest {
         BaseTest.setUp();
 
         executor = new ScheduledOrders();
+        uniswapHelper = new UniswapIntegrationHelper();
         target = new MockTarget();
 
         vm.warp(1_713_357_071);
@@ -464,8 +467,8 @@ contract ScheduledOrdersTest is BaseTest {
         address poolAddress =
             executor.getPoolAddress(FACTORY_ADDRESS, address(usdc), address(weth), FEE);
         uint160 sqrtPriceX96 = executor.getSqrtPriceX96(poolAddress);
-        uint256 priceRatio = executor.sqrtPriceX96toPriceRatio(sqrtPriceX96);
-        uint256 price = executor.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
+        uint256 priceRatio = uniswapHelper.sqrtPriceX96toPriceRatio(sqrtPriceX96);
+        uint256 price = uniswapHelper.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
         bool swapToken0to1 = executor.checkTokenOrder(address(usdc), poolAddress);
         uint256 priceRatioLimit;
         if (swapToken0to1) {
@@ -473,8 +476,8 @@ contract ScheduledOrdersTest is BaseTest {
         } else {
             priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
         }
-        uint256 priceLimit = executor.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
-        uint160 sqrtPriceLimitX96 = executor.priceRatioToSqrtPriceX96(priceRatioLimit);
+        uint256 priceLimit = uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+        uint160 sqrtPriceLimitX96 = uniswapHelper.priceRatioToSqrtPriceX96(priceRatioLimit);
 
         return sqrtPriceLimitX96;
     }
