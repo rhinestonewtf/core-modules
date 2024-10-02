@@ -32,6 +32,14 @@ interface IRegistry {
         external
         payable
         returns (address moduleAddress);
+
+    function calcModuleAddress(
+        bytes32 salt,
+        bytes calldata initCode
+    )
+        external
+        view
+        returns (address);
 }
 
 struct Deployments {
@@ -79,12 +87,19 @@ contract DeployScript is Script {
         // console2.log("Deploying to arbitrum");
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on arbitrum");
+
+        // Arbitrum Sepolia
+        // vm.createSelectFork("arbitrum-sepolia");
+        // console2.log("Deploying to arbitrum-sepolia");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on arbitrum-sepolia");
+
         // Avalanche
         // vm.createSelectFork("avalanche");
         // console2.log("Deploying to avalanche");
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on avalanche");
- 
+
         // Avalanche Fuji
         // vm.createSelectFork("avalanche-fuji");
         // console2.log("Deploying to avalanche-fuji");
@@ -92,10 +107,10 @@ contract DeployScript is Script {
         // else console2.log("Registry not deployed on avalanche-fuji");
 
         // Localhost
-        vm.createSelectFork("localhost");
-        console2.log("Deploying to localhost");
-        if (registry.isContract()) deploy();
-        else console2.log("Registry not deployed on localhost");
+        // vm.createSelectFork("localhost");
+        // console2.log("Deploying to localhost");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on localhost");
 
         // Mainnet
         // vm.createSelectFork("mainnet");
@@ -120,7 +135,7 @@ contract DeployScript is Script {
         // console2.log("Deploying to polygon");
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on polygon");
-        //
+
         // Polygon Amoy
         // vm.createSelectFork("polygon-amoy");
         // console2.log("Deploying to polygon-amoy");
@@ -128,10 +143,10 @@ contract DeployScript is Script {
         // else console2.log("Registry not deployed on polygon-amoy");
 
         // Sepolia
-        // vm.createSelectFork("sepolia");
-        // console2.log("Deploying to sepolia");
-        // if (registry.isContract()) deploy();
-        // else console2.log("Registry not deployed on sepolia");
+        vm.createSelectFork("sepolia");
+        console2.log("Deploying to sepolia");
+        if (registry.isContract()) deploy();
+        else console2.log("Registry not deployed on sepolia");
         //
         // Gnosis
         // vm.createSelectFork("gnosis");
@@ -181,6 +196,18 @@ contract DeployScript is Script {
         // if (registry.isContract()) deploy();
         // else console2.log("Registry not deployed on scroll");
 
+        // Fuse Testnet
+        // vm.createSelectFork("fuse-testnet");
+        // console2.log("Deploying to fuse-testnet");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on fuse-testnet");
+
+        // Fuse
+        // vm.createSelectFork("fuse");
+        // console2.log("Deploying to fuse");
+        // if (registry.isContract()) deploy();
+        // else console2.log("Registry not deployed on fuse");
+
         // vm.createSelectFork("celo");
         // console2.log("Deploying to celo");
         // if (registry.isContract()) deploy();
@@ -199,49 +226,62 @@ contract DeployScript is Script {
         env.salt = salt;
 
         env.ownableValidator =
-            _registry.deployModule(salt, resolverUID, type(OwnableValidator).creationCode, "", "");
-        env.ownableExecutor =
-            _registry.deployModule(salt, resolverUID, type(OwnableExecutor).creationCode, "",
-        "");
-        env.coldStorageHook =
-            _registry.deployModule(salt, resolverUID, type(ColdStorageHook).creationCode, "",
-        "");
-        env.coldStorageFlashloan = _registry.deployModule(
-            salt, resolverUID, type(ColdStorageFlashloan).creationCode, "", ""
-        );
+            _registryDeploy(salt, resolverUID, type(OwnableValidator).creationCode, "", "");
+        // env.ownableExecutor =
+        //     _registryDeploy(salt, resolverUID, type(OwnableExecutor).creationCode, "", "");
+        // env.coldStorageHook =
+        //     _registryDeploy(salt, resolverUID, type(ColdStorageHook).creationCode, "", "");
+        // env.coldStorageFlashloan =
+        //     _registryDeploy(salt, resolverUID, type(ColdStorageFlashloan).creationCode, "", "");
 
-        env.autosavings =
-            _registry.deployModule(salt, resolverUID, type(AutoSavings).creationCode, "", "");
+        env.autosavings = _registryDeploy(salt, resolverUID, type(AutoSavings).creationCode, "", "");
 
-        env.deadmanSwitch =
-            _registry.deployModule(salt, resolverUID, type(DeadmanSwitch).creationCode, "", "");
-        env.hookMultiPlexer = _registry.deployModule(
-            salt,
-            resolverUID,
-            abi.encodePacked(type(HookMultiPlexer).creationCode, abi.encode(registry)),
-            "",
-            ""
-        );
-        env.multiFactor = _registry.deployModule(
-            salt,
-            resolverUID,
-            abi.encodePacked(type(MultiFactor).creationCode, abi.encode(registry)),
-            "",
-            ""
-        );
-        env.registryHook =
-            _registry.deployModule(salt, resolverUID, type(RegistryHook).creationCode, "", "");
+        // env.deadmanSwitch =
+        //     _registryDeploy(salt, resolverUID, type(DeadmanSwitch).creationCode, "", "");
+        // env.hookMultiPlexer = _registryDeploy(
+        //     salt,
+        //     resolverUID,
+        //     abi.encodePacked(type(HookMultiPlexer).creationCode, abi.encode(registry)),
+        //     "",
+        //     ""
+        // );
+        // env.multiFactor = _registryDeploy(
+        //     salt,
+        //     resolverUID,
+        //     abi.encodePacked(type(MultiFactor).creationCode, abi.encode(registry)),
+        //     "",
+        //     ""
+        // );
+        // env.registryHook =
+        //     _registryDeploy(salt, resolverUID, type(RegistryHook).creationCode, "", "");
         env.scheduledOrders =
-            _registry.deployModule(salt, resolverUID, type(ScheduledOrders).creationCode, "", "");
-        env.scheduledTransfers =
-            _registry.deployModule(salt, resolverUID, type(ScheduledTransfers).creationCode, "",
-        "");
-        env.socialRecovery =
-            _registry.deployModule(salt, resolverUID, type(SocialRecovery).creationCode, "", "");
+            _registryDeploy(salt, resolverUID, type(ScheduledOrders).creationCode, "", "");
+        // env.scheduledTransfers =
+        //     _registryDeploy(salt, resolverUID, type(ScheduledTransfers).creationCode, "", "");
+        // env.socialRecovery =
+        //     _registryDeploy(salt, resolverUID, type(SocialRecovery).creationCode, "", "");
 
         vm.stopBroadcast();
 
         _logJson(env);
+    }
+
+    function _registryDeploy(
+        bytes32 salt,
+        bytes32 resolverUID,
+        bytes memory initCode,
+        bytes memory metadata,
+        bytes memory resolverContext
+    )
+        internal
+        returns (address module)
+    {
+        module = _registry.calcModuleAddress(salt, initCode);
+        if (!module.isContract()) {
+            address temp =
+                _registry.deployModule(salt, resolverUID, initCode, metadata, resolverContext);
+            require(temp == module, "DeployScript: Mismatching module address");
+        }
     }
 
     function _logJson(Deployments memory env) internal {

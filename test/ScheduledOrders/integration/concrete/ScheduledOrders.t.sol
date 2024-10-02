@@ -200,7 +200,8 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         } else {
             priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
         }
-        uint256 priceLimit = uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+        uint256 priceLimit =
+            uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
         uint160 sqrtPriceLimitX96 = uniswapHelper.priceRatioToSqrtPriceX96(priceRatioLimit);
 
         return sqrtPriceLimitX96;

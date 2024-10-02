@@ -8,6 +8,7 @@ import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { MockTarget } from "test/mocks/MockTarget.sol";
 
 import { UniswapIntegrationHelper } from "../../../utils/UniswapIntegrationHelper.sol";
+
 address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 uint24 constant FEE = 3000;
 
@@ -476,7 +477,8 @@ contract ScheduledOrdersTest is BaseTest {
         } else {
             priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
         }
-        uint256 priceLimit = uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+        uint256 priceLimit =
+            uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
         uint160 sqrtPriceLimitX96 = uniswapHelper.priceRatioToSqrtPriceX96(priceRatioLimit);
 
         return sqrtPriceLimitX96;
