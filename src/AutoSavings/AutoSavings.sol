@@ -11,6 +11,7 @@ import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { ud } from "@prb/math/UD60x18.sol";
+import { InitializableUniswapV3Integration } from "../utils/uniswap/UniswapIntegration.sol";
 
 /**
  * @title AutoSavings
@@ -18,7 +19,7 @@ import { ud } from "@prb/math/UD60x18.sol";
  * vault
  * @author Rhinestone
  */
-contract AutoSavings is ERC7579ExecutorBase {
+contract AutoSavings is ERC7579ExecutorBase, InitializableUniswapV3Integration {
     using SentinelListLib for SentinelListLib.SentinelList;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,14 +34,12 @@ contract AutoSavings is ERC7579ExecutorBase {
     struct Config {
         UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
-        uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
 
     struct ConfigWithToken {
         address token; // address of the token
         UD2x18 percentage; // percentage to be saved to the vault
         address vault; // address of the vault
-        uint128 sqrtPriceLimitX96; // sqrtPriceLimitX96 for UniswapV3 swap
     }
 
     // account => token => Config
@@ -71,7 +70,9 @@ contract AutoSavings is ERC7579ExecutorBase {
         address account = msg.sender;
 
         // decode the data to get the tokens and their configurations
-        (ConfigWithToken[] memory _configs) = abi.decode(data, (ConfigWithToken[]));
+        (address swapRouter, ConfigWithToken[] memory _configs) =
+            abi.decode(data, (address, ConfigWithToken[]));
+        setSwapRouter(swapRouter);
 
         // initialize the sentinel list
         tokens[account].init();
@@ -85,17 +86,8 @@ contract AutoSavings is ERC7579ExecutorBase {
         // loop through the tokens, add them to the list and set their configurations
         for (uint256 i; i < length; i++) {
             address _token = _configs[i].token;
-            Config memory _config = Config({
-                percentage: _configs[i].percentage,
-                vault: _configs[i].vault,
-                sqrtPriceLimitX96: _configs[i].sqrtPriceLimitX96
-            });
-
-            // check that sqrtPriceLimitX96 > 0
-            // sqrtPriceLimitX96 = 0 means unlimitted slippage
-            if (_config.sqrtPriceLimitX96 == 0) {
-                revert InvalidSqrtPriceLimitX96();
-            }
+            Config memory _config =
+                Config({ percentage: _configs[i].percentage, vault: _configs[i].vault });
 
             config[account][_token] = _config;
             tokens[account].push(_token);
@@ -111,6 +103,8 @@ contract AutoSavings is ERC7579ExecutorBase {
     function onUninstall(bytes calldata) external override {
         // cache the account address
         address account = msg.sender;
+
+        _deinitSwapRouter();
 
         // clear the configurations
         (address[] memory tokensArray,) = tokens[account].getEntriesPaginated(SENTINEL, MAX_TOKENS);
@@ -149,12 +143,6 @@ contract AutoSavings is ERC7579ExecutorBase {
         address account = msg.sender;
         // check if the module is not initialized and revert if it is not
         if (!isInitialized(account)) revert NotInitialized(account);
-
-        // check that sqrtPriceLimitX96 > 0
-        // sqrtPriceLimitX96 = 0 means unlimitted slippage
-        if (_config.sqrtPriceLimitX96 == 0) {
-            revert InvalidSqrtPriceLimitX96();
-        }
 
         // set the configuration for the token
         config[account][token] = _config;
@@ -229,7 +217,15 @@ contract AutoSavings is ERC7579ExecutorBase {
      * @param token address of the token received
      * @param amountReceived amount received by the user
      */
-    function autoSave(address token, uint256 amountReceived) external {
+    function autoSave(
+        address token,
+        uint256 amountReceived,
+        uint160 sqrtPriceLimitX96,
+        uint256 amountOutMinimum,
+        uint24 fee
+    )
+        external
+    {
         // cache the account address
         address account = msg.sender;
 
@@ -253,12 +249,14 @@ contract AutoSavings is ERC7579ExecutorBase {
         // if token is not the underlying token, swap it
         if (token != underlying) {
             // create swap from received token to underlying token
-            Execution[] memory swap = UniswapV3Integration.approveAndSwap({
+            Execution[] memory swap = _approveAndSwap({
                 smartAccount: account,
                 tokenIn: IERC20(token),
                 tokenOut: IERC20(underlying),
                 amountIn: amountIn,
-                sqrtPriceLimitX96: conf.sqrtPriceLimitX96
+                sqrtPriceLimitX96: sqrtPriceLimitX96,
+                amountOutMinimum: amountOutMinimum,
+                fee: fee
             });
 
             // execute swap on account

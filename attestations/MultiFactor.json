@@ -1,0 +1,61 @@
+{
+  "title": "MultiFactor",
+  "signer": "0x1234567890123456789012345678901234567890",
+  "auditor": {
+    "name": "Ackee",
+    "uri": "http://audit.corp",
+    "authors": ["auditor1", "auditor2"]
+  },
+  "reportUrl": "http://audit.corp/report",
+  "moduleAttributes": {
+    "moduleAddress": "0xE7fbbb641C3048827C956e20BD7Fa9D0C04e7421",
+    "globalAttributes": {
+      "reentrancyProtection": true,
+      "importantDataValidation": true,
+      "inputManipulationProtection": true,
+      "emitsEvents": true,
+      "moduleOwnerCantRug": true,
+      "upgradeable": false,
+      "pausable": false,
+      "licensedModule": false,
+      "erc7562StorageCompliant": true,
+      "uninstallCleanUp": true
+    },
+    "validatorAttributes": {
+      "unscopedValidator": true,
+      "recoveryModule": false,
+      "multiplexer": true
+    },
+    "executorAttributes": {
+      "handlesUserAssets": false,
+      "delegateCall": false,
+      "triggeredByAccount": false,
+      "triggeredByRelayer": false,
+      "deterministicExecution": false
+    },
+    "fallbackAttributes": {
+      "compatibilityFeature": false,
+      "callbacks": false
+    },
+    "hookAttributes": {
+      "defaultAllow": false,
+      "defaultDeny": false,
+      "accessControl": false,
+      "moduleControl": false,
+      "userControl": false
+    },
+    "externalDependency": {
+      "oracle": false,
+      "bridges": false,
+      "dexs": false,
+      "vaults": false,
+      "registry": true,
+      "lending": false,
+      "liquidityProvision": false,
+      "governance": false,
+      "privacy": false,
+      "zkProvers": false,
+      "ercDeps": []
+    }
+  }
+}

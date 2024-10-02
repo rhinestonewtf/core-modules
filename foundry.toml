@@ -6,8 +6,29 @@ src = "src"
 out = "out"
 script = "script"
 libs = ["node_modules"]
-fs_permissions = [{ access = "read", path = "out-optimized" }, { access = "read-write", path = "gas_calculations" }]
+fs_permissions = [{ access = "read", path = "out-optimized" }, { access = "read-write", path = "deployments" }, { access = "read-write", path = "gas_calculations" }]
 allow_paths = ["*", "/"]
+
+
+[etherscan]
+arbitrum = { key = "${API_KEY_ARBISCAN}", chain="arbitrum" }
+avalanche = { key = "${API_KEY_ETHERSCAN}", chain="avalanche" }
+avalanche-fuji = { key = "${API_KEY_ETHERSCAN}", chain="avalanche-fuji" }
+#mainnet = { key = "${API_KEY_ETHERSCAN}" }
+optimism = { key = "${API_KEY_OPTISM_ETHERSCAN}", chain="optimism"}
+optimism-sepolia = { key = "${API_KEY_OPTIMISM_ETHERSCAN}", chain="optimism-sepolia"}
+polygon = { key = "${API_KEY_POLYGONSCAN}", chain="polygon"}
+polygon-amoy = { key = "${API_KEY_POLYGONSCAN}", chain="polygon-amoy"}
+sepolia = { key = "${API_KEY_ETHERSCAN}", chain="sepolia"}
+#gnosis-chidao = { key = "${API_KEY_GNOSISSCAN}", chain="gnosis-chidao"}
+gnosis = { key = "${API_KEY_GNOSISSCAN}", chain="gnosis"}
+bsc = { key = "${API_KEY_BSCSCAN}", chain="bsc"}
+bsc-testnet = { key = "${API_KEY_BSCSCAN}", chain="bsc-testnet"}
+base = {key = "${API_KEY_BASESCAN}", chain="base"}
+#base-sepolia = {key = "${API_KEY_BASESCAN}", chain="base-sepolia"}
+scroll = {key = "${API_KEY_SCROLLSCAN}", chain="scroll"}
+#scroll-testnet = {key = "${API_KEY_SCROLLSCAN}", chain="scroll-testnet"}
+
 
 [rpc_endpoints]
 arbitrum = "https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
@@ -19,21 +40,20 @@ localhost = "http://localhost:8545"
 mainnet = "https://eth-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
 optimism-sepolia = "https://sepolia.optimism.io "
-polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"
-polygon-amoy = "https://polygon-amoy.drpc.org"
-sepolia = "https://sepolia.infura.io/v3/${API_KEY_INFURA}"
+polygon = "https://polygon-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
+polygon-amoy = "https://polygon-amoy.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
+sepolia = "https://eth-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 gnosis = "https://gnosis-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-gnosis-chidao = "https://gnosis-chiado.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
+gnosis-chidao = "https://gnosis-chiado.g.alchemy.com/v2/${API_KEY_ALCHEMY"
 bsc-testnet = "https://bnb-testnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 bsc = "https://bnb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 base = "https://base-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 base-sepolia = "https://base-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-scroll-testnet = "https://scroll-sepolia.drpc.org"
+scroll-testnet = "https://rpc.ankr.com/scroll_sepolia_testnet"
 scroll = "https://scroll-mainnet.public.blastapi.io"
+celo = "https://forno.celo.org"
 fuse = "https://explorer-node.fuse.io"
-fuse-spark = "https://rpc.fusespark.io/"
-celo = "https://celo.drpc.org"
-celo-alfajores = "https://alfajores-forno.celo-testnet.org"
+fuse-testnet= "https://rpc.fusespark.io/"
 
 [fmt]
 bracket_spacing = true

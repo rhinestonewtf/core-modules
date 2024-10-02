@@ -22,12 +22,20 @@ contract ScheduledTransfers is SchedulingBase {
                                      MODULE LOGIC
     //////////////////////////////////////////////////////////////////////////*/
 
+    function onInstall(bytes calldata data) external override {
+        _onInstall(data);
+    }
+
+    function onUninstall(bytes calldata) external override {
+        _onUninstall();
+    }
+
     /**
      * Executes a scheduled transfer order
      *
      * @param jobId unique identifier for the job
      */
-    function executeOrder(uint256 jobId) external override canExecute(jobId) {
+    function executeOrder(uint256 jobId) external canExecute(jobId) {
         // get the execution config
         ExecutionConfig storage executionConfig = executionLog[msg.sender][jobId];
 
