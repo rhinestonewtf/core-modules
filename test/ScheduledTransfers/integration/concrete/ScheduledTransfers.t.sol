@@ -172,7 +172,7 @@ contract ScheduledTransfersIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeWithSelector(SchedulingBase.executeOrder.selector, jobId),
+            callData: abi.encodeCall(ScheduledTransfers.executeOrder, (jobId)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
@@ -215,7 +215,7 @@ contract ScheduledTransfersIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeWithSelector(SchedulingBase.executeOrder.selector, jobId),
+            callData: abi.encodeCall(ScheduledTransfers.executeOrder, (jobId)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 

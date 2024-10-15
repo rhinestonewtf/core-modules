@@ -3,7 +3,7 @@ pragma solidity ^0.8.25;
 
 import { IERC7579Account, Execution } from "modulekit/Accounts.sol";
 import { SchedulingBase } from "modulekit/Modules.sol";
-import { UniswapV3Integration } from "modulekit/Integrations.sol";
+import { InitializableUniswapV3Integration } from "../utils/uniswap/UniswapIntegration.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
@@ -13,8 +13,22 @@ import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
  * @dev Module that allows users to schedule swaps to be executed at a later time
  * @author Rhinestone
  */
-contract ScheduledOrders is SchedulingBase {
+contract ScheduledOrders is SchedulingBase, InitializableUniswapV3Integration {
     error InvalidSqrtPriceLimitX96();
+
+    function onInstall(bytes calldata data) external override {
+        address swapRouter = address(bytes20(data[:20]));
+        bytes calldata scheduledData = data[20:];
+
+        setSwapRouter(swapRouter);
+
+        _onInstall(scheduledData);
+    }
+
+    function onUninstall(bytes calldata) external override {
+        _deinitSwapRouter();
+        _onUninstall();
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
@@ -25,23 +39,31 @@ contract ScheduledOrders is SchedulingBase {
      *
      * @param jobId unique identifier for the job
      */
-    function executeOrder(uint256 jobId) external override canExecute(jobId) {
+    function executeOrder(
+        uint256 jobId,
+        uint160 sqrtPriceLimitX96,
+        uint256 amountOutMinimum,
+        uint24 fee
+    )
+        external
+        canExecute(jobId)
+    {
         // get the execution config
         ExecutionConfig storage executionConfig = executionLog[msg.sender][jobId];
 
         // decode from executionData: tokenIn, tokenOut, amountIn and sqrtPriceLimitX96
-        (address tokenIn, address tokenOut, uint256 amountIn, uint160 sqrtPriceLimitX96) =
-            abi.decode(executionConfig.executionData, (address, address, uint256, uint160));
-
-        if (sqrtPriceLimitX96 == 0) revert InvalidSqrtPriceLimitX96();
+        (address tokenIn, address tokenOut, uint256 amountIn) =
+            abi.decode(executionConfig.executionData, (address, address, uint256));
 
         // approve and swap
-        Execution[] memory executions = UniswapV3Integration.approveAndSwap({
+        Execution[] memory executions = _approveAndSwap({
             smartAccount: msg.sender,
             tokenIn: IERC20(tokenIn),
             tokenOut: IERC20(tokenOut),
             amountIn: amountIn,
-            sqrtPriceLimitX96: sqrtPriceLimitX96
+            sqrtPriceLimitX96: sqrtPriceLimitX96,
+            amountOutMinimum: amountOutMinimum,
+            fee: fee
         });
 
         // update the execution config

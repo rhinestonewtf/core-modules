@@ -5,9 +5,14 @@ import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/Bas
 import { ScheduledOrders, SchedulingBase } from "src/ScheduledOrders/ScheduledOrders.sol";
 import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
+import { UniswapIntegrationHelper } from "../../../utils/UniswapIntegrationHelper.sol";
 
 address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+
+address constant FACTORY_ADDRESS = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+address constant SWAP_ROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+uint24 constant FEE = 3000;
 
 contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
@@ -27,6 +32,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
 
     IERC20 usdc = IERC20(USDC);
     IERC20 weth = IERC20(WETH);
+    UniswapIntegrationHelper uniswapHelper;
 
     uint256 mainnetFork;
 
@@ -52,16 +58,19 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
 
         executor = new ScheduledOrders();
 
+        uniswapHelper = new UniswapIntegrationHelper();
         uint48 _executeInterval = 1 days;
         uint16 _numberOfExecutions = 10;
         uint48 _startDate = uint48(block.timestamp);
-        _executionData =
-            abi.encode(address(address(usdc)), address(address(weth)), uint256(100), uint160(1));
+        _executionData = abi.encode(address(address(usdc)), address(address(weth)), uint256(100));
 
+        bytes memory data =
+            abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData);
+        data = abi.encodePacked(SWAP_ROUTER, data);
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
             module: address(executor),
-            data: abi.encodePacked(_executeInterval, _numberOfExecutions, _startDate, _executionData)
+            data: data
         });
     }
 
@@ -88,13 +97,13 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
             uint48 lastExecutionTime,
             bytes memory executionData
         ) = executor.executionLog(smartAccount, jobId);
-        assertEq(executeInterval, _executeInterval);
-        assertEq(numberOfExecutions, _numberOfExecutions);
-        assertEq(startDate, _startDate);
-        assertEq(isEnabled, true);
-        assertEq(lastExecutionTime, 0);
-        assertEq(numberOfExecutionsCompleted, 0);
-        assertEq(executionData, _executionData);
+        assertEq(executeInterval, _executeInterval, "executeInterval");
+        assertEq(numberOfExecutions, _numberOfExecutions, "numberOfExecutions");
+        assertEq(startDate, _startDate, "startDate");
+        assertEq(isEnabled, true, "isEnabled");
+        assertEq(lastExecutionTime, 0, "lastExecutionTime");
+        assertEq(numberOfExecutionsCompleted, 0, "numberOfExecutionsCompleted");
+        assertEq(executionData, _executionData, "executionData");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -177,6 +186,27 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         assertFalse(isEnabled);
     }
 
+    function _getSqrt() internal returns (uint160) {
+        uint32 slippage = 1; // 0.1% slippage
+        address poolAddress =
+            executor.getPoolAddress(FACTORY_ADDRESS, address(usdc), address(weth), FEE);
+        uint160 sqrtPriceX96 = executor.getSqrtPriceX96(poolAddress);
+        uint256 priceRatio = uniswapHelper.sqrtPriceX96toPriceRatio(sqrtPriceX96);
+        uint256 price = uniswapHelper.priceRatioToPrice(priceRatio, poolAddress, address(usdc));
+        bool swapToken0to1 = executor.checkTokenOrder(address(usdc), poolAddress);
+        uint256 priceRatioLimit;
+        if (swapToken0to1) {
+            priceRatioLimit = (priceRatio * (1000 - slippage)) / 1000;
+        } else {
+            priceRatioLimit = (priceRatio * (1000 + slippage)) / 1000;
+        }
+        uint256 priceLimit =
+            uniswapHelper.priceRatioToPrice(priceRatioLimit, poolAddress, address(usdc));
+        uint160 sqrtPriceLimitX96 = uniswapHelper.priceRatioToSqrtPriceX96(priceRatioLimit);
+
+        return sqrtPriceLimitX96;
+    }
+
     function test_ExecuteOrder() public {
         // it should execute the order
         uint256 jobId = 1;
@@ -187,7 +217,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         instance.getExecOps({
             target: address(executor),
             value: 0,
-            callData: abi.encodeWithSelector(SchedulingBase.executeOrder.selector, jobId),
+            callData: abi.encodeCall(ScheduledOrders.executeOrder, (jobId, _getSqrt(), 0, FEE)),
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
