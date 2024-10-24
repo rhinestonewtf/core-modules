@@ -1,14 +1,20 @@
 {
   "title": "ScheduledTransfers",
-  "signer": "0x1234567890123456789012345678901234567890",
+  "signer": "0xa1E8F5D6cCd82f2a2aC4ca5df4D51c71e48a54d5",
   "auditor": {
-    "name": "Ackee",
-    "uri": "http://audit.corp",
-    "authors": ["auditor1", "auditor2"]
+    "name": "Ackee Blockchain",
+    "uri": "https://ackee.xyz",
+    "authors": [
+      "Štěpán Šonský",
+      "Michal Převrátil",
+      "Naoki Yoshida",
+      "Jan Převrátil",
+      "Josef Gattermayer, Ph.D."
+    ]
   },
-  "reportUrl": "http://audit.corp/report",
+  "reportUrl": "https://github.com/Ackee-Blockchain/public-audit-reports/blob/master/2024/ackee-blockchain-rhinestone-core-modules-report.pdf",
   "moduleAttributes": {
-    "moduleAddress": "0xf97f10fD0A1Ff53c0a14D0247b228191dd39eBf9",
+    "moduleAddress": "0xA8E374779aeE60413c974b484d6509c7E4DDb6bA",
     "globalAttributes": {
       "reentrancyProtection": true,
       "importantDataValidation": true,
@@ -18,10 +24,10 @@
       "upgradeable": false,
       "pausable": false,
       "licensedModule": false,
-      "erc7562StorageCompliant": false,
-      "uninstallCleanUp": true
+      "erc7562StorageCompliant": true,
+      "uninstallCleanUp": true,
+      "multichainCompatible": false
     },
-
     "validatorAttributes": {
       "unscopedValidator": false,
       "recoveryModule": false,
@@ -56,7 +62,13 @@
       "governance": false,
       "privacy": false,
       "zkProvers": false,
-      "ercDeps": []
+      "ercDeps": [
+        20
+      ]
     }
+  },
+  "signature": {
+    "hash": "0xbca91ae0e616f53909862e660bd572e4fa4ec162b2e6954365b4f5e4e57b24b0",
+    "signature": "0xc507ee6d47e21e815fc892ed9a8009119d7579ca514a0827f82d630d33cddffc457b2ae1b3aacd63546c771a956d6d31c3c70c4c9d913001be78cac5a94ecc2a00"
   }
 }
