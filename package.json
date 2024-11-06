@@ -28,8 +28,9 @@
   "dependencies": {
     "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
     "@rhinestone/flatbytes": "github:rhinestonewtf/flatbytes",
-    "@rhinestone/module-bases": "github:rhinestonewtf/module-bases",
-    "@rhinestone/modulekit": "github:rhinestonewtf/modulekit#main",
+    "@rhinestone/module-bases": "github:rhinestonewtf/module-bases#dd88e0a4e5673dd4676de2067c2e524cd8573523",
+    "@rhinestone/modulekit": "github:rhinestonewtf/modulekit#v0.4.9",
+    "erc7579": "github:erc7579/erc7579-implementation#827e2e0bd009eb85e96a1f75483dc467791de62b",
     "ds-test": "github:dapphub/ds-test#e282159d5170298eb2455a6c05280ab5a73a4ef0",
     "forge-std": "github:foundry-rs/forge-std#v1.9.2",
     "solmate": "github:transmissions11/solmate"
