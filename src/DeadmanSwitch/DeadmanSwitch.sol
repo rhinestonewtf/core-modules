@@ -180,7 +180,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
         returns (ValidationData)
     {
         // get the config for the sender
-        DeadmanSwitchStorage memory _config = config[userOp.sender];
+        DeadmanSwitchStorage memory _config = config[msg.sender];
         // get the nominee
         address nominee = _config.nominee;
         // if nominee is not set, return validation failed
@@ -194,7 +194,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
 
         uint48 validAfter = _config.lastAccess + _config.timeout;
 
-        config[userOp.sender].timeout = 0;
+        config[msg.sender].timeout = 0;
 
         // return validation data
         // if signature is invalid, validation fails
