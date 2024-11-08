@@ -20,6 +20,9 @@ jobs:
       foundry-fuzz-runs: 5000
       foundry-profile: "test"
       match-path: "test/**/*.sol"
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
 
   test-simulate:
     needs: ["lint", "build"]
@@ -28,6 +31,9 @@ jobs:
       foundry-fuzz-runs: 5000
       foundry-profile: "test"
       match-path: "test/**/*.sol"
+    secrets:
+      MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+      TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
 
   release-artifacts:
     needs: ["build"]
