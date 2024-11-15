@@ -36,6 +36,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
     error NotSortedAndUnique();
     error MaxOwnersReached();
     error InvalidOwner(address owner);
+    error IsOwnerAlready(address owner);
     error CannotRemoveOwner();
 
     // maximum number of owners per account
@@ -62,11 +63,6 @@ contract OwnableValidator is ERC7579ValidatorBase {
         // decode the threshold and owners
         (uint256 _threshold, address[] memory _owners) = abi.decode(data, (uint256, address[]));
 
-        // check that owners are sorted and uniquified
-        if (!_owners.isSortedAndUniquified()) {
-            revert NotSortedAndUnique();
-        }
-
         // make sure the threshold is set
         if (_threshold == 0) {
             revert ThresholdNotSet();
@@ -78,16 +74,27 @@ contract OwnableValidator is ERC7579ValidatorBase {
             revert InvalidThreshold();
         }
 
+        // check if max owners is reached
+        if (ownersLength > MAX_OWNERS) {
+            revert MaxOwnersReached();
+        }
+
+        // check that owners are sorted and uniquified
+        if (!_owners.isSortedAndUniquified()) {
+            revert NotSortedAndUnique();
+        }
+
+        // check to ensure non-zero owner addresses
+        (bool found,) = _owners.searchSorted(address(0));
+        if (found) {
+            revert InvalidOwner(address(0));
+        }
+
         // cache the account address
         address account = msg.sender;
 
         // set threshold
         threshold[account] = _threshold;
-
-        // check if max owners is reached
-        if (ownersLength > MAX_OWNERS) {
-            revert MaxOwnersReached();
-        }
 
         // set owner count
         ownerCount[account] = ownersLength;
@@ -97,11 +104,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
 
         // add owners to the list
         for (uint256 i = 0; i < ownersLength; i++) {
-            address _owner = _owners[i];
-            if (_owner == address(0)) {
-                revert InvalidOwner(_owner);
-            }
-            owners.push(account, _owner);
+            owners.push(account, _owners[i]);
         }
 
         emit ModuleInitialized(account);
@@ -185,6 +188,11 @@ contract OwnableValidator is ERC7579ValidatorBase {
         // check if max owners is reached
         if (ownerCount[account] >= MAX_OWNERS) {
             revert MaxOwnersReached();
+        }
+
+        // check if owner existed for the account already
+        if (owners.contains(account, owner)) {
+            revert IsOwnerAlready(owner);
         }
 
         // increment the owner count
