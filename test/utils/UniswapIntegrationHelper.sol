@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
+
 import { ISwapRouter } from "modulekit/integrations/interfaces/uniswap/v3/ISwapRouter.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { Execution } from "modulekit/Accounts.sol";

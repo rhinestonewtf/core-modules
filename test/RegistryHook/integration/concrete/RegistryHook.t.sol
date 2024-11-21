@@ -63,16 +63,16 @@ contract RegistryHookIntegrationTest is BaseIntegrationTest {
 
     function test_OnInstallSetRegistry() public {
         // it should set the registry of account
-        address registry = hook.registry(address(instance.account));
-        assertEq(registry, address(registry));
+        address _registry = hook.registry(address(instance.account));
+        assertEq(_registry, address(registry));
     }
 
     function test_OnUninstallRemoveRegistry() public {
         // it should remove the registry
         instance.uninstallModule({ moduleTypeId: MODULE_TYPE_HOOK, module: address(hook), data: "" });
 
-        address registry = hook.registry(address(instance.account));
-        assertEq(registry, address(0));
+        address _registry = hook.registry(address(instance.account));
+        assertEq(_registry, address(0));
     }
 
     function test_SetRegistry() public {
@@ -86,8 +86,8 @@ contract RegistryHookIntegrationTest is BaseIntegrationTest {
             txValidator: address(instance.defaultValidator)
         }).execUserOps();
 
-        address registry = hook.registry(address(instance.account));
-        assertEq(registry, newRegistry);
+        address _registry = hook.registry(address(instance.account));
+        assertEq(_registry, newRegistry);
     }
 
     function test_InstallModule() public {

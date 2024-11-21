@@ -64,7 +64,7 @@ contract ScheduledTransfersIntegrationTest is BaseIntegrationTest {
         uint48 _executeInterval,
         uint16 _numberOfExecutions,
         uint48 _startDate,
-        bytes memory _executionData
+        bytes memory __executionData
     )
         internal
     {
@@ -83,7 +83,7 @@ contract ScheduledTransfersIntegrationTest is BaseIntegrationTest {
         assertEq(isEnabled, true);
         assertEq(lastExecutionTime, 0);
         assertEq(numberOfExecutionsCompleted, 0);
-        assertEq(executionData, _executionData);
+        assertEq(executionData, __executionData);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

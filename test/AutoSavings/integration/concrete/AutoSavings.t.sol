@@ -96,7 +96,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     }
 
     function formatConfigs(
-        address[] memory _tokens,
+        address[] memory tokens,
         AutoSavings.Config[] memory _configs
     )
         public
@@ -106,7 +106,7 @@ contract AutoSavingsIntegrationTest is BaseIntegrationTest {
 
         for (uint256 i; i < _configs.length; i++) {
             _configsWithToken[i] = AutoSavings.ConfigWithToken({
-                token: _tokens[i],
+                token: tokens[i],
                 percentage: _configs[i].percentage,
                 vault: _configs[i].vault
             });

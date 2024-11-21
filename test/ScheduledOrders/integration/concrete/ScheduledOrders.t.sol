@@ -84,7 +84,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         uint48 _executeInterval,
         uint16 _numberOfExecutions,
         uint48 _startDate,
-        bytes memory _executionData
+        bytes memory __executionData
     )
         internal
     {
@@ -103,7 +103,7 @@ contract ScheduledOrdersIntegrationTest is BaseIntegrationTest {
         assertEq(isEnabled, true, "isEnabled");
         assertEq(lastExecutionTime, 0, "lastExecutionTime");
         assertEq(numberOfExecutionsCompleted, 0, "numberOfExecutionsCompleted");
-        assertEq(executionData, _executionData, "executionData");
+        assertEq(executionData, __executionData, "executionData");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
