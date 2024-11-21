@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
+
 address constant MAINNET_SWAPROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 address constant POLYGON_SWAPROUTER = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 

@@ -68,45 +68,46 @@ contract AutoSavingsConcreteTest is BaseTest {
                                      UTILS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function getConfigs() public returns (AutoSavings.Config[] memory _configs) {
+    function getConfigs() public view returns (AutoSavings.Config[] memory _configs) {
         _configs = new AutoSavings.Config[](2);
         _configs[0] = AutoSavings.Config(ud2x18(0.01e18), address(vault1));
         _configs[1] = AutoSavings.Config(ud2x18(0.01e18), address(vault2));
     }
 
     function formatConfigs(
-        address[] memory _tokens,
+        address[] memory tokens,
         AutoSavings.Config[] memory _configs
     )
         public
+        pure
         returns (AutoSavings.ConfigWithToken[] memory _configsWithToken)
     {
         _configsWithToken = new AutoSavings.ConfigWithToken[](_configs.length);
 
         for (uint256 i; i < _configs.length; i++) {
             _configsWithToken[i] = AutoSavings.ConfigWithToken({
-                token: _tokens[i],
+                token: tokens[i],
                 percentage: _configs[i].percentage,
                 vault: _configs[i].vault
             });
         }
     }
 
-    function installFromAccount(address account) public {
+    function installFromAccount(address _account) public {
         AutoSavings.Config[] memory _configs = getConfigs();
         AutoSavings.ConfigWithToken[] memory _configsWithToken = formatConfigs(_tokens, _configs);
         bytes memory data = abi.encode(SWAP_ROUTER, _configsWithToken);
 
-        vm.prank(account);
+        vm.prank(_account);
         executor.onInstall(data);
 
         for (uint256 i; i < _tokens.length; i++) {
-            (UD2x18 _percentage, address _vault) = executor.config(account, _tokens[i]);
+            (UD2x18 _percentage, address _vault) = executor.config(_account, _tokens[i]);
             assertEq(_percentage.intoUint256(), _configs[i].percentage.intoUint256());
             assertEq(_vault, _configs[i].vault);
         }
 
-        address[] memory tokens = executor.getTokens(account);
+        address[] memory tokens = executor.getTokens(_account);
         assertEq(tokens.length, _tokens.length);
     }
 
@@ -191,7 +192,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         assertEq(tokens.length, 0);
     }
 
-    function test_IsInitializedWhenModuleIsNotIntialized() public {
+    function test_IsInitializedWhenModuleIsNotIntialized() public view {
         // it should return false
         bool isInitialized = executor.isInitialized(address(this));
         assertFalse(isInitialized);
@@ -245,7 +246,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         assertEq(_vault, address(0));
     }
 
-    function test_CalcDepositAmountShouldReturnTheDepositAmount() public {
+    function test_CalcDepositAmountShouldReturnTheDepositAmount() public view {
         // it should return the deposit amount
         uint256 amountReceived = ud(100e18).intoUint256();
         UD2x18 percentage = ud2x18(0.01e18);
@@ -279,8 +280,6 @@ contract AutoSavingsConcreteTest is BaseTest {
         vm.prank(address(account));
         executor.setConfig(address(token1), config);
 
-        uint256 assetsBefore = vault2.totalAssets();
-
         uint256 amountReceived = 100;
         uint256 amountSaved = executor.calcDepositAmount(amountReceived, config.percentage);
 
@@ -294,7 +293,7 @@ contract AutoSavingsConcreteTest is BaseTest {
         vm.prank(address(account));
         executor.autoSave(address(token1), amountReceived, 1, 0, FEE);
 
-        (UD2x18 percentage,) = executor.config(address(account), address(token1));
+        executor.config(address(account), address(token1));
 
         uint256 assetsAfter = vault2.totalAssets();
         assertEq(assetsAfter, amountSaved);
@@ -332,25 +331,25 @@ contract AutoSavingsConcreteTest is BaseTest {
         );
     }
 
-    function test_NameShouldReturnAutoSavings() public {
+    function test_NameShouldReturnAutoSavings() public view {
         // it should return AutoSavings
         string memory name = executor.name();
         assertEq(name, "AutoSavings");
     }
 
-    function test_VersionShouldReturn100() public {
+    function test_VersionShouldReturn100() public view {
         // it should return 1.0.0
         string memory version = executor.version();
         assertEq(version, "1.0.0");
     }
 
-    function test_IsModuleTypeWhenTypeIDIs2() public {
+    function test_IsModuleTypeWhenTypeIDIs2() public view {
         // it should return true
         bool isModuleType = executor.isModuleType(2);
         assertTrue(isModuleType);
     }
 
-    function test_IsModuleTypeWhenTypeIDIsNot2() public {
+    function test_IsModuleTypeWhenTypeIDIsNot2() public view {
         // it should return false
         bool isModuleType = executor.isModuleType(1);
         assertFalse(isModuleType);
