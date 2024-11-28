@@ -4,8 +4,8 @@ pragma solidity ^0.8.21;
 import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
 
 import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
-import { ExecutionHelper, Execution } from "erc7579/core/ExecutionHelper.sol";
-import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
+import { ExecutionHelper, Execution } from "modulekit/accounts/erc7579/helpers/ExecutionHelper.sol";
+import { ExecutionLib } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import {
     ModeLib,
     ModeCode,

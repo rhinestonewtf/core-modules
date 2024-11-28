@@ -6,7 +6,7 @@ import {
     PackedUserOperation,
     VALIDATION_SUCCESS,
     MODULE_TYPE_VALIDATOR
-} from "erc7579/interfaces/IERC7579Module.sol";
+} from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { IStatelessValidator } from "modulekit/Interfaces.sol";
 
 contract MockValidator is IValidator, IStatelessValidator {
@@ -19,6 +19,7 @@ contract MockValidator is IValidator, IStatelessValidator {
         bytes32 userOpHash
     )
         external
+        payable
         override
         returns (uint256)
     {

@@ -7,7 +7,7 @@ import {
     ERC7579ValidatorBase,
     SENTINEL
 } from "src/OwnableValidator/OwnableValidator.sol";
-import { IModule as IERC7579Module } from "erc7579/interfaces/IERC7579Module.sol";
+import { IModule as IERC7579Module } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { PackedUserOperation, getEmptyUserOperation } from "test/utils/ERC4337.sol";
 import { signHash } from "test/utils/Signature.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";

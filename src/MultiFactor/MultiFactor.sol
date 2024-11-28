@@ -4,7 +4,7 @@ pragma solidity ^0.8.25;
 import { ERC7579ValidatorBase, ERC7484RegistryAdapter } from "modulekit/Modules.sol";
 import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
 import { IStatelessValidator, IERC7484 } from "modulekit/Interfaces.sol";
-import { MODULE_TYPE_VALIDATOR } from "erc7579/interfaces/IERC7579Module.sol";
+import { MODULE_TYPE_VALIDATOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import {
     Validator,
     SubValidatorConfig,

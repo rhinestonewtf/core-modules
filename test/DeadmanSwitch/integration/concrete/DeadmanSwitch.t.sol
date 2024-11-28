@@ -10,7 +10,10 @@ import {
     ValidationData
 } from "test/utils/ERC4337.sol";
 import { signHash } from "test/utils/Signature.sol";
-import { MODULE_TYPE_HOOK, MODULE_TYPE_VALIDATOR } from "erc7579/interfaces/IERC7579Module.sol";
+import {
+    MODULE_TYPE_HOOK,
+    MODULE_TYPE_VALIDATOR
+} from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { UserOpData } from "modulekit/ModuleKit.sol";
 
 contract DeadmanSwitchIntegrationTest is BaseIntegrationTest {

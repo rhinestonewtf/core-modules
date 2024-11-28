@@ -3,8 +3,11 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
 import { OwnableExecutor } from "src/OwnableExecutor/OwnableExecutor.sol";
-import { Execution, ExecutionLib as ERC7579ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
-import { MODULE_TYPE_EXECUTOR } from "erc7579/interfaces/IERC7579Module.sol";
+import {
+    Execution,
+    ExecutionLib as ERC7579ExecutionLib
+} from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
+import { MODULE_TYPE_EXECUTOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";
 
 contract OwnableExecutorIntegrationTest is BaseIntegrationTest {

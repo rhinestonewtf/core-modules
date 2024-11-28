@@ -15,14 +15,11 @@ importers:
         specifier: github:rhinestonewtf/flatbytes
         version: https://codeload.github.com/rhinestonewtf/flatbytes/tar.gz/bb0859e85ef2213d08d6280c8af9a7da4596b30f
       '@rhinestone/modulekit':
-        specifier: github:rhinestonewtf/modulekit#ea80c7deb290492c55f8ea102ed5fef3c7db3077
-        version: https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/ea80c7deb290492c55f8ea102ed5fef3c7db3077(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
+        specifier: github:rhinestonewtf/modulekit#8326672f9b13dc2c57ca2cebd85e8df3f096b246
+        version: https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/8326672f9b13dc2c57ca2cebd85e8df3f096b246(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
       ds-test:
         specifier: github:dapphub/ds-test#e282159d5170298eb2455a6c05280ab5a73a4ef0
         version: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
-      erc7579:
-        specifier: github:erc7579/erc7579-implementation#c47765c69e415184250df3d118ec5e89f4e44fee
-        version: erc7579-implementation@https://codeload.github.com/erc7579/erc7579-implementation/tar.gz/c47765c69e415184250df3d118ec5e89f4e44fee(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
       forge-std:
         specifier: github:foundry-rs/forge-std
         version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/2b59872eee0b8088ddcade39fe8c041e17bb79c0
@@ -296,8 +293,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/rhinestonewtf/flatbytes/tar.gz/bb0859e85ef2213d08d6280c8af9a7da4596b30f}
     version: 0.0.1
 
-  '@rhinestone/modulekit@https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/ea80c7deb290492c55f8ea102ed5fef3c7db3077':
-    resolution: {tarball: https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/ea80c7deb290492c55f8ea102ed5fef3c7db3077}
+  '@rhinestone/modulekit@https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/8326672f9b13dc2c57ca2cebd85e8df3f096b246':
+    resolution: {tarball: https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/8326672f9b13dc2c57ca2cebd85e8df3f096b246}
     version: 0.4.17
 
   '@rhinestone/sentinellist@https://codeload.github.com/rhinestonewtf/sentinellist/tar.gz/e722c5cc68c570d535bc3c9f85b3ce90cdc38807':
@@ -409,10 +406,6 @@ packages:
 
   abbrev@1.0.9:
     resolution: {integrity: sha512-LEyx4aLEC3x6T0UguF6YILf+ntvmOaWsVfENmIW0E9H09vKlLDGelMjjSm0jkDHALj8A8quZ/HapKNigzwge+Q==}
-
-  accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/6f02f5a28a20e804d0410b4b5b570dd4b076dcf9:
-    resolution: {tarball: https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/6f02f5a28a20e804d0410b4b5b570dd4b076dcf9}
-    version: 0.7.0
 
   accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/7174d6d845618dbd11cee68eefa715f5263690b6:
     resolution: {tarball: https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/7174d6d845618dbd11cee68eefa715f5263690b6}
@@ -727,10 +720,6 @@ packages:
   env-paths@2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
     engines: {node: '>=6'}
-
-  erc7579-implementation@https://codeload.github.com/erc7579/erc7579-implementation/tar.gz/c47765c69e415184250df3d118ec5e89f4e44fee:
-    resolution: {tarball: https://codeload.github.com/erc7579/erc7579-implementation/tar.gz/c47765c69e415184250df3d118ec5e89f4e44fee}
-    version: 0.3.1
 
   es-define-property@1.0.0:
     resolution: {integrity: sha512-jxayLKShrEqqzJ0eumQbVhTYQM27CfT1T35+gCgDFoL82JLsXqTJ76zv6A0YLOgEnLUMvLzsDsGIrl8NFpT2gQ==}
@@ -2202,7 +2191,7 @@ snapshots:
     dependencies:
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/2b59872eee0b8088ddcade39fe8c041e17bb79c0
 
-  '@rhinestone/modulekit@https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/ea80c7deb290492c55f8ea102ed5fef3c7db3077(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))':
+  '@rhinestone/modulekit@https://codeload.github.com/rhinestonewtf/modulekit/tar.gz/8326672f9b13dc2c57ca2cebd85e8df3f096b246(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))':
     dependencies:
       '@ERC4337/account-abstraction': accountabstraction@https://codeload.github.com/kopy-kat/account-abstraction/tar.gz/c5887153fbfe3ed09b2637cac39873f96d676f38(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
       '@ERC4337/account-abstraction-v0.6': accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/7174d6d845618dbd11cee68eefa715f5263690b6(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
@@ -2369,33 +2358,6 @@ snapshots:
       '@types/node': 22.9.0
 
   abbrev@1.0.9: {}
-
-  accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/6f02f5a28a20e804d0410b4b5b570dd4b076dcf9(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5)):
-    dependencies:
-      '@nomiclabs/hardhat-etherscan': 2.1.8(hardhat@2.22.15(typescript@4.9.5))
-      '@openzeppelin/contracts': 5.1.0
-      '@thehubbleproject/bls': 0.5.1
-      '@typechain/hardhat': 2.3.1(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
-      '@types/debug': 4.1.12
-      '@types/mocha': 9.1.1
-      debug: 4.3.7(supports-color@8.1.1)
-      ethereumjs-util: 7.1.5
-      ethereumjs-wallet: 1.0.2
-      hardhat-deploy: 0.11.45
-      hardhat-deploy-ethers: 0.3.0-beta.13(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))
-      solidity-coverage: 0.8.13(hardhat@2.22.15(typescript@4.9.5))
-      source-map-support: 0.5.21
-      table: 6.8.2
-      typescript: 4.9.5
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - ethers
-      - hardhat
-      - lodash
-      - supports-color
-      - typechain
-      - utf-8-validate
 
   accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/7174d6d845618dbd11cee68eefa715f5263690b6(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5)):
     dependencies:
@@ -2775,23 +2737,6 @@ snapshots:
       strip-ansi: 6.0.1
 
   env-paths@2.2.1: {}
-
-  erc7579-implementation@https://codeload.github.com/erc7579/erc7579-implementation/tar.gz/c47765c69e415184250df3d118ec5e89f4e44fee(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5)):
-    dependencies:
-      '@rhinestone/sentinellist': https://codeload.github.com/rhinestonewtf/sentinellist/tar.gz/e722c5cc68c570d535bc3c9f85b3ce90cdc38807
-      account-abstraction: accountabstraction@https://codeload.github.com/eth-infinitism/account-abstraction/tar.gz/6f02f5a28a20e804d0410b4b5b570dd4b076dcf9(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))
-      ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
-      forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/2b59872eee0b8088ddcade39fe8c041e17bb79c0
-      solady: https://codeload.github.com/vectorized/solady/tar.gz/3d0f41a9b83cbbddc0e2d3844efc0a63809d4db8
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - ethers
-      - hardhat
-      - lodash
-      - supports-color
-      - typechain
-      - utf-8-validate
 
   es-define-property@1.0.0:
     dependencies:
