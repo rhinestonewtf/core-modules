@@ -5,7 +5,7 @@ import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { EnumerableMap } from "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
 import { ERC7579HookDestruct } from "modulekit/Modules.sol";
-import { IERC7579Account, Execution } from "modulekit/external/ERC7579.sol";
+import { IERC7579Account, Execution } from "erc7579/interfaces/IERC7579Account.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC721 } from "forge-std/interfaces/IERC721.sol";
 import { IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";

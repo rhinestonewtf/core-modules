@@ -3,7 +3,8 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { SocialRecovery, ERC7579ValidatorBase } from "src/SocialRecovery/SocialRecovery.sol";
-import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol";
+import { IERC7579Account } from "erc7579/interfaces/IERC7579Account.sol";
+import { IModule as IERC7579Module } from "erc7579/interfaces/IERC7579Module.sol";
 import { PackedUserOperation, getEmptyUserOperation } from "test/utils/ERC4337.sol";
 import { signHash } from "test/utils/Signature.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";

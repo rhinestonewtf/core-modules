@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
-import { IERC7579Module } from "modulekit/external/ERC7579.sol";
+import { IModule as IERC7579Module } from "erc7579/interfaces/IERC7579Module.sol";
 import { UD2x18, ud2x18, intoUint256, intoUD60x18 } from "@prb/math/UD2x18.sol";
 import { ud } from "@prb/math/UD60x18.sol";
 import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";

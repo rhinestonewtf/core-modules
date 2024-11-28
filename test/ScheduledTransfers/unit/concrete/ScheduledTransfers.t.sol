@@ -3,7 +3,8 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { ScheduledTransfers, SchedulingBase } from "src/ScheduledTransfers/ScheduledTransfers.sol";
-import { IERC7579Module, Execution } from "modulekit/external/ERC7579.sol";
+import { IModule as IERC7579Module } from "erc7579/interfaces/IERC7579Module.sol";
+import { Execution } from "erc7579/lib/ExecutionLib.sol";
 import { MockTarget } from "test/mocks/MockTarget.sol";
 
 contract ScheduledTransfersTest is BaseTest {

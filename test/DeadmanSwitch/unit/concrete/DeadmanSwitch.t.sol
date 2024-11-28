@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { DeadmanSwitch, ERC7579ValidatorBase } from "src/DeadmanSwitch/DeadmanSwitch.sol";
-import { IERC7579Module } from "modulekit/external/ERC7579.sol";
+import { IModule as IERC7579Module } from "erc7579/interfaces/IERC7579Module.sol";
 import {
     PackedUserOperation,
     getEmptyUserOperation,

@@ -5,7 +5,7 @@ import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/Bas
 import { OwnableValidator } from "src/OwnableValidator/OwnableValidator.sol";
 import { signHash } from "test/utils/Signature.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
-import { MODULE_TYPE_VALIDATOR } from "modulekit/external/ERC7579.sol";
+import { MODULE_TYPE_VALIDATOR } from "erc7579/interfaces/IERC7579Module.sol";
 import { UserOpData } from "modulekit/ModuleKit.sol";
 import { IERC1271 } from "modulekit/Interfaces.sol";
 import { SENTINEL } from "sentinellist/SentinelList.sol";

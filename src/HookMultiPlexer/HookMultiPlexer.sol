@@ -3,7 +3,10 @@ pragma solidity ^0.8.25;
 
 import { ERC7579ModuleBase } from "modulekit/Modules.sol";
 import { ERC7484RegistryAdapter } from "modulekit/Modules.sol";
-import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
+import {
+    IHook as IERC7579Hook,
+    IModule
+} from "modulekit/accounts/common/interfaces/IERC7579Modules.sol";
 import { SigHookInit, SignatureHooks, Config, HookType, HookAndContext } from "./DataTypes.sol";
 import { Execution } from "erc7579/lib/ExecutionLib.sol";
 import { HookMultiPlexerLib } from "./HookMultiPlexerLib.sol";
@@ -71,7 +74,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
      *
      * @param data encoded data containing the hooks
      */
-    function onInstall(bytes calldata data) external override {
+    function onInstall(bytes calldata data) external override(IModule) {
         // check if the module is already initialized and revert if it is
         if (isInitialized(msg.sender)) revert AlreadyInitialized(msg.sender);
 
@@ -352,7 +355,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
      *
      * @return true if the type is a module type, false otherwise
      */
-    function isModuleType(uint256 typeID) external pure virtual override returns (bool) {
+    function isModuleType(uint256 typeID) external pure virtual returns (bool) {
         return typeID == TYPE_HOOK;
     }
 
