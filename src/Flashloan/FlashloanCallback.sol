@@ -2,11 +2,13 @@
 pragma solidity ^0.8.25;
 
 import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
+import { EIP712 } from "solady/utils/EIP712.sol";
 import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { SentinelListLib } from "sentinellist/SentinelList.sol";
 import { Execution } from "modulekit/external/ERC7579.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
+import { HashLib } from "./lib/HashLib.sol";
 
 /**
  * @title FlashloanCallback
@@ -16,9 +18,11 @@ import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
 abstract contract FlashloanCallback is
     IERC3156FlashBorrower,
     ERC7579FallbackBase,
-    ERC7579ExecutorBase
+    ERC7579ExecutorBase,
+    EIP712
 {
     using SignatureCheckerLib for address;
+    using HashLib for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
@@ -55,30 +59,6 @@ abstract contract FlashloanCallback is
      * @return True if the module is initialized
      */
     function isInitialized(address smartAccount) external view virtual returns (bool);
-
-    /**
-     * Get the hash of the flashloan transaction
-     *
-     * @param flashLoanType The type of flashloan
-     * @param executions The executions to be performed
-     * @param _nonce The nonce of the borrower
-     *
-     * @return The hash of the flashloan transaction
-     */
-    function getTokengatedTxHash(
-        FlashLoanType flashLoanType,
-        address token,
-        uint256 amount,
-        Execution[] memory executions,
-        uint256 _nonce
-    )
-        public
-        pure
-        returns (bytes32)
-    {
-        // return the hash
-        return keccak256(abi.encode(flashLoanType, token, amount, executions, _nonce));
-    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
@@ -121,12 +101,18 @@ abstract contract FlashloanCallback is
         (FlashLoanType flashLoanType, bytes memory signature, Execution[] memory executions) =
             abi.decode(data, (FlashLoanType, bytes, Execution[]));
         // get the hash
-        uint256 currentNonce = nonce[msg.sender][borrower];
-        bytes32 hash = getTokengatedTxHash(flashLoanType, token, amount, executions, currentNonce);
-        // increment the nonce
-        nonce[msg.sender][borrower] = currentNonce + 1;
-        // format the hash
-        hash = ECDSA.toEthSignedMessageHash(hash);
+        uint256 currentNonce = nonce[msg.sender][borrower]++;
+        bytes32 hash = _hashTypedData(
+            HashLib.hashFlashloanExec({
+                borrower: borrower,
+                lender: msg.sender,
+                flashLoanType: flashLoanType,
+                token: token,
+                amount: amount,
+                executions: executions,
+                nonce: currentNonce
+            })
+        );
         // check the signature
         bool validSig = address(msg.sender).isValidSignatureNow(hash, signature);
         // if the signature is invalid, revert
@@ -151,7 +137,7 @@ abstract contract FlashloanCallback is
      *
      * @return version of the module
      */
-    function version() external pure virtual returns (string memory) {
+    function version() public pure virtual returns (string memory) {
         return "1.0.0";
     }
 
@@ -160,7 +146,7 @@ abstract contract FlashloanCallback is
      *
      * @return name of the module
      */
-    function name() external pure virtual returns (string memory) {
+    function name() public pure virtual returns (string memory) {
         return "FlashloanCallback";
     }
 
@@ -173,5 +159,16 @@ abstract contract FlashloanCallback is
      */
     function isModuleType(uint256 typeID) external pure virtual override returns (bool) {
         return typeID == TYPE_EXECUTOR || typeID == TYPE_FALLBACK;
+    }
+
+    function _domainNameAndVersion()
+        internal
+        view
+        virtual
+        override
+        returns (string memory _name, string memory _version)
+    {
+        _name = name();
+        _version = version();
     }
 }
