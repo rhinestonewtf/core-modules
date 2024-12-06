@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { IERC7579Account } from "modulekit/external/ERC7579.sol";
-import {
-    CallType,
-    ExecType,
-    ModeCode,
-    CALLTYPE_BATCH,
-    CALLTYPE_SINGLE,
-    ModeLib
-} from "erc7579/lib/ModeLib.sol";
+import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
+
 import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
-import { ExecutionHelper, Execution } from "erc7579/core/ExecutionHelper.sol";
-import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
+import { ExecutionHelper, Execution } from "modulekit/accounts/erc7579/helpers/ExecutionHelper.sol";
+import { ExecutionLib } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
+import {
+    ModeLib,
+    ModeCode,
+    CallType,
+    CALLTYPE_BATCH,
+    CALLTYPE_SINGLE
+} from "modulekit/accounts/common/lib/ModeLib.sol";
 
 contract MockAccount is IERC7579Account, ExecutionHelper {
     using ExecutionLib for bytes;

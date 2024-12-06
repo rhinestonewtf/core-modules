@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
+import { IHook as IERC7579Hook } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { Config, SigHookInit, HookAndContext, HookType, SignatureHooks } from "./DataTypes.sol";
-import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
-import { IERC7579Account } from "modulekit/external/ERC7579.sol";
+import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
 
-import { ExecutionLib, Execution } from "erc7579/lib/ExecutionLib.sol";
+import { ExecutionLib, Execution } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import {
     ModeLib,
     CallType,
@@ -15,7 +14,7 @@ import {
     CALLTYPE_SINGLE,
     CALLTYPE_BATCH,
     CALLTYPE_DELEGATECALL
-} from "erc7579/lib/ModeLib.sol";
+} from "modulekit/accounts/common/lib/ModeLib.sol";
 
 uint256 constant EXEC_OFFSET = 100;
 

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.25;
 
 import { ERC7579ExecutorBase, ERC7579FallbackBase } from "modulekit/Modules.sol";
+import { Execution } from "modulekit/module-bases/ERC7579ExecutorBase.sol";
 import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modulekit/Interfaces.sol";
 import { SentinelListLib } from "sentinellist/SentinelList.sol";
-import { Execution } from "modulekit/external/ERC7579.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
 

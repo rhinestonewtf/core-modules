@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { IERC7579Account, Execution } from "modulekit/Accounts.sol";
+import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
 import { SchedulingBase } from "modulekit/Modules.sol";
-import { InitializableUniswapV3Integration } from "../utils/uniswap/UniswapIntegration.sol";
+import {
+    InitializableUniswapV3Integration,
+    Execution,
+    ExecutionLib
+} from "../utils/uniswap/UniswapIntegration.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
-import { ModeLib } from "erc7579/lib/ModeLib.sol";
-import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
+import { ModeLib } from "modulekit/accounts/common/lib/ModeLib.sol";
 
 /**
  * @title ScheduledOrders

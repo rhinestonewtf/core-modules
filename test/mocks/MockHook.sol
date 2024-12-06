@@ -10,7 +10,7 @@ import {
     CALLTYPE_BATCH,
     CALLTYPE_DELEGATECALL,
     ModeSelector
-} from "erc7579/lib/ModeLib.sol";
+} from "modulekit/accounts/common/lib/ModeLib.sol";
 
 contract MockHook is ERC7579HookBase {
     function onInstall(bytes calldata data) external override { }

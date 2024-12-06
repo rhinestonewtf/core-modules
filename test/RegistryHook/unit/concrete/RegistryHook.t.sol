@@ -3,7 +3,8 @@ pragma solidity ^0.8.23;
 
 import { BaseTest } from "test/Base.t.sol";
 import { RegistryHook } from "src/RegistryHook/RegistryHook.sol";
-import { IERC7579Module, IERC7579Account } from "modulekit/external/ERC7579.sol";
+import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
+import { IModule as IERC7579Module } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { MockRegistry } from "test/mocks/MockRegistry.sol";
 
 contract RegistryHookTest is BaseTest {
