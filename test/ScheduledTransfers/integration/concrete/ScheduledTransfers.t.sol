@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers } from "test/BaseIntegration.t.sol";
 import { ScheduledTransfers, SchedulingBase } from "src/ScheduledTransfers/ScheduledTransfers.sol";
 import { MODULE_TYPE_EXECUTOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { Execution } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
@@ -9,7 +9,6 @@ import { MockERC20 } from "solmate/test/utils/mocks/MockERC20.sol";
 
 contract ScheduledTransfersIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS

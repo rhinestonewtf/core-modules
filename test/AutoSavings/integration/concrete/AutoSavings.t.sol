@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers } from "test/BaseIntegration.t.sol";
 import { AutoSavings } from "src/AutoSavings/AutoSavings.sol";
 import { MODULE_TYPE_EXECUTOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { MockERC4626, ERC20 } from "solmate/test/utils/mocks/MockERC4626.sol";
@@ -21,7 +21,7 @@ uint24 constant FEE = 3000;
 
 contract AutoSavingsIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitUserOp for *;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/

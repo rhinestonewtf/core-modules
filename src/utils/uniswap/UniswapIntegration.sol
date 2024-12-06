@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { ISwapRouter } from "modulekit/integrations/interfaces/uniswap/v3/ISwapRouter.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
-import { Execution, ExecutionLib } from "modulekit/Accounts.sol";
+import { Execution, ExecutionLib } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 
 import { IUniswapV3Pool } from "modulekit/integrations/interfaces/uniswap/v3/IUniswapV3Pool.sol";
 import { IUniswapV3Factory } from

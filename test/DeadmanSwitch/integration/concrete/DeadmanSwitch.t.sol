@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers } from "test/BaseIntegration.t.sol";
 import { DeadmanSwitch } from "src/DeadmanSwitch/DeadmanSwitch.sol";
 import {
     PackedUserOperation,
@@ -18,7 +18,6 @@ import { UserOpData } from "modulekit/ModuleKit.sol";
 
 contract DeadmanSwitchIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS

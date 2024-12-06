@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers } from "test/BaseIntegration.t.sol";
 import { SocialRecovery, ERC7579ValidatorBase } from "src/SocialRecovery/SocialRecovery.sol";
 import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
 import { IModule as IERC7579Module } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
@@ -15,7 +15,6 @@ import { SENTINEL } from "sentinellist/SentinelList.sol";
 
 contract SocialRecoveryIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS

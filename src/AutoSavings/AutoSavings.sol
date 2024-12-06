@@ -6,7 +6,7 @@ import {
 } from "modulekit/Integrations.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import { IERC4626 } from "forge-std/interfaces/IERC4626.sol";
-import { Execution } from "modulekit/Accounts.sol";
+import { Execution, ExecutionLib } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { SentinelListLib, SENTINEL } from "sentinellist/SentinelList.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
