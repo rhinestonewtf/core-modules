@@ -28,13 +28,10 @@
   "dependencies": {
     "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
     "@rhinestone/flatbytes": "github:rhinestonewtf/flatbytes",
-    "@rhinestone/modulekit": "github:rhinestonewtf/modulekit#70bce4ec4b234d2131ef1958d7f15d0489289b7e",
+    "@rhinestone/modulekit": "^0.5.1",
     "ds-test": "github:dapphub/ds-test#e282159d5170298eb2455a6c05280ab5a73a4ef0",
     "forge-std": "github:foundry-rs/forge-std",
     "solmate": "github:transmissions11/solmate"
-  },
-  "devDependencies": {
-    "solhint": "^5.0.3"
   },
   "files": [
     "src",
