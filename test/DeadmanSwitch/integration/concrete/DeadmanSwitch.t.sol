@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import { BaseIntegrationTest, ModuleKitHelpers, ModuleKitUserOp } from "test/BaseIntegration.t.sol";
+import { BaseIntegrationTest, ModuleKitHelpers } from "test/BaseIntegration.t.sol";
 import { DeadmanSwitch } from "src/DeadmanSwitch/DeadmanSwitch.sol";
 import {
     PackedUserOperation,
@@ -10,12 +10,14 @@ import {
     ValidationData
 } from "test/utils/ERC4337.sol";
 import { signHash } from "test/utils/Signature.sol";
-import { MODULE_TYPE_HOOK, MODULE_TYPE_VALIDATOR } from "modulekit/external/ERC7579.sol";
+import {
+    MODULE_TYPE_HOOK,
+    MODULE_TYPE_VALIDATOR
+} from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { UserOpData } from "modulekit/ModuleKit.sol";
 
 contract DeadmanSwitchIntegrationTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitUserOp for *;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS

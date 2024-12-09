@@ -9,7 +9,11 @@ import {
     HookType,
     HookAndContext
 } from "src/HookMultiPlexer/HookMultiPlexer.sol";
-import { IERC7579Account, IERC7579Module, IERC7579Hook } from "modulekit/external/ERC7579.sol";
+import {
+    IModule as IERC7579Module,
+    IHook as IERC7579Hook
+} from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
+import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
 import {
     ModeLib,
@@ -17,8 +21,8 @@ import {
     EXECTYPE_DEFAULT,
     MODE_DEFAULT,
     ModePayload
-} from "erc7579/lib/ModeLib.sol";
-import { ExecutionLib, Execution } from "erc7579/lib/ExecutionLib.sol";
+} from "modulekit/accounts/common/lib/ModeLib.sol";
+import { ExecutionLib, Execution } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import { MockRegistry } from "test/mocks/MockRegistry.sol";
 import { MockHook } from "test/mocks/MockHook.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";

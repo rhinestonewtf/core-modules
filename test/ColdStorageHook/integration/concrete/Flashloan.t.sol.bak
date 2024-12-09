@@ -14,8 +14,8 @@ import { FlashLoanType, IERC3156FlashBorrower, IERC3156FlashLender } from "modul
 import { OwnableExecutor } from "src/OwnableExecutor/OwnableExecutor.sol";
 import { IERC7579Module, IERC7579Account, CALLTYPE_SINGLE } from "modulekit/external/ERC7579.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";
-import { ModeLib } from "erc7579/lib/ModeLib.sol";
-import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
+import { ModeLib } from "modulekit/accounts/common/lib/ModeLib.sol";
+import { ExecutionLib } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import {
     MODULE_TYPE_HOOK,
     MODULE_TYPE_VALIDATOR,
@@ -30,7 +30,7 @@ import "forge-std/interfaces/IERC721.sol";
 
 contract FlashloanTest is BaseIntegrationTest {
     using ModuleKitHelpers for *;
-    using ModuleKitUserOp for *;
+    
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS

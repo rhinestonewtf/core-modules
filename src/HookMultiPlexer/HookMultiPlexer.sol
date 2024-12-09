@@ -3,9 +3,9 @@ pragma solidity ^0.8.25;
 
 import { ERC7579ModuleBase } from "modulekit/Modules.sol";
 import { ERC7484RegistryAdapter } from "modulekit/Modules.sol";
-import { IERC7579Hook } from "modulekit/external/ERC7579.sol";
+import { IHook as IERC7579Hook } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { SigHookInit, SignatureHooks, Config, HookType, HookAndContext } from "./DataTypes.sol";
-import { Execution } from "erc7579/lib/ExecutionLib.sol";
+import { Execution } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import { HookMultiPlexerLib } from "./HookMultiPlexerLib.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
 import { IERC7484 } from "modulekit/Interfaces.sol";
@@ -15,7 +15,7 @@ import { IERC7484 } from "modulekit/Interfaces.sol";
  * @dev A module that allows to add multiple hooks to a smart account
  * @author Rhinestone
  */
-contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdapter {
+contract HookMultiPlexer is ERC7579ModuleBase, IERC7579Hook, ERC7484RegistryAdapter {
     using HookMultiPlexerLib for *;
     using LibSort for uint256[];
     using LibSort for address[];
@@ -131,7 +131,7 @@ contract HookMultiPlexer is IERC7579Hook, ERC7579ModuleBase, ERC7484RegistryAdap
      *
      * @return true if the module is initialized, false otherwise
      */
-    function isInitialized(address smartAccount) public view returns (bool) {
+    function isInitialized(address smartAccount) public view override returns (bool) {
         Config storage $config = $getConfig({ account: smartAccount });
         return $config.initialized;
     }
