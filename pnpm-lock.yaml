@@ -26,6 +26,9 @@ importers:
       solmate:
         specifier: github:transmissions11/solmate
         version: https://codeload.github.com/transmissions11/solmate/tar.gz/c93f7716c9909175d45f6ef80a34a650e2d24e56
+      webauthn-sol:
+        specifier: github:base/webauthn-sol
+        version: https://codeload.github.com/base/webauthn-sol/tar.gz/619f20ab0f074fef41066ee4ab24849a913263b2
 
 packages:
 
@@ -941,6 +944,10 @@ packages:
     resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/2b59872eee0b8088ddcade39fe8c041e17bb79c0}
     version: 1.9.4
 
+  forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/6abf66980050ab03a35b52bdab814f55001d6929:
+    resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/6abf66980050ab03a35b52bdab814f55001d6929}
+    version: 1.9.6
+
   forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/8a225d81aa8e2e013580564588c79abb65eacc9e:
     resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/8a225d81aa8e2e013580564588c79abb65eacc9e}
     version: 1.9.3
@@ -1696,9 +1703,9 @@ packages:
     resolution: {integrity: sha512-qMCMfhY040cVHT43K9BFygqYbUPFZKHOg7K73mtTWJRb8pyP3fzf4Ixd5SzdEJQ6MRUg/WBnOLxghZtKKurENQ==}
     engines: {node: '>=10'}
 
-  solady@https://codeload.github.com/vectorized/solady/tar.gz/513f581675374706dbe947284d6b12d19ce35a2a:
-    resolution: {tarball: https://codeload.github.com/vectorized/solady/tar.gz/513f581675374706dbe947284d6b12d19ce35a2a}
-    version: 0.0.281
+  solady@https://codeload.github.com/vectorized/solady/tar.gz/dcdfab80f4e6cb9ac35c91610b2a2ec42689ec79:
+    resolution: {tarball: https://codeload.github.com/vectorized/solady/tar.gz/dcdfab80f4e6cb9ac35c91610b2a2ec42689ec79}
+    version: 0.1.14
 
   solarray@https://codeload.github.com/sablier-labs/solarray/tar.gz/6bf10cb34cdace52a3ba5fe437e78cc82df92684:
     resolution: {tarball: https://codeload.github.com/sablier-labs/solarray/tar.gz/6bf10cb34cdace52a3ba5fe437e78cc82df92684}
@@ -1901,6 +1908,10 @@ packages:
   web3-utils@1.10.4:
     resolution: {integrity: sha512-tsu8FiKJLk2PzhDl9fXbGUWTkkVXYhtTA+SmEFkKft+9BgwLxfCRpU96sWv7ICC8zixBNd3JURVoiR3dUXgP8A==}
     engines: {node: '>=8.0.0'}
+
+  webauthn-sol@https://codeload.github.com/base/webauthn-sol/tar.gz/619f20ab0f074fef41066ee4ab24849a913263b2:
+    resolution: {tarball: https://codeload.github.com/base/webauthn-sol/tar.gz/619f20ab0f074fef41066ee4ab24849a913263b2}
+    version: 0.0.0
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -2408,7 +2419,7 @@ snapshots:
   '@rhinestone/checknsignatures@https://codeload.github.com/rhinestonewtf/checknsignatures/tar.gz/7ff44ef46da1266374e6a98e6cf69d727d7c357d':
     dependencies:
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/2b59872eee0b8088ddcade39fe8c041e17bb79c0
-      solady: https://codeload.github.com/vectorized/solady/tar.gz/513f581675374706dbe947284d6b12d19ce35a2a
+      solady: https://codeload.github.com/vectorized/solady/tar.gz/dcdfab80f4e6cb9ac35c91610b2a2ec42689ec79
 
   '@rhinestone/erc4337-validation@0.0.4(ethers@5.7.2)(hardhat@2.22.15(typescript@4.9.5))(lodash@4.17.21)(typechain@5.2.0(typescript@4.9.5))':
     dependencies:
@@ -2418,7 +2429,7 @@ snapshots:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/8a225d81aa8e2e013580564588c79abb65eacc9e
       prettier: 2.8.8
-      solady: https://codeload.github.com/vectorized/solady/tar.gz/513f581675374706dbe947284d6b12d19ce35a2a
+      solady: https://codeload.github.com/vectorized/solady/tar.gz/dcdfab80f4e6cb9ac35c91610b2a2ec42689ec79
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -2443,7 +2454,7 @@ snapshots:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       excessively-safe-call: '@nomad-xyz/excessively-safe-call@https://codeload.github.com/nomad-xyz/ExcessivelySafeCall/tar.gz/81cd99ce3e69117d665d7601c330ea03b97acce0'
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/d3db4ef90a72b7d24aa5a2e5c649593eaef7801d
-      solady: https://codeload.github.com/vectorized/solady/tar.gz/513f581675374706dbe947284d6b12d19ce35a2a
+      solady: https://codeload.github.com/vectorized/solady/tar.gz/dcdfab80f4e6cb9ac35c91610b2a2ec42689ec79
       solarray: https://codeload.github.com/sablier-labs/solarray/tar.gz/6bf10cb34cdace52a3ba5fe437e78cc82df92684
       solhint: 5.0.3(typescript@4.9.5)
     transitivePeerDependencies:
@@ -2459,7 +2470,7 @@ snapshots:
 
   '@rhinestone/sentinellist@https://codeload.github.com/rhinestonewtf/sentinellist/tar.gz/e722c5cc68c570d535bc3c9f85b3ce90cdc38807':
     dependencies:
-      forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/d3db4ef90a72b7d24aa5a2e5c649593eaef7801d
+      forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/6abf66980050ab03a35b52bdab814f55001d6929
 
   '@scure/base@1.1.9': {}
 
@@ -3239,6 +3250,8 @@ snapshots:
       debug: 4.3.7(supports-color@8.1.1)
 
   forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/2b59872eee0b8088ddcade39fe8c041e17bb79c0: {}
+
+  forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/6abf66980050ab03a35b52bdab814f55001d6929: {}
 
   forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/8a225d81aa8e2e013580564588c79abb65eacc9e: {}
 
@@ -4069,7 +4082,7 @@ snapshots:
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
 
-  solady@https://codeload.github.com/vectorized/solady/tar.gz/513f581675374706dbe947284d6b12d19ce35a2a: {}
+  solady@https://codeload.github.com/vectorized/solady/tar.gz/dcdfab80f4e6cb9ac35c91610b2a2ec42689ec79: {}
 
   solarray@https://codeload.github.com/sablier-labs/solarray/tar.gz/6bf10cb34cdace52a3ba5fe437e78cc82df92684: {}
 
@@ -4299,6 +4312,8 @@ snapshots:
       number-to-bn: 1.7.0
       randombytes: 2.1.0
       utf8: 3.0.0
+
+  webauthn-sol@https://codeload.github.com/base/webauthn-sol/tar.gz/619f20ab0f074fef41066ee4ab24849a913263b2: {}
 
   webidl-conversions@3.0.1: {}
 

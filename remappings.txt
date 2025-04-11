@@ -18,3 +18,4 @@ solarray/=node_modules/solarray/src/
 @prb/math/=node_modules/@prb/math/src/
 solmate/=node_modules/solmate/src/
 ExcessivelySafeCall/=node_modules/excessively-safe-call/src/
+@webauthn/=node_modules/webauthn-sol/src
