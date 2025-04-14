@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@erc7579/enumerablemap4337':
+        specifier: github:erc7579/enumerablemap
+        version: https://codeload.github.com/erc7579/enumerablemap/tar.gz/36291c5aeccb82d25d95e44bec617470e171a1a6
       '@rhinestone/checknsignatures':
         specifier: github:rhinestonewtf/checknsignatures
         version: https://codeload.github.com/rhinestonewtf/checknsignatures/tar.gz/7ff44ef46da1266374e6a98e6cf69d727d7c357d
@@ -39,6 +42,10 @@ packages:
   '@babel/helper-validator-identifier@7.25.9':
     resolution: {integrity: sha512-Ed61U6XJc3CVRfkERJWDz4dJwKe7iLmmJsbOGu9wSloNSFttHV0I8g6UAgb7qnK5ly5bGLPd4oXZlxCdANBOWQ==}
     engines: {node: '>=6.9.0'}
+
+  '@erc7579/enumerablemap4337@https://codeload.github.com/erc7579/enumerablemap/tar.gz/36291c5aeccb82d25d95e44bec617470e171a1a6':
+    resolution: {tarball: https://codeload.github.com/erc7579/enumerablemap/tar.gz/36291c5aeccb82d25d95e44bec617470e171a1a6}
+    version: 1.0.0
 
   '@ethereumjs/rlp@4.0.1':
     resolution: {integrity: sha512-tqsQiBQDQdmPWE1xkkBq4rlSW5QZpLOUJ5RJh2/9fug+q9tnUhuZoVLk7s0scUIKTOzEtR72DFBXI4WiZcMpvw==}
@@ -2003,6 +2010,8 @@ snapshots:
       picocolors: 1.1.1
 
   '@babel/helper-validator-identifier@7.25.9': {}
+
+  '@erc7579/enumerablemap4337@https://codeload.github.com/erc7579/enumerablemap/tar.gz/36291c5aeccb82d25d95e44bec617470e171a1a6': {}
 
   '@ethereumjs/rlp@4.0.1': {}
 

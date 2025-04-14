@@ -19,3 +19,4 @@ solarray/=node_modules/solarray/src/
 solmate/=node_modules/solmate/src/
 ExcessivelySafeCall/=node_modules/excessively-safe-call/src/
 @webauthn/=node_modules/webauthn-sol/src
+@erc7579/enumerablemap4337/=node_modules/@erc7579/enumerablemap4337/src/

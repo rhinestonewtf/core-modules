@@ -26,6 +26,7 @@
     "test:optimized": "pnpm run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   },
   "dependencies": {
+    "@erc7579/enumerablemap4337": "github:erc7579/enumerablemap",
     "@rhinestone/checknsignatures": "github:rhinestonewtf/checknsignatures",
     "@rhinestone/flatbytes": "github:rhinestonewtf/flatbytes",
     "@rhinestone/modulekit": "^0.5.1",
