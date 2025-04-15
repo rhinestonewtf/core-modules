@@ -53,16 +53,16 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Use real public keys from WebAuthn test
         _pubKeysX[0] =
-            54_807_504_639_157_773_171_177_224_001_212_008_597_433_484_848_616_288_761_862_685_500_185_651_332_983;
+            66_296_829_923_831_658_891_499_717_579_803_548_012_279_830_557_731_564_719_736_971_029_660_387_468_805;
         _pubKeysY[0] =
-            242_821_441_213_993_241_301_867_916_017_299_895_973_570_424_776_011_613_598_955_485_413_223_728_653;
-        _requireUVs[0] = true;
+            46_098_569_798_045_992_993_621_049_610_647_226_011_837_333_919_273_603_402_527_314_962_291_506_652_186;
+        _requireUVs[0] = false;
 
         _pubKeysX[1] =
-            66_516_957_811_183_209_107_370_411_064_969_222_874_919_604_068_615_673_272_710_358_317_257_245_599_632;
+            77_427_310_596_034_628_445_756_159_459_159_056_108_500_819_865_614_675_054_701_790_516_611_205_123_311;
         _pubKeysY[1] =
-            71_625_993_437_896_297_654_335_703_614_222_352_668_480_151_708_606_449_261_273_819_495_316_231_590_774;
-        _requireUVs[1] = false;
+            20_591_151_874_462_689_689_754_215_152_304_668_244_192_265_896_034_279_288_204_806_249_532_173_935_644;
+        _requireUVs[1] = true;
 
         // Pre-compute credential IDs for testing
         for (uint256 i = 0; i < 2; i++) {
@@ -73,7 +73,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Use a fixed challenge for testing
         bytes memory challenge =
-            abi.encode(bytes32(bytes(("9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8"))));
+            abi.encode(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
 
         // Set up real WebAuthn authentication data
         mockAuth = WebAuthn.WebAuthnAuth({
@@ -81,12 +81,12 @@ contract WebAuthnValidatorTest is BaseTest {
             clientDataJSON: string.concat(
                 '{"type":"webauthn.get","challenge":"',
                 Base64Url.encode(challenge),
-                '","origin":"http://localhost:3005"}'
+                '","origin":"http://localhost:8080","crossOrigin":false}'
             ),
             challengeIndex: 23,
             typeIndex: 1,
-            r: 25_812_802_015_954_623_097_390_139_586_389_273_967_116_245_496_476_953_348_223_000_448_619_515_908_322,
-            s: 18_958_476_174_746_756_540_810_015_776_648_243_959_108_274_224_858_350_275_711_600_244_636_459_694_113
+            r: 23_510_924_181_331_275_540_501_876_269_042_668_160_690_304_423_490_805_737_085_519_687_669_896_593_880,
+            s: 36_590_747_517_247_563_381_084_733_394_442_750_806_324_326_036_343_798_276_847_517_765_557_371_045_088
         });
 
         // Create mock signature data - encode it directly to avoid compiler limitations
@@ -100,16 +100,16 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Use a slightly different signature for the second credential
         WebAuthn.WebAuthnAuth memory mockAuth2 = WebAuthn.WebAuthnAuth({
-            authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d9763050000010a",
+            authenticatorData: hex"49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000001",
             clientDataJSON: string.concat(
                 '{"type":"webauthn.get","challenge":"',
                 Base64Url.encode(challenge),
-                '","origin":"http://localhost:3005","crossOrigin":false}'
+                '","origin":"http://localhost:8080","crossOrigin":false}'
             ),
             challengeIndex: 23,
             typeIndex: 1,
-            r: 98_518_400_801_405_136_947_761_206_324_368_310_068_820_329_541_334_119_522_740_223_463_953_495_491_956,
-            s: 18_381_529_304_872_271_321_928_375_352_427_217_698_453_657_984_149_443_593_404_558_549_205_571_840_728
+            r: 70_190_788_404_940_879_339_470_429_048_068_864_326_256_942_039_718_306_809_827_270_917_601_845_266_065,
+            s: 372_310_544_955_428_259_193_186_543_685_199_264_627_091_796_694_315_697_785_543_526_117_532_572_367
         });
 
         sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
@@ -612,7 +612,7 @@ contract WebAuthnValidatorTest is BaseTest {
                                VALIDATION
     //////////////////////////////////////////////////////////////*/
 
-    function test_ValidateUserOpWhenThresholdIsNotSet() public {
+    function test_ValidateUserOpWhenThresholdIsNotSet() public view {
         // should return VALIDATION_FAILED
         PackedUserOperation memory userOp = getEmptyUserOperation();
         userOp.sender = address(this);
@@ -1067,6 +1067,6 @@ contract WebAuthnValidatorTest is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     function createTestUserOpHash() internal pure returns (bytes32) {
-        return bytes32(bytes("9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8"));
+        return bytes32(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
     }
 }
