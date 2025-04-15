@@ -10,10 +10,9 @@ import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
 // Libraries
 import { SignatureCheckerLib } from "solady/utils/SignatureCheckerLib.sol";
 import { EnumerableSet } from "@erc7579/enumerablemap4337/EnumerableSet4337.sol";
-import { LibSort } from "solady/utils/LibSort.sol";
 import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
-import { WebAuthn, WebAuthnAuth } from "@webauthn/WebAuthn.sol";
+import { WebAuthn } from "@webauthn/WebAuthn.sol";
 
 uint256 constant TYPE_STATELESS_VALIDATOR = 7;
 
@@ -27,8 +26,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
                                LIBRARIES
     //////////////////////////////////////////////////////////////*/
 
-    using LibSort for bytes32[];
-    using SentinelList4337Lib for SentinelList4337Lib.SentinelList;
+    using EnumerableSet for EnumerableSet.Bytes32Set;
     using WebAuthn for bytes;
 
     /*//////////////////////////////////////////////////////////////
@@ -51,7 +49,18 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @param auth The WebAuthn authentication data
     struct WebAuthnSignatureData {
         bytes32 credentialId;
-        WebAuthnAuth auth;
+        WebAuthn.WebAuthnAuth auth;
+    }
+
+    /// @notice WebAuthVerificationContext
+    /// @dev Context for WebAuthn verification, including credential details and threshold
+    /// @param threshold The number of signatures required for validation
+    /// @param credentialIds The IDs of the credentials used for signing
+    /// @param credential data WebAuthn credential data
+    struct WebAuthVerificationContext {
+        uint256 threshold;
+        bytes32[] credentialIds;
+        WebAuthnCredential[] credentialData;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -89,8 +98,8 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @notice Thrown when a threshold is invalid (e.g., higher than credential count)
     error InvalidThreshold();
 
-    /// @notice Thrown when credential IDs are not sorted and unique
-    error NotSortedAndUnique();
+    /// @notice Thrown when credential IDs are not unique
+    error NotUnique();
 
     /// @notice Thrown when attempting to add more credentials than the maximum allowed
     error MaxCredentialsReached();
@@ -135,29 +144,20 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     /// @notice Initializes the module with WebAuthn credentials
     /// @dev Installs the validator with threshold and initial set of credentials
-    /// @param data Encoded as: abi.encode(threshold, credentialIds, pubKeysX, pubKeysY, requireUVs)
+    /// @param data Encoded as: abi.encode(threshold, pubKeysX, pubKeysY, requireUVs)
     function onInstall(bytes calldata data) external override {
         // Decode the credential data
         (
             uint256 _threshold,
-            bytes32[] memory _credentialIds,
             uint256[] memory _pubKeysX,
             uint256[] memory _pubKeysY,
             bool[] memory _requireUVs
-        ) = abi.decode(data, (uint256, bytes32[], uint256[], uint256[], bool[]));
+        ) = abi.decode(data, (uint256, uint256[], uint256[], bool[]));
 
         // Check that credential arrays are of same length
-        uint256 credentialsLength = _credentialIds.length;
-        if (
-            credentialsLength != _pubKeysX.length || credentialsLength != _pubKeysY.length
-                || credentialsLength != _requireUVs.length
-        ) {
-            revert NotSortedAndUnique();
-        }
-
-        // Check that credentials are sorted and unique
-        if (!_credentialIds.isSortedAndUnique()) {
-            revert NotSortedAndUnique();
+        uint256 credentialLength = _pubKeysX.length;
+        if (credentialLength != _pubKeysY.length || credentialLength != _requireUVs.length) {
+            revert NotUnique();
         }
 
         // Make sure the threshold is set
@@ -166,12 +166,12 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         }
 
         // Make sure the threshold is valid
-        if (credentialsLength < _threshold) {
+        if (credentialLength < _threshold) {
             revert InvalidThreshold();
         }
 
         // Check if max credentials is reached
-        if (credentialsLength > MAX_CREDENTIALS) {
+        if (credentialLength > MAX_CREDENTIALS) {
             revert MaxCredentialsReached();
         }
 
@@ -181,19 +181,19 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         // Set threshold
         threshold[account] = _threshold;
 
-        // Add credentials
-        for (uint256 i = 0; i < credentialsLength; i++) {
-            bytes32 credId = _credentialIds[i];
+        // Generate credential IDs and store credentials
+        bytes32[] memory credentialIds = new bytes32[](credentialLength);
 
-            // Check credential ID is valid
-            if (credId == bytes32(0)) {
-                revert InvalidCredential(credId);
-            }
-
+        for (uint256 i = 0; i < credentialLength; i++) {
             // Check public key is valid
             if (_pubKeysX[i] == 0 || _pubKeysY[i] == 0) {
                 revert InvalidPublicKey();
             }
+
+            // Generate deterministic credential ID
+            bytes32 credId =
+                generateCredentialId(_pubKeysX[i], _pubKeysY[i], _requireUVs[i], account);
+            credentialIds[i] = credId;
 
             // Store the credential
             credentialDetails[credId][account] = WebAuthnCredential({
@@ -203,7 +203,10 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             });
 
             // Add credential ID to the set
-            credentials.add(account, credId);
+            bool isUnique = credentials.add(account, credId);
+            if (!isUnique) {
+                revert NotUnique();
+            }
 
             // Emit event
             emit CredentialAdded(account, credId);
@@ -214,7 +217,6 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     /// @notice Handles the uninstallation of the module and clears all credentials
     /// @dev Removes all credentials and settings for the account
-    /// @param Unused but required by interface
     function onUninstall(bytes calldata) external override {
         // Cache the account address
         address account = msg.sender;
@@ -271,42 +273,27 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     /// @notice Adds a WebAuthn credential to the account
     /// @dev Registers a new passkey for authentication
-    /// @param credentialId Unique identifier for the WebAuthn credential
     /// @param pubKeyX X coordinate of the credential's public key
     /// @param pubKeyY Y coordinate of the credential's public key
     /// @param requireUV Whether user verification (biometrics/PIN) is required
-    function addCredential(
-        bytes32 credentialId,
-        uint256 pubKeyX,
-        uint256 pubKeyY,
-        bool requireUV
-    )
-        external
-    {
+    function addCredential(uint256 pubKeyX, uint256 pubKeyY, bool requireUV) external {
         // Cache the account address
         address account = msg.sender;
 
         // Check if the module is initialized
         if (!isInitialized(account)) revert NotInitialized(account);
 
-        // Revert if the credential ID is invalid
-        if (credentialId == bytes32(0)) {
-            revert InvalidCredential(credentialId);
+        // Verify public key is valid
+        if (pubKeyX == 0 || pubKeyY == 0) {
+            revert InvalidPublicKey();
         }
 
-        // Check if credential already exists
-        if (credentials.contains(account, credentialId)) {
-            revert CredentialAlreadyExists();
-        }
+        // Generate deterministic credential ID
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, requireUV, account);
 
         // Check if max credentials is reached
         if (credentials.length(account) >= MAX_CREDENTIALS) {
             revert MaxCredentialsReached();
-        }
-
-        // Verify public key is valid
-        if (pubKeyX == 0 || pubKeyY == 0) {
-            revert InvalidPublicKey();
         }
 
         // Store the credential
@@ -314,25 +301,28 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             WebAuthnCredential({ pubKeyX: pubKeyX, pubKeyY: pubKeyY, requireUV: requireUV });
 
         // Add the credential ID to the set
-        credentials.add(account, credentialId);
+        bool isUnique = credentials.add(account, credentialId);
+        if (!isUnique) {
+            revert CredentialAlreadyExists();
+        }
 
         emit CredentialAdded(account, credentialId);
     }
 
     /// @notice Removes a WebAuthn credential from the account
     /// @dev De-registers a passkey and prevents it from being used for authentication
-    /// @param credentialId ID of the credential to remove
-    function removeCredential(bytes32 credentialId) external {
+    /// @param pubKeyX X coordinate of the credential's public key
+    /// @param pubKeyY Y coordinate of the public key
+    /// @param requireUV Whether user verification is required
+    function removeCredential(uint256 pubKeyX, uint256 pubKeyY, bool requireUV) external {
         // Cache the account address
         address account = msg.sender;
 
         // Check if the module is initialized
         if (!isInitialized(account)) revert NotInitialized(account);
 
-        // Check if credential exists
-        if (!credentials.contains(account, credentialId)) {
-            revert InvalidCredential(credentialId);
-        }
+        // Generate deterministic credential ID
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, requireUV, account);
 
         // Check if removing would break threshold
         if (credentials.length(account) <= threshold[account]) {
@@ -340,7 +330,10 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         }
 
         // Remove the credential from the set
-        credentials.remove(account, credentialId);
+        bool wasRemoved = credentials.remove(account, credentialId);
+        if (!wasRemoved) {
+            revert InvalidCredential(credentialId);
+        }
 
         // Delete from the credentials mapping
         delete credentialDetails[credentialId][account];
@@ -351,7 +344,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @notice Returns the credential IDs of the account
     /// @dev Gets all registered credential IDs for an account
     /// @param account Address of the account
-    /// @return Array of credential IDs
+    /// @return credentialsIds Array of credential IDs
     function getCredentialIds(address account)
         public
         view
@@ -362,17 +355,38 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     /// @notice Returns the number of credentials for an account
     /// @param account Address of the account
-    /// @return Count of credentials
+    /// @return count Count of credentials
     function getCredentialCount(address account) external view returns (uint256 count) {
         return credentials.length(account);
     }
 
     /// @notice Checks if a credential exists for an account
+    /// @dev Verifies if a specific credential is registered using its parameters
+    /// @param pubKeyX X coordinate of the credential's public key
+    /// @param pubKeyY Y coordinate of the credential's public key
+    /// @param requireUV Whether user verification is required
+    /// @param account Address of the account to check
+    /// @return exists Boolean indicating whether the credential exists
+    function hasCredential(
+        uint256 pubKeyX,
+        uint256 pubKeyY,
+        bool requireUV,
+        address account
+    )
+        external
+        view
+        returns (bool exists)
+    {
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, requireUV, account);
+        return credentials.contains(account, credentialId);
+    }
+
+    /// @notice Checks if a credential exists for an account by its ID
     /// @dev Verifies if a specific credential ID is registered
     /// @param credentialId Credential ID to check
     /// @param account Address of the account to check
-    /// @return exists True if the credential exists, false otherwise
-    function hasCredential(
+    /// @return exists Boolean indicating whether the credential exists
+    function hasCredentialById(
         bytes32 credentialId,
         address account
     )
@@ -399,6 +413,19 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     {
         WebAuthnCredential memory cred = credentialDetails[credentialId][account];
         return (cred.pubKeyX, cred.pubKeyY, cred.requireUV);
+    }
+
+    function generateCredentialId(
+        uint256 pubKeyX,
+        uint256 pubKeyY,
+        bool requireUV,
+        address account
+    )
+        public
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(pubKeyX, pubKeyY, requireUV, account));
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -431,7 +458,6 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     /// @notice Validates an ERC-1271 signature with the sender
     /// @dev Implements EIP-1271 isValidSignature for smart contract signatures
-    /// @param _ Unused parameter (from interface)
     /// @param hash Hash of the data to validate
     /// @param data Signature data
     /// @return bytes4 EIP1271_SUCCESS if valid, EIP1271_FAILED otherwise
@@ -472,39 +498,21 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         returns (bool)
     {
         // Decode the threshold and credentials
-        (
-            uint256 _threshold,
-            bytes32[] memory _credentialIds,
-            uint256[] memory _pubKeysX,
-            uint256[] memory _pubKeysY,
-            bool[] memory _requireUVs
-        ) = abi.decode(data, (uint256, bytes32[], uint256[], uint256[], bool[]));
+        WebAuthVerificationContext memory context = abi.decode(data, (WebAuthVerificationContext));
 
         // Check that arrays have matching lengths
-        uint256 credentialsLength = _credentialIds.length;
-        if (
-            credentialsLength != _pubKeysX.length || credentialsLength != _pubKeysY.length
-                || credentialsLength != _requireUVs.length
-        ) {
+        uint256 credentialsLength = context.credentialIds.length;
+        if (credentialsLength != context.credentialData.length) {
             return false;
         }
 
         // Check that threshold is valid
-        if (_threshold == 0 || _threshold > credentialsLength) {
+        if (context.threshold == 0 || context.threshold > credentialsLength) {
             return false;
         }
 
         // Verify WebAuthn signatures
-        (bool success, uint256 validSigs) = _verifyWebAuthnSignatures(
-            hash, signature, _threshold, _credentialIds, _pubKeysX, _pubKeysY, _requireUVs
-        );
-
-        if (!success) {
-            return false;
-        }
-
-        // Check if threshold is met
-        return validSigs >= _threshold;
+        return _verifyWebAuthnSignatures(hash, signature, context);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -535,54 +543,38 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         // Get credential IDs
         bytes32[] memory credIds = getCredentialIds(account);
 
-        // Prepare arrays for verification
-        uint256[] memory pubKeysX = new uint256[](credIds.length);
-        uint256[] memory pubKeysY = new uint256[](credIds.length);
-        bool[] memory requireUVs = new bool[](credIds.length);
+        // Prepare WebAuthnCredential array
+        WebAuthnCredential[] memory credentialData = new WebAuthnCredential[](credIds.length);
 
         // Populate credential data
-        for (uint256 i = 0; i < credIds.length; ++i) {
-            WebAuthnCredential memory cred = credentialDetails[credIds[i]][account];
-            pubKeysX[i] = cred.pubKeyX;
-            pubKeysY[i] = cred.pubKeyY;
-            requireUVs[i] = cred.requireUV;
+        for (uint256 i; i < credIds.length; ++i) {
+            credentialData[i] = credentialDetails[credIds[i]][account];
         }
+
+        // Set up the verification context
+        WebAuthVerificationContext memory context = WebAuthVerificationContext({
+            threshold: _threshold,
+            credentialIds: credIds,
+            credentialData: credentialData
+        });
 
         // Verify WebAuthn signatures
-        (bool success, uint256 validSigs) = _verifyWebAuthnSignatures(
-            hash, data, _threshold, credIds, pubKeysX, pubKeysY, requireUVs
-        );
-
-        if (!success) {
-            return false;
-        }
-
-        // Check if threshold is met
-        return validSigs >= _threshold;
+        return _verifyWebAuthnSignatures(hash, data, context);
     }
 
-    /// @dev Core signature verification logic for WebAuthn authenticators
+    /// @dev Core signature verification logic
     /// @param hash Hash of the data to verify
     /// @param signatureData Encoded WebAuthn signatures
-    /// @param thresholdValue Required number of valid signatures
-    /// @param credIds Array of credential IDs
-    /// @param pubKeysX Array of X coordinates for public keys
-    /// @param pubKeysY Array of Y coordinates for public keys
-    /// @param requireUVs Array of user verification requirements
+    /// @param context Verification context containing credential details
     /// @return success Whether verification process completed successfully
-    /// @return validCount Number of valid signatures found
     function _verifyWebAuthnSignatures(
         bytes32 hash,
         bytes calldata signatureData,
-        uint256 thresholdValue,
-        bytes32[] memory credIds,
-        uint256[] memory pubKeysX,
-        uint256[] memory pubKeysY,
-        bool[] memory requireUVs
+        WebAuthVerificationContext memory context
     )
         internal
         view
-        returns (bool success, uint256 validCount)
+        returns (bool success)
     {
         // Decode the signature data in a single operation
         // Format: abi.encode(WebAuthnSignatureData[])
@@ -591,56 +583,49 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
         // Cache lengths
         uint256 sigCount = signatures.length;
-        uint256 credCount = credIds.length;
 
         // Check number of signatures
-        if (sigCount == 0 || sigCount < thresholdValue) {
-            return (false, 0);
+        if (sigCount == 0 || sigCount < context.threshold) {
+            return false;
         }
 
         // Track valid signatures
-        validCount = 0;
+        uint256 validCount;
 
         // Verify each signature
-        for (uint256 i = 0; i < sigCount; ++i) {
+        for (uint256 i; i < sigCount; ++i) {
             // Get the credential ID and auth data from the struct
-            bytes32 credentialId = signatures[i].credentialId;
-            WebAuthnAuth memory auth = signatures[i].auth;
-
-            // Find the credential in the provided list
-            uint256 credIndex;
-            bool found = false;
-
-            for (uint256 j = 0; j < credCount; ++j) {
-                if (credIds[j] == credentialId) {
-                    credIndex = j;
-                    found = true;
-                    break;
-                }
-            }
-
-            // Skip if credential not found
-            if (!found) continue;
+            WebAuthn.WebAuthnAuth memory auth = signatures[i].auth;
 
             // Challenge is the hash to be signed
-            bytes memory challenge = bytes.concat(hash);
+            bytes memory challenge = abi.encode(hash);
 
-            // Verify WebAuthn signature
+            // IMPORTANT:
+            // **********************************************************************
+            // * We assume here that signatures are ordered to match credential IDs *
+            // **********************************************************************
+
+            // Verify the signature against the credential at the same index
             bool valid = WebAuthn.verify(
-                challenge, requireUVs[credIndex], auth, pubKeysX[credIndex], pubKeysY[credIndex]
+                challenge,
+                context.credentialData[i].requireUV,
+                auth,
+                context.credentialData[i].pubKeyX,
+                context.credentialData[i].pubKeyY
             );
 
             if (valid) {
                 ++validCount;
 
                 // Early return if threshold is met
-                if (validCount >= thresholdValue) {
-                    return (true, validCount);
+                if (validCount >= context.threshold) {
+                    return true;
                 }
             }
         }
 
-        return (true, validCount);
+        // If we reach here, we didn't meet the threshold
+        return false;
     }
 
     /*//////////////////////////////////////////////////////////////

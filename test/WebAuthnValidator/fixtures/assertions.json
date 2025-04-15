@@ -1,0 +1,75 @@
+{
+  "count": 5,
+  "cases": [
+    {
+      "uv": true,
+      "x": 54807504639157773171177224001212008597433484848616288761862685500185651332983,
+      "y": 242821441213993241301867916017299895973570424776011613598955485413223728653,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 25812802015954623097390139586389273967116245496476953348223000448619515908322,
+      "s": 18958476174746756540810015776648243959108274224858350275711600244636459694113,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    },
+    {
+      "uv": false,
+      "x": 66516957811183209107370411064969222874919604068615673272710358317257245599632,
+      "y": 71625993437896297654335703614222352668480151708606449261273819495316231590774,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 98518400801405136947761206324368310068820329541334119522740223463953495491956,
+      "s": 18381529304872271321928375352427217698453657984149443593404558549205571840728,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630100000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    },
+    {
+      "uv": false,
+      "x": 101657036054051299290895504603399096479428369848990980741109663953914605421111,
+      "y": 38524590848027204839187102011538214623960188580986186444010199830181097222847,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 104772478902581685751875850053668288159364907762709892468217875777359823272153,
+      "s": 19607993650717597638825779557471220235036540282244333402895677170001514522792,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630100000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    },
+    {
+      "uv": false,
+      "x": 25670219970226987546378662198493420201407299656230618638826403463262725269056,
+      "y": 50227778886860380207308623103578577009969362253060976810002670087442161778268,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 44748160485848294750200535365248460049335874573380379038016206183674359615491,
+      "s": 36670569921819192150797512654645767839821258209687070220398887113782833171778,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630100000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false,\"other_keys_can_be_added_here\":\"do not compare clientDataJSON against a template. See https://goo.gl/yabPex\"}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    },
+    {
+      "uv": true,
+      "x": 110912874876347548768784291025875414572133062938877328904586661025634112078732,
+      "y": 20200517742972427094008065917055251533596100938100141611977594704970277286276,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 78114483578534574178286628779960745165852200237504992711311978458157962973841,
+      "s": 57188153155573309987288452458749605207938579901937363289508458341513740149727,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    }
+  ]
+}
