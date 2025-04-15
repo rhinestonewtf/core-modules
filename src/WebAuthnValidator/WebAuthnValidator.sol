@@ -128,7 +128,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
                                  STATE
     //////////////////////////////////////////////////////////////*/
 
-    ///.@notice Enumerable set of enabled credentials per account
+    /// @notice Enumerable set of enabled credentials per account
     EnumerableSet.Bytes32Set credentials;
 
     /// @notice Mapping of credential IDs to their respective WebAuthn credentials
