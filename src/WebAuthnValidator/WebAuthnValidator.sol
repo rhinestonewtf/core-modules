@@ -46,6 +46,14 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         bool requireUV;
     }
 
+    /// @notice Structure holding WebAuthn signature data, used for validation
+    /// @param credentialId The ID of the credential used for signing
+    /// @param auth The WebAuthn authentication data
+    struct WebAuthnSignatureData {
+        bytes32 credentialId;
+        WebAuthnAuth auth;
+    }
+
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -533,7 +541,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         bool[] memory requireUVs = new bool[](credIds.length);
 
         // Populate credential data
-        for (uint256 i = 0; i < credIds.length; i++) {
+        for (uint256 i = 0; i < credIds.length; ++i) {
             WebAuthnCredential memory cred = credentialDetails[credIds[i]][account];
             pubKeysX[i] = cred.pubKeyX;
             pubKeysY[i] = cred.pubKeyY;
@@ -576,12 +584,17 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         view
         returns (bool success, uint256 validCount)
     {
-        // Decode the signature data
-        // Format: abi.encode(signatures)
-        bytes[] memory signatures = abi.decode(signatureData, (bytes[]));
+        // Decode the signature data in a single operation
+        // Format: abi.encode(WebAuthnSignatureData[])
+        WebAuthnSignatureData[] memory signatures =
+            abi.decode(signatureData, (WebAuthnSignatureData[]));
+
+        // Cache lengths
+        uint256 sigCount = signatures.length;
+        uint256 credCount = credIds.length;
 
         // Check number of signatures
-        if (signatures.length == 0 || signatures.length < thresholdValue) {
+        if (sigCount == 0 || sigCount < thresholdValue) {
             return (false, 0);
         }
 
@@ -589,17 +602,16 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         validCount = 0;
 
         // Verify each signature
-        for (uint256 i = 0; i < signatures.length; i++) {
-            // Decode the individual signature
-            // Format: abi.encode(credentialId, webAuthnAuth)
-            (bytes32 credentialId, WebAuthnAuth memory auth) =
-                abi.decode(signatures[i], (bytes32, WebAuthnAuth));
+        for (uint256 i = 0; i < sigCount; ++i) {
+            // Get the credential ID and auth data from the struct
+            bytes32 credentialId = signatures[i].credentialId;
+            WebAuthnAuth memory auth = signatures[i].auth;
 
             // Find the credential in the provided list
             uint256 credIndex;
             bool found = false;
 
-            for (uint256 j = 0; j < credIds.length; j++) {
+            for (uint256 j = 0; j < credCount; ++j) {
                 if (credIds[j] == credentialId) {
                     credIndex = j;
                     found = true;
@@ -619,7 +631,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             );
 
             if (valid) {
-                validCount++;
+                ++validCount;
 
                 // Early return if threshold is met
                 if (validCount >= thresholdValue) {
