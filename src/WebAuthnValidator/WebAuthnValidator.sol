@@ -13,6 +13,7 @@ import { EnumerableSet } from "@erc7579/enumerablemap4337/EnumerableSet4337.sol"
 import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { WebAuthn } from "@webauthn/WebAuthn.sol";
+import { LibSort } from "solady/utils/LibSort.sol";
 
 uint256 constant TYPE_STATELESS_VALIDATOR = 7;
 
@@ -28,6 +29,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using WebAuthn for bytes;
+    using LibSort for bytes32[];
 
     /*//////////////////////////////////////////////////////////////
                                 STRUCTS
@@ -540,8 +542,11 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             return false;
         }
 
-        // Get credential IDs
-        bytes32[] memory credIds = getCredentialIds(account);
+        // Get credential IDs from data
+        // Format: abi.encode(credentialIds, remainingSig)
+        (bytes32[] memory credIds, bytes memory remainingSig) = abi.decode(data, (bytes32[], bytes));
+        credIds.sort();
+        credIds.uniquifySorted();
 
         // Prepare WebAuthnCredential array
         WebAuthnCredential[] memory credentialData = new WebAuthnCredential[](credIds.length);
@@ -559,7 +564,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         });
 
         // Verify WebAuthn signatures
-        return _verifyWebAuthnSignatures(hash, data, context);
+        return _verifyWebAuthnSignatures(hash, remainingSig, context);
     }
 
     /// @dev Core signature verification logic
@@ -569,14 +574,14 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @return success Whether verification process completed successfully
     function _verifyWebAuthnSignatures(
         bytes32 hash,
-        bytes calldata signatureData,
+        bytes memory signatureData,
         WebAuthVerificationContext memory context
     )
         internal
         view
         returns (bool success)
     {
-        // Decode the signature data in a single operation
+        // Decode the signature data
         // Format: abi.encode(WebAuthnSignatureData[])
         WebAuthnSignatureData[] memory signatures =
             abi.decode(signatureData, (WebAuthnSignatureData[]));

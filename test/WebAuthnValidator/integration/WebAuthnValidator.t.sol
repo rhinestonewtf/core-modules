@@ -119,7 +119,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         });
 
         // Encode the signatures
-        mockSignatureData = abi.encode(sigs);
+        mockSignatureData = abi.encode(_credentialIds, abi.encode(sigs));
 
         // Install the validator module on the account
         instance.installModule({
@@ -299,9 +299,11 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         });
 
         bytes memory data = abi.encode(context);
+        bytes memory sigs;
+        (credentialIds, sigs) = abi.decode(mockSignatureData, (bytes32[], bytes));
 
         // Validate the signatures
-        bool isValid = validator.validateSignatureWithData(hash, mockSignatureData, data);
+        bool isValid = validator.validateSignatureWithData(hash, sigs, data);
         assertTrue(isValid, "Stateless signature validation should pass");
     }
 
