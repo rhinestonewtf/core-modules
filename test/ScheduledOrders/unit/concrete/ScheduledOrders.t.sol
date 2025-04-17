@@ -100,7 +100,7 @@ contract ScheduledOrdersTest is BaseTest {
         executor.onInstall(data);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IERC7579Module.AlreadyInitialized.selector, address(this))
+            abi.encodeWithSelector(IERC7579Module.ModuleAlreadyInitialized.selector, address(this))
         );
         executor.onInstall(data);
     }

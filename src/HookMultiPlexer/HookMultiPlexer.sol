@@ -73,7 +73,7 @@ contract HookMultiPlexer is ERC7579ModuleBase, IERC7579Hook, ERC7484RegistryAdap
      */
     function onInstall(bytes calldata data) external override {
         // check if the module is already initialized and revert if it is
-        if (isInitialized(msg.sender)) revert AlreadyInitialized(msg.sender);
+        if (isInitialized(msg.sender)) revert ModuleAlreadyInitialized(msg.sender);
 
         // decode the hook arrays
         (

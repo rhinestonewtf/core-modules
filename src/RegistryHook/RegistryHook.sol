@@ -34,7 +34,7 @@ contract RegistryHook is ERC7579HookDestruct {
         // cache the account address
         address account = msg.sender;
         // check if the module is already initialized and revert if it is
-        if (isInitialized(account)) revert AlreadyInitialized(account);
+        if (isInitialized(account)) revert ModuleAlreadyInitialized(account);
 
         // decode the registry
         address registryAddress = address(uint160(bytes20(data[0:20])));
