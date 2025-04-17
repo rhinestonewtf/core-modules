@@ -90,13 +90,9 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Create WebAuthn signature data
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
+        sigs[0] = mockAuth;
 
         // Use a slightly different signature for the second credential
         WebAuthn.WebAuthnAuth memory mockAuth2 = WebAuthn.WebAuthnAuth({
@@ -112,14 +108,11 @@ contract WebAuthnValidatorTest is BaseTest {
             s: 372_310_544_955_428_259_193_186_543_685_199_264_627_091_796_694_315_697_785_543_526_117_532_572_367
         });
 
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth2
-        });
+        sigs[1] = mockAuth2;
 
         // Create the new signature format that includes the credential IDs:
         // abi.encode(credentialIds, abi.encode(signatures))
-        mockSignatureData = abi.encode(_credentialIds, false, abi.encode(sigs));
+        mockSignatureData = abi.encode(_credentialIds, false, sigs);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -733,21 +726,14 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes32 userOpHash = bytes32(keccak256("userOpHash"));
 
         // Create signature data with credentials in wrong order
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
         // Swap the credential IDs in the WebAuthnSignatureData
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // But still use the correct order in the outer array
-        userOp.signature = abi.encode(_credentialIds, false, abi.encode(sigs));
+        userOp.signature = abi.encode(_credentialIds, false, sigs);
 
         // Validation should fail because the signature data doesn't match
         uint256 validationData =
@@ -769,21 +755,15 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes32 userOpHash = bytes32(keccak256("userOpHash"));
 
         // Create signature data with only 1 valid signature (threshold is 2)
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth
-        });
+        // Swap the credential IDs in the WebAuthnSignatureData
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // Encode the signatures
         (bytes32[] memory credIds,,) = abi.decode(mockSignatureData, (bytes32[], bool, bytes));
-        userOp.signature = abi.encode(credIds, false, abi.encode(sigs));
+        userOp.signature = abi.encode(credIds, false, sigs);
 
         // Validation should fail because we need 2 valid signatures
         uint256 validationData =
@@ -817,21 +797,14 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes32 hash = bytes32(keccak256("test message"));
 
         // Create signature data with credentials in wrong order
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
         // Swap the credential IDs in the WebAuthnSignatureData
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // But still use the correct order in the outer array
-        bytes memory signature = abi.encode(_credentialIds, false, abi.encode(sigs));
+        bytes memory signature = abi.encode(_credentialIds, false, sigs);
 
         // Validation should fail
         bytes4 result = validator.isValidSignatureWithSender(address(this), hash, signature);
@@ -853,21 +826,15 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes32 hash = bytes32(keccak256("test message"));
 
         // Create signature data with only 1 valid signature (threshold is 2)
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth
-        });
+        // Swap the credential IDs in the WebAuthnSignatureData
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // Encode the signatures
         (bytes32[] memory credIds,,) = abi.decode(mockSignatureData, (bytes32[], bool, bytes));
-        bytes memory signature = abi.encode(credIds, false, abi.encode(sigs));
+        bytes memory signature = abi.encode(credIds, false, sigs);
 
         // Validation should fail because we need 2 valid signatures
         bytes4 result = validator.isValidSignatureWithSender(address(this), hash, signature);
@@ -881,7 +848,10 @@ contract WebAuthnValidatorTest is BaseTest {
     function test_ValidateSignatureWithDataWhenArrayLengthsDontMatch() public view {
         // Should return false when credential IDs and credential data arrays have different lengths
         bytes32 hash = bytes32(keccak256("test message"));
-        bytes memory signature = "";
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
+        bytes memory signature = abi.encode(sigs);
 
         // Create verification context with mismatched arrays
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
@@ -901,7 +871,10 @@ contract WebAuthnValidatorTest is BaseTest {
     function test_ValidateSignatureWithDataWhenThresholdIsInvalid() public view {
         // Should return false when threshold is 0 or greater than credentials length
         bytes32 hash = bytes32(keccak256("test message"));
-        bytes memory signature = "";
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
+        bytes memory signature = abi.encode(sigs);
 
         // Prepare credential arrays
         bytes32[] memory credentialIds = new bytes32[](2);
@@ -976,18 +949,11 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Create signature data with credentials in wrong order
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        // Swap the credential IDs
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
+        // Swap the credential IDs in the WebAuthnSignatureData
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // Encode the signatures
         bytes memory signature = abi.encode(sigs);
@@ -1030,17 +996,11 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Create signature data
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth
-        });
+        // Swap the credential IDs in the WebAuthnSignatureData
+        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // Encode the signatures
         bytes memory signature = abi.encode(sigs);
@@ -1135,7 +1095,8 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Use our pre-encoded valid signatures
-        (,, bytes memory signature) = abi.decode(mockSignatureData, (bytes32, bool, bytes));
+        (,, WebAuthn.WebAuthnAuth[] memory signature) =
+            abi.decode(mockSignatureData, (bytes32, bool, WebAuthn.WebAuthnAuth[]));
 
         // Context with valid threshold
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
@@ -1149,7 +1110,7 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes memory data = abi.encode(context);
 
         // Validation should succeed with our real WebAuthn signatures
-        bool result = validator.validateSignatureWithData(hash, signature, data);
+        bool result = validator.validateSignatureWithData(hash, abi.encode(signature), data);
         assertTrue(result, "Should return true when enough valid signatures are provided in order");
     }
 

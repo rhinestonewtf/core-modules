@@ -46,14 +46,6 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         bool requireUV;
     }
 
-    /// @notice Structure holding WebAuthn signature data, used for validation
-    /// @param credentialId The ID of the credential used for signing
-    /// @param auth The WebAuthn authentication data
-    struct WebAuthnSignatureData {
-        bytes32 credentialId;
-        WebAuthn.WebAuthnAuth auth;
-    }
-
     /// @notice WebAuthVerificationContext
     /// @dev Context for WebAuthn verification, including credential details and threshold
     /// @param usePrecompile Whether to use the RIP7212 precompile for signature verification,
@@ -499,6 +491,13 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     {
         // Decode the threshold and credentials
         WebAuthVerificationContext memory context = abi.decode(data, (WebAuthVerificationContext));
+        // Make sure the credentials are unique and sorted
+        context.credentialIds.sort();
+        context.credentialIds.uniquifySorted();
+
+        // Decode signature
+        // Format: abi.encode(WebAuthn.WebAuthnAuth[])
+        WebAuthn.WebAuthnAuth[] memory auth = abi.decode(signature, (WebAuthn.WebAuthnAuth[]));
 
         // Check that arrays have matching lengths
         uint256 credentialsLength = context.credentialIds.length;
@@ -512,7 +511,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         }
 
         // Verify WebAuthn signatures
-        return _verifyWebAuthnSignatures(hash, signature, context);
+        return _verifyWebAuthnSignatures(hash, auth, context);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -542,8 +541,8 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
         // Get credential IDs from data
         // Format: abi.encode(bytes32[], bool, bytes)
-        (bytes32[] memory credIds, bool usePrecompile, bytes memory remainingSig) =
-            abi.decode(data, (bytes32[], bool, bytes));
+        (bytes32[] memory credIds, bool usePrecompile, WebAuthn.WebAuthnAuth[] memory auth) =
+            abi.decode(data, (bytes32[], bool, WebAuthn.WebAuthnAuth[]));
         credIds.sort();
         credIds.uniquifySorted();
 
@@ -564,30 +563,25 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         });
 
         // Verify WebAuthn signatures
-        return _verifyWebAuthnSignatures(hash, remainingSig, context);
+        return _verifyWebAuthnSignatures(hash, auth, context);
     }
 
     /// @dev Core signature verification logic
     /// @param hash Hash of the data to verify
-    /// @param signatureData Encoded WebAuthn signatures
+    /// @param auth WebAuthn data containing signatures
     /// @param context Verification context containing credential details
     /// @return success Whether verification process completed successfully
     function _verifyWebAuthnSignatures(
         bytes32 hash,
-        bytes memory signatureData,
+        WebAuthn.WebAuthnAuth[] memory auth,
         WebAuthVerificationContext memory context
     )
         internal
         view
         returns (bool success)
     {
-        // Decode the signature data
-        // Format: abi.encode(WebAuthnSignatureData[])
-        WebAuthnSignatureData[] memory signatures =
-            abi.decode(signatureData, (WebAuthnSignatureData[]));
-
         // Cache lengths
-        uint256 sigCount = signatures.length;
+        uint256 sigCount = auth.length;
 
         // Check number of signatures
         if (sigCount == 0 || sigCount < context.threshold) {
@@ -599,9 +593,6 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
         // Verify each signature
         for (uint256 i; i < sigCount; ++i) {
-            // Get the credential ID and auth data from the struct
-            WebAuthn.WebAuthnAuth memory auth = signatures[i].auth;
-
             // Challenge is the hash to be signed
             bytes memory challenge = abi.encode(hash);
 
@@ -614,7 +605,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             bool valid = WebAuthn.verify(
                 challenge,
                 context.credentialData[i].requireUV,
-                auth,
+                auth[i],
                 context.credentialData[i].pubKeyX,
                 context.credentialData[i].pubKeyY,
                 context.usePrecompile

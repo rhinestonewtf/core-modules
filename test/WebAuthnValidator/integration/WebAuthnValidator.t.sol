@@ -38,14 +38,14 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
     bytes32[] _credentialIds;
 
     // Mock signature data for testing
-    bytes mockSignatureData;
+    bytes sig;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       SETUP
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        BaseIntegrationTest.setUp();
+        super.setUp();
         validator = new WebAuthnValidator();
 
         // Initialize credential arrays
@@ -107,19 +107,12 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         });
 
         // Create signature data for testing
-        WebAuthnValidator.WebAuthnSignatureData[] memory sigs =
-            new WebAuthnValidator.WebAuthnSignatureData[](2);
-        sigs[0] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[0],
-            auth: mockAuth1
-        });
-        sigs[1] = WebAuthnValidator.WebAuthnSignatureData({
-            credentialId: _credentialIds[1],
-            auth: mockAuth2
-        });
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
+        sigs[0] = mockAuth1;
+        sigs[1] = mockAuth2;
 
         // Encode the signatures
-        mockSignatureData = abi.encode(_credentialIds, false, abi.encode(sigs));
+        sig = abi.encode(_credentialIds, false, sigs);
 
         // Setup WebAuthCredential data
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
@@ -274,11 +267,15 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         assertEq(credentialCount, _pubKeysX.length - 1, "Credential count should be decremented");
     }
 
-    function test_ERC1271() public {
+    function test_ERC1271_goated() public {
         // It should return the magic value for valid WebAuthn signatures
         bytes32 hash = bytes32(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
-
-        bool isValid = instance.isValidSignature(address(validator), hash, mockSignatureData);
+        // Change the order of sigs
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
+        sigs[0] = mockAuth2;
+        sigs[1] = mockAuth1;
+        sig = abi.encode(_credentialIds, false, sigs);
+        bool isValid = instance.isValidSignature(address(validator), hash, sig);
         assertTrue(isValid, "ERC1271 signature validation should pass");
     }
 
@@ -314,11 +311,11 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         });
 
         bytes memory data = abi.encode(context);
-        bytes memory sigs;
-        (credentialIds,, sigs) = abi.decode(mockSignatureData, (bytes32[], bool, bytes));
+        WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
+        (credentialIds,, sigs) = abi.decode(sig, (bytes32[], bool, WebAuthn.WebAuthnAuth[]));
 
         // Validate the signatures
-        bool isValid = validator.validateSignatureWithData(hash, sigs, data);
+        bool isValid = validator.validateSignatureWithData(hash, abi.encode(sigs), data);
         assertTrue(isValid, "Stateless signature validation should pass");
     }
 
