@@ -77,7 +77,7 @@ contract MultiFactorTest is BaseTest {
         validator.onInstall(data);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IERC7579Module.AlreadyInitialized.selector, address(this))
+            abi.encodeWithSelector(IERC7579Module.ModuleAlreadyInitialized.selector, address(this))
         );
         validator.onInstall(data);
     }

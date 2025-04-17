@@ -67,7 +67,7 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         // cache the account
         address account = msg.sender;
         // check if the module is already initialized and revert if it is
-        if (isInitialized(account)) revert AlreadyInitialized(account);
+        if (isInitialized(account)) revert ModuleAlreadyInitialized(account);
 
         // unpack the threshold
         uint8 threshold = uint8(bytes1(data[:1]));

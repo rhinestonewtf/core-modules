@@ -72,7 +72,7 @@ contract ColdStorageHook is ERC7579HookDestruct, FlashloanLender {
         // empty, skip
         if (isInitialized(account)) {
             if (data.length == 0) return;
-            else revert AlreadyInitialized(account);
+            else revert ModuleAlreadyInitialized(account);
         }
 
         // decode the data to get the waitPeriod and owner
