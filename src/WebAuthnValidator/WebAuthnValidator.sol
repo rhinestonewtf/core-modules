@@ -56,10 +56,14 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
     /// @notice WebAuthVerificationContext
     /// @dev Context for WebAuthn verification, including credential details and threshold
+    /// @param usePrecompile Whether to use the RIP7212 precompile for signature verification,
+    ///                      or fallback to FreshCryptoLib. According to ERC-7562, calling the
+    ///                      precompile is only allowed on networks that support it.
     /// @param threshold The number of signatures required for validation
     /// @param credentialIds The IDs of the credentials used for signing
     /// @param credential data WebAuthn credential data
     struct WebAuthVerificationContext {
+        bool usePrecompile;
         uint256 threshold;
         bytes32[] credentialIds;
         WebAuthnCredential[] credentialData;
@@ -543,8 +547,9 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         }
 
         // Get credential IDs from data
-        // Format: abi.encode(credentialIds, remainingSig)
-        (bytes32[] memory credIds, bytes memory remainingSig) = abi.decode(data, (bytes32[], bytes));
+        // Format: abi.encode(bytes32[], bool, bytes)
+        (bytes32[] memory credIds, bool usePrecompile, bytes memory remainingSig) =
+            abi.decode(data, (bytes32[], bool, bytes));
         credIds.sort();
         credIds.uniquifySorted();
 
@@ -558,6 +563,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
         // Set up the verification context
         WebAuthVerificationContext memory context = WebAuthVerificationContext({
+            usePrecompile: usePrecompile,
             threshold: _threshold,
             credentialIds: credIds,
             credentialData: credentialData
@@ -616,7 +622,8 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
                 context.credentialData[i].requireUV,
                 auth,
                 context.credentialData[i].pubKeyX,
-                context.credentialData[i].pubKeyY
+                context.credentialData[i].pubKeyY,
+                context.usePrecompile
             );
 
             if (valid) {

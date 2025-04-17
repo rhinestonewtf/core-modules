@@ -119,7 +119,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Create the new signature format that includes the credential IDs:
         // abi.encode(credentialIds, abi.encode(signatures))
-        mockSignatureData = abi.encode(_credentialIds, abi.encode(sigs));
+        mockSignatureData = abi.encode(_credentialIds, false, abi.encode(sigs));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -653,7 +653,7 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // But still use the correct order in the outer array
-        userOp.signature = abi.encode(_credentialIds, abi.encode(sigs));
+        userOp.signature = abi.encode(_credentialIds, false, abi.encode(sigs));
 
         // Validation should fail because the signature data doesn't match
         uint256 validationData =
@@ -688,8 +688,8 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Encode the signatures
-        (bytes32[] memory credIds,) = abi.decode(mockSignatureData, (bytes32[], bytes));
-        userOp.signature = abi.encode(credIds, abi.encode(sigs));
+        (bytes32[] memory credIds,,) = abi.decode(mockSignatureData, (bytes32[], bool, bytes));
+        userOp.signature = abi.encode(credIds, false, abi.encode(sigs));
 
         // Validation should fail because we need 2 valid signatures
         uint256 validationData =
@@ -737,7 +737,7 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // But still use the correct order in the outer array
-        bytes memory signature = abi.encode(_credentialIds, abi.encode(sigs));
+        bytes memory signature = abi.encode(_credentialIds, false, abi.encode(sigs));
 
         // Validation should fail
         bytes4 result = validator.isValidSignatureWithSender(address(this), hash, signature);
@@ -772,8 +772,8 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Encode the signatures
-        (bytes32[] memory credIds,) = abi.decode(mockSignatureData, (bytes32[], bytes));
-        bytes memory signature = abi.encode(credIds, abi.encode(sigs));
+        (bytes32[] memory credIds,,) = abi.decode(mockSignatureData, (bytes32[], bool, bytes));
+        bytes memory signature = abi.encode(credIds, false, abi.encode(sigs));
 
         // Validation should fail because we need 2 valid signatures
         bytes4 result = validator.isValidSignatureWithSender(address(this), hash, signature);
@@ -792,6 +792,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Create verification context with mismatched arrays
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 2,
             credentialIds: new bytes32[](2),
             credentialData: new WebAuthnValidator.WebAuthnCredential[](1) // Different length!
@@ -829,6 +830,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Case 1: Threshold is 0
         WebAuthnValidator.WebAuthVerificationContext memory context1 = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 0, // Invalid threshold
             credentialIds: credentialIds,
             credentialData: credentialData
@@ -841,6 +843,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Case 2: Threshold is greater than credentials length
         WebAuthnValidator.WebAuthVerificationContext memory context2 = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 3, // Invalid threshold (> credentials length)
             credentialIds: credentialIds,
             credentialData: credentialData
@@ -898,6 +901,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Context with valid threshold
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 2,
             credentialIds: credentialIds,
             credentialData: credentialData
@@ -950,6 +954,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Context with valid threshold
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 2,
             credentialIds: credentialIds,
             credentialData: credentialData
@@ -1036,11 +1041,12 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         // Use our pre-encoded valid signatures
-        (, bytes memory signature) = abi.decode(mockSignatureData, (bytes32, bytes));
+        (,, bytes memory signature) = abi.decode(mockSignatureData, (bytes32, bool, bytes));
 
         // Context with valid threshold
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 2,
             credentialIds: credentialIds,
             credentialData: credentialData

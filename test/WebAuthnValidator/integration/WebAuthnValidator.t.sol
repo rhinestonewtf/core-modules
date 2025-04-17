@@ -119,7 +119,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         });
 
         // Encode the signatures
-        mockSignatureData = abi.encode(_credentialIds, abi.encode(sigs));
+        mockSignatureData = abi.encode(_credentialIds, false, abi.encode(sigs));
 
         // Install the validator module on the account
         instance.installModule({
@@ -293,6 +293,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         // Create verification context
         WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
             .WebAuthVerificationContext({
+            usePrecompile: false,
             threshold: 2,
             credentialIds: credentialIds,
             credentialData: credentialData
@@ -300,7 +301,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
 
         bytes memory data = abi.encode(context);
         bytes memory sigs;
-        (credentialIds, sigs) = abi.decode(mockSignatureData, (bytes32[], bytes));
+        (credentialIds,, sigs) = abi.decode(mockSignatureData, (bytes32[], bool, bytes));
 
         // Validate the signatures
         bool isValid = validator.validateSignatureWithData(hash, sigs, data);

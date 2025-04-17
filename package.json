@@ -35,7 +35,7 @@
     "ds-test": "github:dapphub/ds-test#e282159d5170298eb2455a6c05280ab5a73a4ef0",
     "forge-std": "github:foundry-rs/forge-std",
     "solmate": "github:transmissions11/solmate",
-    "webauthn-sol": "github:base/webauthn-sol"
+    "webauthn-sol": "github:highskore/webauthn-sol"
   },
   "files": [
     "src",
