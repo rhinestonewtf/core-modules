@@ -14,8 +14,8 @@ import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { WebAuthn } from "@webauthn/WebAuthn.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
-
-uint256 constant TYPE_STATELESS_VALIDATOR = 7;
+import { MODULE_TYPE_STATELESS_VALIDATOR as TYPE_STATELESS_VALIDATOR } from
+    "modulekit/module-bases/utils/ERC7579Constants.sol";
 
 /// @title WebAuthnValidator
 /// @author Based on Rhinestone's OwnableValidator
@@ -153,18 +153,11 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @param data Encoded as: abi.encode(threshold, pubKeysX, pubKeysY, requireUVs)
     function onInstall(bytes calldata data) external override {
         // Decode the credential data
-        (
-            uint256 _threshold,
-            uint256[] memory _pubKeysX,
-            uint256[] memory _pubKeysY,
-            bool[] memory _requireUVs
-        ) = abi.decode(data, (uint256, uint256[], uint256[], bool[]));
+        (uint256 _threshold, WebAuthnCredential[] memory _credentials) =
+            abi.decode(data, (uint256, WebAuthnCredential[]));
 
-        // Check that credential arrays are of same length
-        uint256 credentialLength = _pubKeysX.length;
-        if (credentialLength != _pubKeysY.length || credentialLength != _requireUVs.length) {
-            revert NotUnique();
-        }
+        // Cache the length of the credentials
+        uint256 credentialLength = _credentials.length;
 
         // Make sure the threshold is set
         if (_threshold == 0) {
@@ -192,20 +185,21 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
         for (uint256 i = 0; i < credentialLength; i++) {
             // Check public key is valid
-            if (_pubKeysX[i] == 0 || _pubKeysY[i] == 0) {
+            if (_credentials[i].pubKeyX == 0 || _credentials[i].pubKeyY == 0) {
                 revert InvalidPublicKey();
             }
 
             // Generate deterministic credential ID
-            bytes32 credId =
-                generateCredentialId(_pubKeysX[i], _pubKeysY[i], _requireUVs[i], account);
+            bytes32 credId = generateCredentialId(
+                _credentials[i].pubKeyX, _credentials[i].pubKeyY, _credentials[i].requireUV, account
+            );
             credentialIds[i] = credId;
 
             // Store the credential
             credentialDetails[credId][account] = WebAuthnCredential({
-                pubKeyX: _pubKeysX[i],
-                pubKeyY: _pubKeysY[i],
-                requireUV: _requireUVs[i]
+                pubKeyX: _credentials[i].pubKeyX,
+                pubKeyY: _credentials[i].pubKeyY,
+                requireUV: _credentials[i].requireUV
             });
 
             // Add credential ID to the set

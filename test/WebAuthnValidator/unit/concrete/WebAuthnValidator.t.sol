@@ -151,7 +151,24 @@ contract WebAuthnValidatorTest is BaseTest {
 
     function test_OnInstallRevertWhen_ModuleIsInitialized() public {
         // Install the module first
-        bytes memory data = abi.encode(_threshold, _pubKeysX, _pubKeysY, _requireUVs);
+
+        // Setup WebAuthnCredentials
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
+
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
+
+        bytes memory data = abi.encode(_threshold, webAuthnCredentials);
         validator.onInstall(data);
 
         // Try to install again and expect revert
@@ -160,8 +177,23 @@ contract WebAuthnValidatorTest is BaseTest {
     }
 
     function test_OnInstallRevertWhen_ThresholdIs0() public whenModuleIsNotInitialized {
+        // Setup WebAuthnCredentials
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
+
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
         // Create data with threshold = 0
-        bytes memory data = abi.encode(0, _pubKeysX, _pubKeysY, _requireUVs);
+        bytes memory data = abi.encode(0, webAuthnCredentials);
 
         vm.expectRevert(WebAuthnValidator.ThresholdNotSet.selector);
         validator.onInstall(data);
@@ -169,7 +201,22 @@ contract WebAuthnValidatorTest is BaseTest {
 
     function test_OnInstallWhenThresholdIsValid() public whenModuleIsNotInitialized {
         // Should set the threshold
-        bytes memory data = abi.encode(_threshold, _pubKeysX, _pubKeysY, _requireUVs);
+        // Setup WebAuthnCredentials
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
+
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
+        bytes memory data = abi.encode(_threshold, webAuthnCredentials);
         validator.onInstall(data);
 
         uint256 threshold = validator.threshold(address(this));
@@ -180,8 +227,23 @@ contract WebAuthnValidatorTest is BaseTest {
         public
         whenModuleIsNotInitialized
     {
+        // Setup WebAuthnCredentials
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
+
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
         // Create data with threshold > credentials length
-        bytes memory data = abi.encode(3, _pubKeysX, _pubKeysY, _requireUVs);
+        bytes memory data = abi.encode(3, webAuthnCredentials);
 
         vm.expectRevert(WebAuthnValidator.InvalidThreshold.selector);
         validator.onInstall(data);
@@ -191,49 +253,65 @@ contract WebAuthnValidatorTest is BaseTest {
         public
         whenModuleIsNotInitialized
     {
-        // Create arrays with 33 credentials (exceeding MAX_CREDENTIALS)
-        uint256[] memory pubKeysX = new uint256[](33);
-        uint256[] memory pubKeysY = new uint256[](33);
-        bool[] memory requireUVs = new bool[](33);
+        // Create array with 33 credentials (exceeding MAX_CREDENTIALS)
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](33);
 
         for (uint256 i = 0; i < 33; i++) {
-            pubKeysX[i] = i + 1000;
-            pubKeysY[i] = i + 2000;
-            requireUVs[i] = (i % 2 == 0); // Alternate true/false
+            webAuthnCredentials[i] = WebAuthnValidator.WebAuthnCredential({
+                pubKeyX: i + 1000,
+                pubKeyY: i + 2000,
+                requireUV: (i % 2 == 0) // Alternate true/false
+             });
         }
 
-        bytes memory data = abi.encode(_threshold, pubKeysX, pubKeysY, requireUVs);
+        bytes memory data = abi.encode(_threshold, webAuthnCredentials);
 
         vm.expectRevert(WebAuthnValidator.MaxCredentialsReached.selector);
         validator.onInstall(data);
     }
 
     function test_OnInstallRevertWhen_PubKeyIsZero() public whenModuleIsNotInitialized {
-        // Create arrays with zero X pubkey
-        uint256[] memory pubKeysX = new uint256[](2);
-        pubKeysX[0] = 0; // Zero pubkey
-        pubKeysX[1] = _pubKeysX[1];
+        // Create credentials with zero X pubkey
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
 
-        bytes memory data = abi.encode(_threshold, pubKeysX, _pubKeysY, _requireUVs);
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: 0, // Zero pubkey
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
+
+        bytes memory data = abi.encode(_threshold, webAuthnCredentials);
 
         vm.expectRevert(WebAuthnValidator.InvalidPublicKey.selector);
         validator.onInstall(data);
     }
 
     function test_OnInstallRevertWhen_CredentialsNotUnique() public whenModuleIsNotInitialized {
-        // Create arrays with duplicate credentials (same pubKeyX, pubKeyY, requireUV)
-        uint256[] memory pubKeysX = new uint256[](2);
-        uint256[] memory pubKeysY = new uint256[](2);
-        bool[] memory requireUVs = new bool[](2);
+        // Create credentials with duplicate values (same pubKeyX, pubKeyY, requireUV)
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
 
-        pubKeysX[0] = _pubKeysX[0];
-        pubKeysX[1] = _pubKeysX[0];
-        pubKeysY[0] = _pubKeysY[0];
-        pubKeysY[1] = _pubKeysY[0];
-        requireUVs[0] = _requireUVs[0];
-        requireUVs[1] = _requireUVs[0];
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
 
-        bytes memory data = abi.encode(_threshold, pubKeysX, pubKeysY, requireUVs);
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        bytes memory data = abi.encode(_threshold, webAuthnCredentials);
 
         vm.expectRevert(WebAuthnValidator.NotUnique.selector);
         validator.onInstall(data);
@@ -241,12 +319,27 @@ contract WebAuthnValidatorTest is BaseTest {
 
     function test_OnInstallWhenCredentialsAreValid() public whenModuleIsNotInitialized {
         // Should add credentials and set up validator correctly
-        bytes memory data = abi.encode(_threshold, _pubKeysX, _pubKeysY, _requireUVs);
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](2);
+
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
+
+        bytes memory data = abi.encode(_threshold, webAuthnCredentials);
         validator.onInstall(data);
 
         // Check credentials were added
         bytes32[] memory credIds = validator.getCredentialIds(address(this));
-        assertEq(credIds.length, _pubKeysX.length, "Credential count should match");
+        assertEq(credIds.length, webAuthnCredentials.length, "Credential count should match");
 
         // Verify the credential IDs match what we expect
         bool foundCred0 = false;
@@ -378,17 +471,18 @@ contract WebAuthnValidatorTest is BaseTest {
         whenModuleIsInitialized
     {
         // Create and install module with 32 credentials
-        uint256[] memory pubKeysX = new uint256[](32);
-        uint256[] memory pubKeysY = new uint256[](32);
-        bool[] memory requireUVs = new bool[](32);
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](32);
 
         for (uint256 i = 0; i < 32; i++) {
-            pubKeysX[i] = i + 1000;
-            pubKeysY[i] = i + 2000;
-            requireUVs[i] = (i % 2 == 0); // Alternate true/false
+            webAuthnCredentials[i] = WebAuthnValidator.WebAuthnCredential({
+                pubKeyX: i + 1000,
+                pubKeyY: i + 2000,
+                requireUV: (i % 2 == 0) // Alternate true/false
+             });
         }
 
-        bytes memory data = abi.encode(1, pubKeysX, pubKeysY, requireUVs);
+        bytes memory data = abi.encode(1, webAuthnCredentials);
         validator.onInstall(data);
 
         // Try to add one more credential

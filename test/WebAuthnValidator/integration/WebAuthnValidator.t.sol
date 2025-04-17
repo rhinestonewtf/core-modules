@@ -121,11 +121,25 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         // Encode the signatures
         mockSignatureData = abi.encode(_credentialIds, false, abi.encode(sigs));
 
+        // Setup WebAuthCredential data
+        WebAuthnValidator.WebAuthnCredential[] memory credentialData =
+            new WebAuthnValidator.WebAuthnCredential[](2);
+        credentialData[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0],
+            pubKeyY: _pubKeysY[0],
+            requireUV: _requireUVs[0]
+        });
+        credentialData[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1],
+            pubKeyY: _pubKeysY[1],
+            requireUV: _requireUVs[1]
+        });
+
         // Install the validator module on the account
         instance.installModule({
             moduleTypeId: MODULE_TYPE_VALIDATOR,
             module: address(validator),
-            data: abi.encode(_threshold, _pubKeysX, _pubKeysY, _requireUVs)
+            data: abi.encode(_threshold, credentialData)
         });
     }
 
