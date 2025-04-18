@@ -1,0 +1,33 @@
+{
+  "count": 2,
+  "cases": [
+    {
+      "uv": false,
+      "x": 66296829923831658891499717579803548012279830557731564719736971029660387468805,
+      "y": 46098569798045992993621049610647226011837333919273603402527314962291506652186,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 23510924181331275540501876269042668160690304423490805737085519687669896593880,
+      "s": 36590747517247563381084733394442750806324326036343798276847517765557371045088,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630100000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    },
+    {
+      "uv": true,
+      "x": 77427310596034628445756159459159056108500819865614675054701790516611205123311,
+      "y": 20591151874462689689754215152304668244192265896034279288204806249532173935644,
+      "challenge": "9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8",
+      "r": 70190788404940879339470429048068864326256942039718306809827270917601845266065,
+      "s": 372310544955428259193186543685199264627091796694315697785543526117532572367,
+      "authenticator_data": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000001",
+      "client_data_json": {
+        "json": "{\"type\":\"webauthn.get\",\"challenge\":\"9jEFijuhEWrM4SOW-tChJbUEHEP44VcjcJ-Bqo1fTM8\",\"origin\":\"http://localhost:8080\",\"crossOrigin\":false}",
+        "type_index": 1,
+        "challenge_index": 23
+      }
+    }
+  ]
+}

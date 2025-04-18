@@ -1,0 +1,146 @@
+WebAuthnValidator::generateCredentialId
+└── it should generate deterministic IDs for the same parameters
+└── it should generate different IDs for different parameters
+
+WebAuthnValidator::onInstall
+├── when module is initialized
+│   └── it should revert
+└── when module is not initialized
+    ├── when threshold is 0
+    │   └── it should revert
+    └── when threshold is valid
+        ├── it should set the threshold correctly
+        ├── when credentials length is less than threshold
+        │   └── it should revert
+        ├── when credentials length is more than max
+        │   └── it should revert
+        ├── when public key is zero
+        │   └── it should revert
+        ├── when credentials are not unique
+        │   └── it should revert
+        └── when credentials are valid
+            ├── it should add all credentials
+            ├── it should set credential data correctly
+            └── it should emit proper events
+
+WebAuthnValidator::onUninstall
+├── it should remove all credentials
+├── it should set threshold to 0
+└── it should emit proper event
+
+WebAuthnValidator::isInitialized
+├── when module is not initialized
+│   └── it should return false
+└── when module is initialized
+    └── it should return true
+
+WebAuthnValidator::setThreshold
+├── when module is not initialized
+│   └── it should revert
+└── when module is initialized
+    ├── when threshold is 0
+    │   └── it should revert
+    ├── when threshold is higher than credentials count
+    │   └── it should revert
+    └── when threshold is valid
+        ├── it should set the threshold
+        └── it should emit proper event
+
+WebAuthnValidator::addCredential
+├── when module is not initialized
+│   └── it should revert
+└── when module is initialized
+    ├── when public key X is 0
+    │   └── it should revert
+    ├── when public key Y is 0
+    │   └── it should revert
+    ├── when credential count is more than max
+    │   └── it should revert
+    ├── when credential already exists
+    │   └── it should revert
+    └── when credential is valid
+        ├── it should add the credential
+        ├── it should store data correctly
+        ├── it should increase credential count
+        └── it should emit proper event
+
+WebAuthnValidator::removeCredential
+├── when module is not initialized
+│   └── it should revert
+└── when module is initialized
+    ├── when credential does not exist
+    │   └── it should revert
+    ├── when removal would break threshold
+    │   └── it should revert
+    └── when removal would not break threshold
+        ├── it should remove the credential
+        ├── it should decrease credential count
+        └── it should emit proper event
+
+WebAuthnValidator::getCredentialIds
+├── it should return empty array when no credentials
+└── it should return all credential IDs when credentials exist
+
+WebAuthnValidator::hasCredential
+├── it should return true for existing credentials
+└── it should return false for non-existent credentials
+
+WebAuthnValidator::hasCredentialById
+├── it should return true for existing credential IDs
+└── it should return false for non-existent credential IDs
+
+WebAuthnValidator::getCredentialCount
+├── it should return 0 when no credentials
+└── it should return correct count when credentials exist
+
+WebAuthnValidator::getCredentialInfo
+├── it should return zeros for non-existent credentials
+└── it should return correct data for existing credentials
+
+WebAuthnValidator::validateUserOp
+├── when threshold is not set
+│   └── it should return VALIDATION_FAILED
+└── when threshold is set
+    ├── when signatures are not in order with credentials
+    │   └── it should return VALIDATION_FAILED
+    ├── when not enough valid signatures
+    │   └── it should return VALIDATION_FAILED
+    └── when enough valid signatures are provided in order
+        └── it should return VALIDATION_SUCCESS
+
+WebAuthnValidator::isValidSignatureWithSender
+├── when threshold is not set
+│   └── it should return EIP1271_FAILED
+└── when threshold is set
+    ├── when signatures are not in order with credentials
+    │   └── it should return EIP1271_FAILED
+    ├── when not enough valid signatures
+    │   └── it should return EIP1271_FAILED
+    └── when enough valid signatures are provided in order
+        └── it should return EIP1271_SUCCESS
+
+WebAuthnValidator::validateSignatureWithData
+├── when arrays lengths don't match
+│   └── it should return false
+├── when threshold is invalid
+│   └── it should return false
+├── when signatures are not in order with credentials
+│   └── it should return false  
+├── when not enough valid signatures
+│   └── it should return false
+└── when enough valid signatures are provided in order
+    └── it should return true
+
+WebAuthnValidator::name
+└── it should return "WebAuthnValidator"
+
+WebAuthnValidator::version
+└── it should return "1.0.0"
+
+WebAuthnValidator::isModuleType
+├── when typeID is TYPE_VALIDATOR
+│   └── it should return true
+├── when typeID is TYPE_STATELESS_VALIDATOR
+│   └── it should return true
+└── when typeID is neither
+    └── it should return false

@@ -166,7 +166,7 @@ contract HookMultiPlexerTest is BaseTest {
         hook.onInstall(data);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IERC7579Module.AlreadyInitialized.selector, address(this))
+            abi.encodeWithSelector(IERC7579Module.ModuleAlreadyInitialized.selector, address(this))
         );
         hook.onInstall(data);
     }

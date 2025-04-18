@@ -57,7 +57,7 @@ contract DeadmanSwitch is ERC7579HookBase, ERC7579ValidatorBase {
                 return;
             } else {
                 // if data is not empty, revert
-                revert AlreadyInitialized(account);
+                revert ModuleAlreadyInitialized(account);
             }
         }
 
