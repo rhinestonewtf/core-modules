@@ -28,8 +28,8 @@ contract OwnableValidator is ERC7579ValidatorBase {
     event ModuleInitialized(address indexed account);
     event ModuleUninitialized(address indexed account);
     event ThresholdSet(address indexed account, uint256 threshold);
-    event OwnerAdded(address indexed account, address owner);
-    event OwnerRemoved(address indexed account, address owner);
+    event OwnerAdded(address indexed account, address indexed owner);
+    event OwnerRemoved(address indexed account, address indexed owner);
 
     error ThresholdNotSet();
     error InvalidThreshold();
@@ -102,6 +102,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
                 revert InvalidOwner(_owner);
             }
             owners.push(account, _owner);
+            emit OwnerAdded(account, _owner);
         }
 
         emit ModuleInitialized(account);
@@ -116,7 +117,14 @@ contract OwnableValidator is ERC7579ValidatorBase {
         address account = msg.sender;
 
         // clear the owners
-        owners.popAll(account);
+        address[] memory ownersArray;
+        (ownersArray,) = owners.getEntriesPaginated(account, SENTINEL, MAX_OWNERS);
+        for (uint256 i = 0; i < ownersArray.length; i++) {
+            address owner = ownersArray[i];
+            // remove the owner from the list
+            owners.pop(account, SENTINEL, owner);
+            emit OwnerRemoved(account, owner);
+        }
 
         // remove the threshold
         threshold[account] = 0;
