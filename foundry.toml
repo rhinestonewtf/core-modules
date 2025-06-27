@@ -1,4 +1,3 @@
-
 [profile.default]
 solc = "0.8.25"
 evm_version = "cancun"
@@ -8,34 +7,6 @@ script = "script"
 libs = ["node_modules"]
 fs_permissions = [{ access = "read", path = "out-optimized" }, { access = "read-write", path = "deployments" }, { access = "read-write", path = "gas_calculations" }]
 allow_paths = ["*", "/"]
-
-
-
-[rpc_endpoints]
-mainnet = "${MAINNET_RPC_URL}" 
-testnet = "${TESTNET_RPC_URL}" 
-arbitrum = "https://arb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-arbitrum-sepolia = "https://arb-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-avalanche = "https://avax-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-avalanche-fuji = "https://avax-fuji.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-goerli = "https://goerli.infura.io/v3/${API_KEY_INFURA}"
-localhost = "http://localhost:8545"
-optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
-optimism-sepolia = "https://sepolia.optimism.io "
-polygon = "https://polygon-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-polygon-amoy = "https://polygon-amoy.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-sepolia = "https://eth-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-gnosis = "https://gnosis-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-gnosis-chidao = "https://gnosis-chiado.g.alchemy.com/v2/${API_KEY_ALCHEMY"
-bsc-testnet = "https://bnb-testnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-bsc = "https://bnb-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-base = "https://base-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-base-sepolia = "https://base-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
-scroll-testnet = "https://rpc.ankr.com/scroll_sepolia_testnet"
-scroll = "https://scroll-mainnet.public.blastapi.io"
-celo = "https://forno.celo.org"
-fuse = "https://explorer-node.fuse.io"
-fuse-testnet= "https://rpc.fusespark.io/"
 
 [fmt]
 bracket_spacing = true

@@ -1,0 +1,58 @@
+[deployments]
+rpcs = [
+    # "http://localhost:8545",
+    #"http://localhost:8846",
+    #"http://localhost:8847",
+    #"http://localhost:8848",
+
+    # Mainnet
+    # "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    #"http://localhost:8545",
+    # "https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    
+    # Optimism
+    # "https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    # "https://opt-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    
+    # Base
+    # "https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    "https://base-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    
+    # # Arbitrum
+    # "https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    # "https://arb-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    
+    # # Polygon
+    # "https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+    # "https://polygon-amoy.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+
+  # # Sonic
+# "https://sonic-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+# "https://sonic-blaze.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+
+  # ZkSync
+# "https://zksync-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+# "https://zksync-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+
+]
+
+[deployments.verifier]
+# required to enable verification
+api_key = "${ETHERSCAN_API_KEY}" # Etherscan API key for verification
+
+[deployments.dependencies]
+
+[deployments.singleton.WebauthnValidator]
+file = "./artifacts/WebauthnValidator/WebauthnValidator.json"
+source_file="./artifacts/WebauthnValidator/verify.json"
+salt = "0x0000000000000000000000000000000000000000cb07edee6d0b00009338e4e9"
+
+[deployments.singleton.OwnableValidator]
+file = "./artifacts/OwnableValidator/OwnableValidator.json"
+source_file="./artifacts/OwnableValidator/verify.json"
+salt = "0x0000000000000000000000000000000000000000cb07edee6d0b00009338e4e9"
+
+[deployments.singleton.SocialRecovery]
+file = "./artifacts/SocialRecovery/SocialRecovery.json"
+source_file="./artifacts/SocialRecovery/verify.json"
+salt = "0x0000000000000000000000000000000000000000cb07edee6d0b00009338e4e9"
