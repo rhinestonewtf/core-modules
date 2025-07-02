@@ -9,8 +9,16 @@ import { IModule as IERC7579Module } from "modulekit/accounts/common/interfaces/
 import { PackedUserOperation, getEmptyUserOperation } from "test/utils/ERC4337.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
 import { Base64Url } from "FreshCryptoLib/utils/Base64Url.sol";
+import { LibSort } from "solady/utils/LibSort.sol";
+import { console } from "forge-std/console.sol";
 
 contract WebAuthnValidatorTest is BaseTest {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    LIBRARIES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    using LibSort for bytes32[];
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -66,9 +74,8 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Pre-compute credential IDs for testing
         for (uint256 i = 0; i < 2; i++) {
-            _credentialIds[i] = validator.generateCredentialId(
-                _pubKeysX[i], _pubKeysY[i], _requireUVs[i], address(this)
-            );
+            _credentialIds[i] =
+                validator.generateCredentialId(_pubKeysX[i], _pubKeysY[i], address(this));
         }
 
         // Use a fixed challenge for testing
@@ -92,7 +99,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Create WebAuthn signature data
         WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        sigs[0] = mockAuth;
+        sigs[1] = mockAuth;
 
         // Use a slightly different signature for the second credential
         WebAuthn.WebAuthnAuth memory mockAuth2 = WebAuthn.WebAuthnAuth({
@@ -108,11 +115,18 @@ contract WebAuthnValidatorTest is BaseTest {
             s: 372_310_544_955_428_259_193_186_543_685_199_264_627_091_796_694_315_697_785_543_526_117_532_572_367
         });
 
-        sigs[1] = mockAuth2;
+        sigs[0] = mockAuth2;
+
+        // Sort credential IDs
+        bytes32[] memory credentialIds = new bytes32[](2);
+        credentialIds[1] = _credentialIds[0];
+        credentialIds[0] = _credentialIds[1];
+        _credentialIds[0] = credentialIds[0];
+        _credentialIds[1] = credentialIds[1];
 
         // Create the new signature format that includes the credential IDs:
         // abi.encode(credentialIds, abi.encode(signatures))
-        mockSignatureData = abi.encode(_credentialIds, false, sigs);
+        mockSignatureData = abi.encode(credentialIds, false, sigs);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -125,9 +139,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
     function test_GenerateCredentialId() public view {
         // Test that credential ID generation is deterministic
-        bytes32 credId = validator.generateCredentialId(
-            _pubKeysX[0], _pubKeysY[0], _requireUVs[0], address(this)
-        );
+        bytes32 credId = validator.generateCredentialId(_pubKeysX[1], _pubKeysY[1], address(this));
 
         assertEq(credId, _credentialIds[0], "Credential ID generation should be deterministic");
 
@@ -135,7 +147,6 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes32 credId2 = validator.generateCredentialId(
             _pubKeysX[0],
             _pubKeysY[0],
-            _requireUVs[0],
             address(1) // Different address
         );
 
@@ -149,13 +160,13 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
             new WebAuthnValidator.WebAuthnCredential[](2);
 
-        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[0],
             pubKeyY: _pubKeysY[0],
             requireUV: _requireUVs[0]
         });
 
-        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[1],
             pubKeyY: _pubKeysY[1],
             requireUV: _requireUVs[1]
@@ -198,13 +209,13 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
             new WebAuthnValidator.WebAuthnCredential[](2);
 
-        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[0],
             pubKeyY: _pubKeysY[0],
             requireUV: _requireUVs[0]
         });
 
-        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[1],
             pubKeyY: _pubKeysY[1],
             requireUV: _requireUVs[1]
@@ -315,13 +326,13 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
             new WebAuthnValidator.WebAuthnCredential[](2);
 
-        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[0],
             pubKeyY: _pubKeysY[0],
             requireUV: _requireUVs[0]
         });
 
-        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[1],
             pubKeyY: _pubKeysY[1],
             requireUV: _requireUVs[1]
@@ -348,7 +359,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Check first credential exists with correct data
         (uint256 pubKeyX, uint256 pubKeyY, bool requireUV) =
-            validator.getCredentialInfo(_credentialIds[0], address(this));
+            validator.getCredentialInfo(_credentialIds[1], address(this));
         assertEq(pubKeyX, _pubKeysX[0], "Public key X should match");
         assertEq(pubKeyY, _pubKeysY[0], "Public key Y should match");
         assertEq(requireUV, _requireUVs[0], "RequireUV should match");
@@ -475,6 +486,30 @@ contract WebAuthnValidatorTest is BaseTest {
              });
         }
 
+        // Generate credential IDs for these
+        bytes32[] memory credentialIds = new bytes32[](32);
+        for (uint256 i = 0; i < 32; i++) {
+            credentialIds[i] = validator.generateCredentialId(
+                webAuthnCredentials[i].pubKeyX, webAuthnCredentials[i].pubKeyY, address(this)
+            );
+        }
+        // Sort the credential ids and the webAuthnCredentials
+        for (uint256 i = 0; i < 32; i++) {
+            for (uint256 j = i + 1; j < 32; j++) {
+                if (credentialIds[i] > credentialIds[j]) {
+                    // Swap IDs
+                    bytes32 tempId = credentialIds[i];
+                    credentialIds[i] = credentialIds[j];
+                    credentialIds[j] = tempId;
+
+                    // Swap credentials
+                    WebAuthnValidator.WebAuthnCredential memory tempCred = webAuthnCredentials[i];
+                    webAuthnCredentials[i] = webAuthnCredentials[j];
+                    webAuthnCredentials[j] = tempCred;
+                }
+            }
+        }
+
         bytes memory data = abi.encode(1, webAuthnCredentials);
         validator.onInstall(data);
 
@@ -508,11 +543,11 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Compute the credential ID
         bytes32 newCredentialId =
-            validator.generateCredentialId(newPubKeyX, newPubKeyY, newRequireUV, address(this));
+            validator.generateCredentialId(newPubKeyX, newPubKeyY, address(this));
 
         // Check credential was added
         assertTrue(
-            validator.hasCredential(newPubKeyX, newPubKeyY, newRequireUV, address(this)),
+            validator.hasCredential(newPubKeyX, newPubKeyY, address(this)),
             "Should have credential by parameters"
         );
 
@@ -537,7 +572,7 @@ contract WebAuthnValidatorTest is BaseTest {
         vm.expectRevert(
             abi.encodeWithSelector(IERC7579Module.NotInitialized.selector, address(this))
         );
-        validator.removeCredential(99_999, 88_888, true);
+        validator.removeCredential(99_999, 88_888);
     }
 
     function test_RemoveCredentialRevertWhen_CredentialDoesNotExist()
@@ -549,7 +584,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Try to remove a credential that doesn't exist
         vm.expectRevert(WebAuthnValidator.CannotRemoveCredential.selector);
-        validator.removeCredential(99_999, 88_888, true);
+        validator.removeCredential(99_999, 88_888);
     }
 
     function test_RemoveCredentialRevertWhen_RemovalWouldBreakThreshold()
@@ -561,7 +596,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // We have 2 credentials with threshold 2, so removing any would break threshold
         vm.expectRevert(WebAuthnValidator.CannotRemoveCredential.selector);
-        validator.removeCredential(_pubKeysX[0], _pubKeysY[0], _requireUVs[0]);
+        validator.removeCredential(_pubKeysX[0], _pubKeysY[0]);
     }
 
     function test_RemoveCredentialWhenRemovalWouldNotBreakThreshold()
@@ -575,16 +610,16 @@ contract WebAuthnValidatorTest is BaseTest {
         validator.setThreshold(1);
 
         // Remove a credential
-        validator.removeCredential(_pubKeysX[0], _pubKeysY[0], _requireUVs[0]);
+        validator.removeCredential(_pubKeysX[0], _pubKeysY[0]);
 
         // Check credential was removed
         assertFalse(
-            validator.hasCredential(_pubKeysX[0], _pubKeysY[0], _requireUVs[0], address(this)),
+            validator.hasCredential(_pubKeysX[0], _pubKeysY[0], address(this)),
             "Credential should be removed"
         );
 
         assertFalse(
-            validator.hasCredentialById(_credentialIds[0], address(this)),
+            validator.hasCredentialById(_credentialIds[1], address(this)),
             "Credential should be removed by ID check"
         );
 
@@ -621,7 +656,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Check existing credential by parameters
         assertTrue(
-            validator.hasCredential(_pubKeysX[0], _pubKeysY[0], _requireUVs[0], address(this)),
+            validator.hasCredential(_pubKeysX[0], _pubKeysY[0], address(this)),
             "Should have first credential"
         );
 
@@ -633,7 +668,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Check non-existent credential
         assertFalse(
-            validator.hasCredential(99_999, 88_888, true, address(this)),
+            validator.hasCredential(99_999, 88_888, address(this)),
             "Should not have non-existent credential"
         );
     }
@@ -658,7 +693,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Get credential info
         (uint256 pubKeyX, uint256 pubKeyY, bool requireUV) =
-            validator.getCredentialInfo(_credentialIds[0], address(this));
+            validator.getCredentialInfo(_credentialIds[1], address(this));
 
         // Check info matches
         assertEq(pubKeyX, _pubKeysX[0], "Public key X should match");
@@ -858,11 +893,11 @@ contract WebAuthnValidatorTest is BaseTest {
             .WebAuthVerificationContext({
             usePrecompile: false,
             threshold: 2,
-            credentialIds: new bytes32[](2),
+            credentialIds: _credentialIds, // 2 IDs
             credentialData: new WebAuthnValidator.WebAuthnCredential[](1) // Different length!
          });
 
-        bytes memory data = abi.encode(context);
+        bytes memory data = abi.encode(context, address(this));
 
         bool result = validator.validateSignatureWithData(hash, signature, data);
         assertFalse(result, "Should return false when array lengths don't match");
@@ -1083,12 +1118,12 @@ contract WebAuthnValidatorTest is BaseTest {
 
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
-        credentialData[0] = WebAuthnValidator.WebAuthnCredential({
+        credentialData[1] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[0],
             pubKeyY: _pubKeysY[0],
             requireUV: _requireUVs[0]
         });
-        credentialData[1] = WebAuthnValidator.WebAuthnCredential({
+        credentialData[0] = WebAuthnValidator.WebAuthnCredential({
             pubKeyX: _pubKeysX[1],
             pubKeyY: _pubKeysY[1],
             requireUV: _requireUVs[1]
@@ -1107,7 +1142,7 @@ contract WebAuthnValidatorTest is BaseTest {
             credentialData: credentialData
         });
 
-        bytes memory data = abi.encode(context);
+        bytes memory data = abi.encode(context, address(this));
 
         // Validation should succeed with our real WebAuthn signatures
         bool result = validator.validateSignatureWithData(hash, abi.encode(signature), data);
