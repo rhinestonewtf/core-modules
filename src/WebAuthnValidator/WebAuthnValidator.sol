@@ -494,8 +494,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         (WebAuthVerificationContext memory context, address account) =
             abi.decode(data, (WebAuthVerificationContext, address));
         // Make sure the credentials are unique and sorted
-        context.credentialIds.sort();
-        context.credentialIds.uniquifySorted();
+        require(context.credentialIds.isSortedAndUniquified(), NotSorted());
 
         // Decode signature
         // Format: abi.encode(WebAuthn.WebAuthnAuth[])
