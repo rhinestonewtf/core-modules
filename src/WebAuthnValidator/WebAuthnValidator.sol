@@ -176,7 +176,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         threshold[account] = _threshold;
 
         // Generate credential IDs and store credentials
-        bytes32[] memory credentialIds = new bytes32[](credentialLength);
+        bytes32 credentialId;
 
         for (uint256 i = 0; i < credentialLength; i++) {
             // Check public key is valid
@@ -187,7 +187,6 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             // Generate deterministic credential ID
             bytes32 credId =
                 generateCredentialId(_credentials[i].pubKeyX, _credentials[i].pubKeyY, account);
-            credentialIds[i] = credId;
 
             // Store the credential
             credentialDetails[credId][account] = WebAuthnCredential({
@@ -204,10 +203,11 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
             // Emit event
             emit CredentialAdded(account, credId);
-        }
 
-        // Make sure all credential IDs are  sorted
-        require(credentialIds.isSorted(), NotSorted());
+            // Cache the credential ID
+            require(credentialId < credId, NotSorted());
+            credentialId = credId;
+        }
 
         emit ModuleInitialized(account);
     }
