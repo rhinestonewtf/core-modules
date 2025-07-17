@@ -71,7 +71,7 @@ file = "./artifacts/OwnableValidator/OwnableValidator.json"
 source_file="./artifacts/OwnableValidator/verify.json"
 salt = "0x00000000000000000000000000000000000000009a4cc33019d42602e5f482c4"
 
-[deployments.singleton.SocialRecovery]
-file = "./artifacts/SocialRecovery/SocialRecovery.json"
-source_file="./artifacts/SocialRecovery/verify.json"
-salt = "0x0000000000000000000000000000000000000000cb07edee6d0b00009338e4e9"
+# [deployments.singleton.SocialRecovery]
+# file = "./artifacts/SocialRecovery/SocialRecovery.json"
+# source_file="./artifacts/SocialRecovery/verify.json"
+# salt = "0x0000000000000000000000000000000000000000cb07edee6d0b00009338e4e9"
