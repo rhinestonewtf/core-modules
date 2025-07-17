@@ -1,5 +1,5 @@
 [profile.default]
-solc = "0.8.25"
+solc = "0.8.28"
 evm_version = "cancun"
 src = "src"
 out = "out"

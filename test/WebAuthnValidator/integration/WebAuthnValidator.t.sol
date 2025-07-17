@@ -70,7 +70,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         _credentialIds = new bytes32[](2);
         for (uint256 i = 0; i < 2; i++) {
             _credentialIds[i] = validator.generateCredentialId(
-                _pubKeysX[i], _pubKeysY[i], _requireUVs[i], address(instance.account)
+                _pubKeysX[i], _pubKeysY[i], address(instance.account)
             );
         }
 
@@ -228,9 +228,8 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         }).execUserOps();
 
         // Check credential was added
-        bytes32 newCredentialId = validator.generateCredentialId(
-            newPubKeyX, newPubKeyY, newRequireUV, address(instance.account)
-        );
+        bytes32 newCredentialId =
+            validator.generateCredentialId(newPubKeyX, newPubKeyY, address(instance.account));
 
         assertTrue(
             validator.hasCredentialById(newCredentialId, address(instance.account)),
@@ -272,8 +271,8 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         bytes32 hash = bytes32(0xf631058a3ba1116acce12396fad0a125b5041c43f8e15723709f81aa8d5f4ccf);
         // Change the order of sigs
         WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
-        sigs[0] = mockAuth2;
-        sigs[1] = mockAuth1;
+        sigs[1] = mockAuth2;
+        sigs[0] = mockAuth1;
         sig = abi.encode(_credentialIds, false, sigs);
         bool isValid = instance.isValidSignature(address(validator), hash, sig);
         assertTrue(isValid, "ERC1271 signature validation should pass");
@@ -310,7 +309,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
             credentialData: credentialData
         });
 
-        bytes memory data = abi.encode(context);
+        bytes memory data = abi.encode(context, address(instance.account));
         WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
         (credentialIds,, sigs) = abi.decode(sig, (bytes32[], bool, WebAuthn.WebAuthnAuth[]));
 

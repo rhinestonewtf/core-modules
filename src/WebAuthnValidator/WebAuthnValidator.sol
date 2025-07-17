@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity ^0.8.25;
+pragma solidity ^0.8.28;
 
 // Contracts
 import { ERC7579HybridValidatorBase } from "modulekit/Modules.sol";
@@ -99,6 +99,9 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @notice Thrown when credential IDs are not unique
     error NotUnique();
 
+    /// @notice Thrown when credential IDs are not sorted
+    error NotSorted();
+
     /// @notice Thrown when attempting to add more credentials than the maximum allowed
     error MaxCredentialsReached();
 
@@ -173,7 +176,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         threshold[account] = _threshold;
 
         // Generate credential IDs and store credentials
-        bytes32[] memory credentialIds = new bytes32[](credentialLength);
+        bytes32 credentialId;
 
         for (uint256 i = 0; i < credentialLength; i++) {
             // Check public key is valid
@@ -182,10 +185,8 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             }
 
             // Generate deterministic credential ID
-            bytes32 credId = generateCredentialId(
-                _credentials[i].pubKeyX, _credentials[i].pubKeyY, _credentials[i].requireUV, account
-            );
-            credentialIds[i] = credId;
+            bytes32 credId =
+                generateCredentialId(_credentials[i].pubKeyX, _credentials[i].pubKeyY, account);
 
             // Store the credential
             credentialDetails[credId][account] = WebAuthnCredential({
@@ -202,6 +203,10 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
 
             // Emit event
             emit CredentialAdded(account, credId);
+
+            // Cache the credential ID
+            require(credentialId < credId, NotSorted());
+            credentialId = credId;
         }
 
         emit ModuleInitialized(account);
@@ -281,7 +286,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         }
 
         // Generate deterministic credential ID
-        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, requireUV, account);
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, account);
 
         // Check if max credentials is reached
         if (credentials.length(account) >= MAX_CREDENTIALS) {
@@ -305,8 +310,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @dev De-registers a passkey and prevents it from being used for authentication
     /// @param pubKeyX X coordinate of the credential's public key
     /// @param pubKeyY Y coordinate of the public key
-    /// @param requireUV Whether user verification is required
-    function removeCredential(uint256 pubKeyX, uint256 pubKeyY, bool requireUV) external {
+    function removeCredential(uint256 pubKeyX, uint256 pubKeyY) external {
         // Cache the account address
         address account = msg.sender;
 
@@ -314,7 +318,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         if (!isInitialized(account)) revert NotInitialized(account);
 
         // Generate deterministic credential ID
-        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, requireUV, account);
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, account);
 
         // Check if removing would break threshold
         if (credentials.length(account) <= threshold[account]) {
@@ -356,20 +360,18 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @dev Verifies if a specific credential is registered using its parameters
     /// @param pubKeyX X coordinate of the credential's public key
     /// @param pubKeyY Y coordinate of the credential's public key
-    /// @param requireUV Whether user verification is required
     /// @param account Address of the account to check
     /// @return exists Boolean indicating whether the credential exists
     function hasCredential(
         uint256 pubKeyX,
         uint256 pubKeyY,
-        bool requireUV,
         address account
     )
         external
         view
         returns (bool exists)
     {
-        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, requireUV, account);
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, account);
         return credentials.contains(account, credentialId);
     }
 
@@ -410,14 +412,13 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     function generateCredentialId(
         uint256 pubKeyX,
         uint256 pubKeyY,
-        bool requireUV,
         address account
     )
         public
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encode(pubKeyX, pubKeyY, requireUV, account));
+        return keccak256(abi.encode(pubKeyX, pubKeyY, account));
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -489,11 +490,11 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         override
         returns (bool)
     {
-        // Decode the threshold and credentials
-        WebAuthVerificationContext memory context = abi.decode(data, (WebAuthVerificationContext));
+        // Decode the threshold, credentials and account address from data
+        (WebAuthVerificationContext memory context, address account) =
+            abi.decode(data, (WebAuthVerificationContext, address));
         // Make sure the credentials are unique and sorted
-        context.credentialIds.sort();
-        context.credentialIds.uniquifySorted();
+        require(context.credentialIds.isSortedAndUniquified(), NotSorted());
 
         // Decode signature
         // Format: abi.encode(WebAuthn.WebAuthnAuth[])
@@ -503,6 +504,16 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         uint256 credentialsLength = context.credentialIds.length;
         if (credentialsLength != context.credentialData.length) {
             return false;
+        }
+
+        // Generate credentialId from each entry and verify that it matches the provided data
+        for (uint256 i = 0; i < credentialsLength; ++i) {
+            bytes32 expectedId = generateCredentialId(
+                context.credentialData[i].pubKeyX, context.credentialData[i].pubKeyY, account
+            );
+            if (context.credentialIds[i] != expectedId) {
+                return false;
+            }
         }
 
         // Check that threshold is valid
@@ -543,8 +554,9 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         // Format: abi.encode(bytes32[], bool, bytes)
         (bytes32[] memory credIds, bool usePrecompile, WebAuthn.WebAuthnAuth[] memory auth) =
             abi.decode(data, (bytes32[], bool, WebAuthn.WebAuthnAuth[]));
-        credIds.sort();
-        credIds.uniquifySorted();
+
+        // Make sure the credential IDs are unique and sorted
+        require(credIds.isSortedAndUniquified(), NotSorted());
 
         // Prepare WebAuthnCredential array
         WebAuthnCredential[] memory credentialData = new WebAuthnCredential[](credIds.length);
