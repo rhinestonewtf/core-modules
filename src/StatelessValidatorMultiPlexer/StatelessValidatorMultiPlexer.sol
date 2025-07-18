@@ -53,7 +53,7 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
 
     /// @notice Validates a signature with data by multiplexing through stateless validators
     /// @param hash The hash of the data to validate
-    /// @param signature The signature to validate
+    /// @param signature The signatures to validate
     /// @param data The data to validate against the signature,
     ///        the data is encoded in the following format:
     ///        abi.encode(address[] validators, bytes[] data)
@@ -68,18 +68,27 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
         override
         returns (bool)
     {
+        // Decode the signatures array
+        bytes[] memory signatures = abi.decode(signature, (bytes[]));
+
         // Decode the data to get the list of validators and their corresponding data
         (address[] memory validators, bytes[] memory validatorData) =
             abi.decode(data, (address[], bytes[]));
 
+        // Cache the length of the validators array
+        uint256 validatorsLength = validators.length;
+
         // Ensure the number of validators matches the number of data entries
-        require(validators.length == validatorData.length, MismatchedValidatorsAndDataLength());
+        require(
+            ((validatorsLength == validatorData.length) && (validatorsLength == signatures.length)),
+            MismatchedValidatorsAndDataLength()
+        );
 
         // Validate each signature with its corresponding data
-        for (uint256 i = 0; i < validators.length; i++) {
+        for (uint256 i = 0; i < validatorsLength; i++) {
             // Call the validateSignatureWithData function on each validator
             bool validSig = ERC7579StatelessValidatorBase(validators[i]).validateSignatureWithData(
-                hash, signature, validatorData[i]
+                hash, signatures[i], validatorData[i]
             );
             if (!validSig) {
                 return false; // If any validation fails, return false
