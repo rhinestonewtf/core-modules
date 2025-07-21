@@ -49,8 +49,6 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
                                     VALIDATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// TODO: Optimize this
-
     /// @notice Validates a signature with data by multiplexing through stateless validators
     /// @param hash The hash of the data to validate
     /// @param signature The signatures to validate
