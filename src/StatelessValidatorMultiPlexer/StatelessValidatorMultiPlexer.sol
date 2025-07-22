@@ -21,13 +21,6 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
     error MismatchedValidatorsAndDataLength();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                        STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Mapping of smart account address to initialized state
-    mapping(address account => bool initialized) public isInitialized;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                       CONFIG
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -36,6 +29,9 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
 
     /// @notice Called when the module is uninstalled from a smart account
     function onUninstall(bytes calldata) external override { }
+
+    /// @notice Checks if the module is initialized for a smart account
+    function isInitialized(address smartAccount) external view override returns (bool) { }
 
     /// @notice Returns the type of the module
     /// @dev Implements interface to indicate validator capabilities
@@ -70,8 +66,13 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
         bytes[] memory signatures = abi.decode(signature, (bytes[]));
 
         // Decode the data to get the list of validators and their corresponding data
-        (address[] memory validators, bytes[] memory validatorData) =
-            abi.decode(data, (address[], bytes[]));
+        (address[] memory validators, bytes[] memory validatorData, uint8 threshold) =
+            abi.decode(data, (address[], bytes[], uint8));
+
+        // Ensure the threshold is not zero
+        if (threshold == 0) {
+            return false;
+        }
 
         // Cache the length of the validators array
         uint256 validatorsLength = validators.length;
@@ -82,17 +83,25 @@ contract StatelessValidatorMultiPlexer is ERC7579StatelessValidatorBase {
             MismatchedValidatorsAndDataLength()
         );
 
+        // Count the number of valid signatures
+        uint8 validCount = 0;
+
         // Validate each signature with its corresponding data
         for (uint256 i = 0; i < validatorsLength; i++) {
             // Call the validateSignatureWithData function on each validator
             bool validSig = ERC7579StatelessValidatorBase(validators[i]).validateSignatureWithData(
                 hash, signatures[i], validatorData[i]
             );
-            if (!validSig) {
-                return false; // If any validation fails, return false
+            if (validSig) {
+                validCount++;
             }
         }
 
-        return true; // All validations passed
+        if (validCount >= threshold) {
+            // If we have enough valid signatures, we can return true
+            return true;
+        }
+        // If we do not have enough valid signatures, return false
+        return false;
     }
 }

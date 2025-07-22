@@ -149,7 +149,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         bytes[] memory validatorData = new bytes[](1);
         validatorData[0] = abi.encode(ownableThreshold, owners);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 2;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](2);
         signatures[0] = mockOwnableSignature;
@@ -189,7 +190,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         });
         validatorData[1] = abi.encode(context);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 2;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](1);
         signatures[0] = mockOwnableSignature;
@@ -197,6 +199,26 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
 
         vm.expectRevert(StatelessValidatorMultiPlexer.MismatchedValidatorsAndDataLength.selector);
         multiplexer.validateSignatureWithData(hash, signature, data);
+    }
+
+    function test_ValidateSignatureWithDataWhen_ZeroThreshold() public view {
+        bytes32 hash = createTestHash();
+
+        address[] memory validators = new address[](1);
+        validators[0] = address(ownableValidator);
+
+        bytes[] memory validatorData = new bytes[](1);
+        validatorData[0] = abi.encode(ownableThreshold, owners);
+
+        uint8 threshold = 0;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
+
+        bytes[] memory signatures = new bytes[](1);
+        signatures[0] = mockOwnableSignature;
+        bytes memory signature = abi.encode(signatures);
+
+        bool isValid = multiplexer.validateSignatureWithData(hash, signature, data);
+        assertFalse(isValid);
     }
 
     function test_ValidateSignatureWithDataWhen_SingleValidatorFails() public {
@@ -208,7 +230,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         bytes[] memory validatorData = new bytes[](1);
         validatorData[0] = abi.encode(ownableThreshold, owners);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 1;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
         bytes memory invalidSignature =
             abi.encodePacked(signHash(uint256(1), hash), signHash(uint256(2), hash));
 
@@ -229,7 +252,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         bytes[] memory validatorData = new bytes[](1);
         validatorData[0] = abi.encode(ownableThreshold, owners);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 1;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](1);
         signatures[0] = mockOwnableSignature;
@@ -265,7 +289,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         });
         validatorData[1] = abi.encode(context);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 2;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](2);
         signatures[0] = mockOwnableSignature;
@@ -276,7 +301,7 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         assertTrue(isValid);
     }
 
-    function test_ValidateSignatureWithDataWhen_FirstValidatorFailsSecondSucceeds() public {
+    function test_ValidateSignatureWithDataWhen_ThresholdOfOne() public view {
         bytes32 hash = createTestHash();
 
         address[] memory validators = new address[](2);
@@ -303,7 +328,47 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         });
         validatorData[1] = abi.encode(context);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 1; // Only need one valid signature
+        bytes memory data = abi.encode(validators, validatorData, threshold);
+
+        bytes[] memory signatures = new bytes[](2);
+        signatures[0] = mockOwnableSignature;
+        signatures[1] = mockWebAuthnSignature;
+        bytes memory signature = abi.encode(signatures);
+
+        bool isValid = multiplexer.validateSignatureWithData(hash, signature, data);
+        assertTrue(isValid);
+    }
+
+    function test_ValidateSignatureWithDataWhen_FirstValidatorFailsButThresholdMet() public {
+        bytes32 hash = createTestHash();
+
+        address[] memory validators = new address[](2);
+        validators[0] = address(ownableValidator);
+        validators[1] = address(webAuthnValidator);
+
+        bytes[] memory validatorData = new bytes[](2);
+        validatorData[0] = abi.encode(ownableThreshold, owners);
+
+        WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
+            new WebAuthnValidator.WebAuthnCredential[](1);
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: pubKeysX[0],
+            pubKeyY: pubKeysY[0],
+            requireUV: requireUVs[0]
+        });
+
+        WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
+            .WebAuthVerificationContext({
+            usePrecompile: false,
+            threshold: webAuthnThreshold,
+            credentialIds: credentialIds,
+            credentialData: webAuthnCredentials
+        });
+        validatorData[1] = abi.encode(context);
+
+        uint8 threshold = 1; // Only need one valid signature
+        bytes memory data = abi.encode(validators, validatorData, threshold);
         bytes memory invalidOwnableSignature =
             abi.encodePacked(signHash(uint256(1), hash), signHash(uint256(2), hash));
 
@@ -313,10 +378,10 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         bytes memory signature = abi.encode(signatures);
 
         bool isValid = multiplexer.validateSignatureWithData(hash, signature, data);
-        assertFalse(isValid);
+        assertTrue(isValid); // Should pass because threshold is 1 and webAuthn succeeds
     }
 
-    function test_ValidateSignatureWithDataWhen_FirstValidatorSucceedsSecondFails() public view {
+    function test_ValidateSignatureWithDataWhen_NotEnoughValidSignatures() public view {
         bytes32 hash = createTestHash();
 
         address[] memory validators = new address[](2);
@@ -343,7 +408,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         });
         validatorData[1] = abi.encode(context);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 2; // Need both validators to succeed
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](2);
         signatures[0] = mockOwnableSignature;
@@ -351,7 +417,7 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         bytes memory signature = abi.encode(signatures);
 
         bool isValid = multiplexer.validateSignatureWithData(hash, signature, data);
-        assertFalse(isValid);
+        assertFalse(isValid); // Should fail because webAuthn validation fails
     }
 
     function test_ValidateSignatureWithDataWhen_NoValidators() public view {
@@ -360,16 +426,17 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         address[] memory validators = new address[](0);
         bytes[] memory validatorData = new bytes[](0);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 1;
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](0);
         bytes memory signature = abi.encode(signatures);
 
         bool isValid = multiplexer.validateSignatureWithData(hash, signature, data);
-        assertTrue(isValid);
+        assertFalse(isValid); // Should fail because threshold is 1 but no validators
     }
 
-    function test_ValidateSignatureWithDataWhen_ThreeValidatorsAllSucceed() public {
+    function test_ValidateSignatureWithDataWhen_ThreeValidatorsWithThresholdTwo() public {
         bytes32 hash = createTestHash();
 
         OwnableValidator anotherOwnableValidator = new OwnableValidator();
@@ -401,7 +468,8 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
 
         validatorData[2] = abi.encode(1, owners);
 
-        bytes memory data = abi.encode(validators, validatorData);
+        uint8 threshold = 2; // Need at least 2 validators to succeed
+        bytes memory data = abi.encode(validators, validatorData, threshold);
 
         bytes[] memory signatures = new bytes[](3);
         signatures[0] = mockOwnableSignature;
@@ -410,7 +478,7 @@ contract StatelessValidatorMultiPlexerTest is BaseTest {
         bytes memory signature = abi.encode(signatures);
 
         bool isValid = multiplexer.validateSignatureWithData(hash, signature, data);
-        assertTrue(isValid);
+        assertTrue(isValid); // All 3 validators succeed, threshold of 2 is met
     }
 
     /*//////////////////////////////////////////////////////////////////////////
