@@ -102,8 +102,6 @@ contract DeadmanSwitchIntegrationTest is BaseIntegrationTest {
     }
 
     function test_ValidateUserOp_RevertWhen_TimeoutNotDue() public {
-        // Set simulate mode to false
-        instance.simulateUserOp(false);
         // it should revert
         UserOpData memory userOpData = instance.getExecOps({
             target: address(1),
@@ -112,13 +110,12 @@ contract DeadmanSwitchIntegrationTest is BaseIntegrationTest {
             txValidator: address(dms)
         });
         userOpData.userOp.signature = signHash(_nomineePk, userOpData.userOpHash);
+
         instance.expect4337Revert();
         userOpData.execUserOps();
     }
 
     function test_ValidateUserOp() public {
-        // Set simulate mode to false
-        instance.simulateUserOp(false);
         // it should revert
         vm.warp(block.timestamp + _timeout);
 
