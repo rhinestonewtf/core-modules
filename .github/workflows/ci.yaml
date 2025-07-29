@@ -42,18 +42,19 @@ jobs:
       matrix:
         contract-name:
           [
-            "AutoSavings",
-            "ColdStorageFlashloan",
-            "ColdStorageHook",
-            "DeadmanSwitch",
-            "HookMultiPlexer",
-            "MultiFactor",
-            "OwnableExecutor",
-            "OwnableValidator",
-            "RegistryHook",
-            "SocialRecovery",
-            "ScheduledOrders",
-            "ScheduledTransfers",
+            "src/AutoSavings/AutoSavings",
+            "src/ColdStorageFlashloan/ColdStorageFlashloan",
+            "src/ColdStorageHook/ColdStorageHook",
+            "src/DeadmanSwitch/DeadmanSwitch",
+            "src/HookMultiPlexer/HookMultiPlexer",
+            "src/MultiFactor/MultiFactor",
+            "src/OwnableExecutor/OwnableExecutor",
+            "src/OwnableValidator/OwnableValidator",
+            "src/RegistryHook/RegistryHook",
+            "src/SocialRecovery/SocialRecovery",
+            "src/ScheduledOrders/ScheduledOrders",
+            "src/ScheduledTransfers/ScheduledTransfers",
+            "src/WebAuthnValidator/WebAuthnValidator",
           ]
     with:
       contract-name: ${{ matrix.contract-name }}
