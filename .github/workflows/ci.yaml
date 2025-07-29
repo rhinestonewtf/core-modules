@@ -40,7 +40,7 @@ jobs:
     uses: "rhinestonewtf/reusable-workflows/.github/workflows/forge-release.yaml@main"
     strategy:
       matrix:
-        contract-name:
+        contract-path:
           [
             "src/MultiFactor/MultiFactor",
             "src/OwnableExecutor/OwnableExecutor",
@@ -49,5 +49,5 @@ jobs:
             "src/WebAuthnValidator/WebAuthnValidator",
           ]
     with:
-      contract-name: ${{ matrix.contract-name }}
+      contract-path: ${{ matrix.contract-path }}
       store-artifacts: true
