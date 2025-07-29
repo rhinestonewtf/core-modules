@@ -8,6 +8,12 @@ if [ $# -eq 0 ]; then
 fi
 
 CONTRACT_PATH=$1
+
+# Add .sol extension if not present
+if [[ ! "$CONTRACT_PATH" == *.sol ]]; then
+    CONTRACT_PATH="${CONTRACT_PATH}.sol"
+fi
+
 CONTRACT_NAME=$(basename "$CONTRACT_PATH" .sol)
 
 mkdir -p ./artifacts/$CONTRACT_NAME
