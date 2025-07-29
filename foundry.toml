@@ -20,6 +20,3 @@ wrap_comments = true
 
 [fuzz]
 runs=1000
-
-[rpc_endpoints]
-mainnet = "https://mainnet.gateway.tenderly.co"
