@@ -9,7 +9,7 @@ import {
 } from "src/OwnableValidator/OwnableValidator.sol";
 import { IModule as IERC7579Module } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { PackedUserOperation, getEmptyUserOperation } from "test/utils/ERC4337.sol";
-import { signHash } from "test/utils/Signature.sol";
+import { signHash, signUserOpHash } from "test/utils/Signature.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
 
@@ -433,8 +433,8 @@ contract OwnableValidatorTest is BaseTest {
         userOp.sender = address(this);
         bytes32 userOpHash = bytes32(keccak256("userOpHash"));
 
-        bytes memory signature1 = signHash(_ownerPks[0], userOpHash);
-        bytes memory signature2 = signHash(_ownerPks[1], userOpHash);
+        bytes memory signature1 = signUserOpHash(_ownerPks[0], userOpHash);
+        bytes memory signature2 = signUserOpHash(_ownerPks[1], userOpHash);
         userOp.signature = abi.encodePacked(signature1, signature2);
 
         uint256 validationData =

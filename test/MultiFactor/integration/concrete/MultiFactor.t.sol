@@ -9,7 +9,7 @@ import {
     ValidatorId
 } from "src/MultiFactor/MultiFactor.sol";
 import { OwnableValidator } from "src/OwnableValidator/OwnableValidator.sol";
-import { signHash } from "test/utils/Signature.sol";
+import { signUserOpHash, signHash } from "test/utils/Signature.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
 import { MODULE_TYPE_VALIDATOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { UserOpData } from "modulekit/ModuleKit.sol";
@@ -204,8 +204,8 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
         });
         Validator[] memory validators = _getValidators();
 
-        bytes memory signature1 = signHash(_ownerPks[0], userOpData.userOpHash);
-        bytes memory signature2 = signHash(_ownerPks[1], userOpData.userOpHash);
+        bytes memory signature1 = signUserOpHash(_ownerPks[0], userOpData.userOpHash);
+        bytes memory signature2 = signUserOpHash(_ownerPks[1], userOpData.userOpHash);
         bytes memory encodedSig = abi.encodePacked(signature1, signature2);
 
         validators[0].data = encodedSig;

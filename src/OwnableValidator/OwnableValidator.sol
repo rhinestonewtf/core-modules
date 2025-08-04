@@ -265,7 +265,9 @@ contract OwnableValidator is ERC7579ValidatorBase {
         returns (ValidationData)
     {
         // validate the signature with the config
-        bool isValid = _validateSignatureWithConfig(userOp.sender, userOpHash, userOp.signature);
+        bool isValid = _validateSignatureWithConfig(
+            userOp.sender, ECDSA.toEthSignedMessageHash(userOpHash), userOp.signature
+        );
 
         // return the result
         if (isValid) {
@@ -334,9 +336,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
         }
 
         // recover the signers from the signatures
-        address[] memory signers = CheckSignatures.recoverNSignatures(
-            ECDSA.toEthSignedMessageHash(hash), signature, _threshold
-        );
+        address[] memory signers = CheckSignatures.recoverNSignatures(hash, signature, _threshold);
 
         // sort and uniquify the signers to make sure a signer is not reused
         signers.sort();
@@ -381,8 +381,7 @@ contract OwnableValidator is ERC7579ValidatorBase {
         }
 
         // recover the signers from the signatures
-        address[] memory signers =
-            CheckSignatures.recoverNSignatures(ECDSA.toEthSignedMessageHash(hash), data, _threshold);
+        address[] memory signers = CheckSignatures.recoverNSignatures(hash, data, _threshold);
 
         // sort and uniquify the signers to make sure a signer is not reused
         signers.sort();
