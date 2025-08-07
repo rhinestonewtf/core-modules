@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { BaseIntegrationTest, ModuleKitHelpers } from "test/BaseIntegration.t.sol";
 import { OwnableValidator } from "src/OwnableValidator/OwnableValidator.sol";
-import { signHash } from "test/utils/Signature.sol";
+import { signHash, signUserOpHash } from "test/utils/Signature.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
 import { MODULE_TYPE_VALIDATOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { UserOpData } from "modulekit/ModuleKit.sol";
@@ -172,8 +172,8 @@ contract OwnableValidatorIntegrationTest is BaseIntegrationTest {
             callData: "",
             txValidator: address(validator)
         });
-        bytes memory signature1 = signHash(_ownerPks[0], userOpData.userOpHash);
-        bytes memory signature2 = signHash(_ownerPks[1], userOpData.userOpHash);
+        bytes memory signature1 = signUserOpHash(_ownerPks[0], userOpData.userOpHash);
+        bytes memory signature2 = signUserOpHash(_ownerPks[1], userOpData.userOpHash);
         userOpData.userOp.signature = abi.encodePacked(signature1, signature2);
         userOpData.execUserOps();
 

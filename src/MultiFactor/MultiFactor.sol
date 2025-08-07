@@ -14,6 +14,7 @@ import {
 } from "./DataTypes.sol";
 import { MultiFactorLib } from "./MultiFactorLib.sol";
 import { FlatBytesLib } from "flatbytes/BytesLib.sol";
+import { ECDSA } from "solady/utils/ECDSA.sol";
 
 /**
  * @title MultiFactor
@@ -354,7 +355,9 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         Validator[] calldata validators = MultiFactorLib.decode(userOp.signature);
 
         // validate the signature
-        bool isValid = _validateSignatureWithConfig(userOp.sender, validators, userOpHash);
+        bool isValid = _validateSignatureWithConfig(
+            userOp.sender, validators, ECDSA.toEthSignedMessageHash(userOpHash)
+        );
 
         if (isValid) {
             // return validation success if the signatures are valid

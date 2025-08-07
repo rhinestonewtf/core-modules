@@ -6,7 +6,7 @@ import { SocialRecovery, ERC7579ValidatorBase } from "src/SocialRecovery/SocialR
 import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
 import { IModule as IERC7579Module } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
 import { PackedUserOperation, getEmptyUserOperation } from "test/utils/ERC4337.sol";
-import { signHash } from "test/utils/Signature.sol";
+import { signUserOpHash as signHash } from "test/utils/Signature.sol";
 import { ModeLib } from "modulekit/accounts/common/lib/ModeLib.sol";
 import { ExecutionLib, Execution } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import { MODULE_TYPE_VALIDATOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";

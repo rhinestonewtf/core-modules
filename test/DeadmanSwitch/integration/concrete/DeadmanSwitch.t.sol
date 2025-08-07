@@ -9,7 +9,7 @@ import {
     parseValidationData,
     ValidationData
 } from "test/utils/ERC4337.sol";
-import { signHash } from "test/utils/Signature.sol";
+import { signUserOpHash as signHash } from "test/utils/Signature.sol";
 import {
     MODULE_TYPE_HOOK,
     MODULE_TYPE_VALIDATOR
