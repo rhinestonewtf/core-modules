@@ -79,7 +79,10 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
     /// @notice Emitted when a credential is added to an account
     /// @param account The address of the smart account
     /// @param credentialId The ID of the added credential
-    event CredentialAdded(address indexed account, bytes32 indexed credentialId);
+    /// @param credential The WebAuthn credential
+    event CredentialAdded(
+        address indexed account, bytes32 indexed credentialId, WebAuthnCredential credential
+    );
 
     /// @notice Emitted when a credential is removed from an account
     /// @param account The address of the smart account
@@ -202,7 +205,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             }
 
             // Emit event
-            emit CredentialAdded(account, credId);
+            emit CredentialAdded(account, credId, _credentials[i]);
 
             // Cache the credential ID
             require(credentialId < credId, NotSorted());
@@ -303,7 +306,11 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             revert CredentialAlreadyExists();
         }
 
-        emit CredentialAdded(account, credentialId);
+        emit CredentialAdded(
+            account,
+            credentialId,
+            WebAuthnCredential({ pubKeyX: pubKeyX, pubKeyY: pubKeyY, requireUV: requireUV })
+        );
     }
 
     /// @notice Removes a WebAuthn credential from the account
