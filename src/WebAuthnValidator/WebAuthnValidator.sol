@@ -14,8 +14,9 @@ import { CheckSignatures } from "checknsignatures/CheckNSignatures.sol";
 import { ECDSA } from "solady/utils/ECDSA.sol";
 import { WebAuthn } from "@webauthn/WebAuthn.sol";
 import { LibSort } from "solady/utils/LibSort.sol";
-import { MODULE_TYPE_STATELESS_VALIDATOR as TYPE_STATELESS_VALIDATOR } from
-    "modulekit/module-bases/utils/ERC7579Constants.sol";
+import {
+    MODULE_TYPE_STATELESS_VALIDATOR as TYPE_STATELESS_VALIDATOR
+} from "modulekit/module-bases/utils/ERC7579Constants.sol";
 
 /// @title WebAuthnValidator
 /// @author Based on Rhinestone's OwnableValidator
@@ -188,8 +189,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
             }
 
             // Generate deterministic credential ID
-            bytes32 credId =
-                generateCredentialId(_credentials[i].pubKeyX, _credentials[i].pubKeyY, account);
+            bytes32 credId = generateCredentialId(_credentials[i].pubKeyX, _credentials[i].pubKeyY);
 
             // Store the credential
             credentialDetails[credId][account] = WebAuthnCredential({
@@ -289,7 +289,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         }
 
         // Generate deterministic credential ID
-        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, account);
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY);
 
         // Check if max credentials is reached
         if (credentials.length(account) >= MAX_CREDENTIALS) {
@@ -325,7 +325,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         if (!isInitialized(account)) revert NotInitialized(account);
 
         // Generate deterministic credential ID
-        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, account);
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY);
 
         // Check if removing would break threshold
         if (credentials.length(account) <= threshold[account]) {
@@ -378,7 +378,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         view
         returns (bool exists)
     {
-        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY, account);
+        bytes32 credentialId = generateCredentialId(pubKeyX, pubKeyY);
         return credentials.contains(account, credentialId);
     }
 
@@ -416,16 +416,8 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         return (cred.pubKeyX, cred.pubKeyY, cred.requireUV);
     }
 
-    function generateCredentialId(
-        uint256 pubKeyX,
-        uint256 pubKeyY,
-        address account
-    )
-        public
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encode(pubKeyX, pubKeyY, account));
+    function generateCredentialId(uint256 pubKeyX, uint256 pubKeyY) public pure returns (bytes32) {
+        return keccak256(abi.encode(pubKeyX, pubKeyY));
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -497,9 +489,8 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         override
         returns (bool)
     {
-        // Decode the threshold, credentials and account address from data
-        (WebAuthVerificationContext memory context, address account) =
-            abi.decode(data, (WebAuthVerificationContext, address));
+        // Decode the threshold and credentials and from data
+        (WebAuthVerificationContext memory context) = abi.decode(data, (WebAuthVerificationContext));
         // Make sure the credentials are unique and sorted
         require(context.credentialIds.isSortedAndUniquified(), NotSorted());
 
@@ -516,7 +507,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         // Generate credentialId from each entry and verify that it matches the provided data
         for (uint256 i = 0; i < credentialsLength; ++i) {
             bytes32 expectedId = generateCredentialId(
-                context.credentialData[i].pubKeyX, context.credentialData[i].pubKeyY, account
+                context.credentialData[i].pubKeyX, context.credentialData[i].pubKeyY
             );
             if (context.credentialIds[i] != expectedId) {
                 return false;

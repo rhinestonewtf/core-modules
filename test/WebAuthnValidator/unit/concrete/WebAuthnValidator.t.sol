@@ -74,8 +74,7 @@ contract WebAuthnValidatorTest is BaseTest {
 
         // Pre-compute credential IDs for testing
         for (uint256 i = 0; i < 2; i++) {
-            _credentialIds[i] =
-                validator.generateCredentialId(_pubKeysX[i], _pubKeysY[i], address(this));
+            _credentialIds[i] = validator.generateCredentialId(_pubKeysX[i], _pubKeysY[i]);
         }
 
         // Use a fixed challenge for testing
@@ -99,7 +98,7 @@ contract WebAuthnValidatorTest is BaseTest {
         // Create WebAuthn signature data
         WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
 
-        sigs[1] = mockAuth;
+        sigs[0] = mockAuth;
 
         // Use a slightly different signature for the second credential
         WebAuthn.WebAuthnAuth memory mockAuth2 = WebAuthn.WebAuthnAuth({
@@ -115,14 +114,12 @@ contract WebAuthnValidatorTest is BaseTest {
             s: 372_310_544_955_428_259_193_186_543_685_199_264_627_091_796_694_315_697_785_543_526_117_532_572_367
         });
 
-        sigs[0] = mockAuth2;
+        sigs[1] = mockAuth2;
 
         // Sort credential IDs
         bytes32[] memory credentialIds = new bytes32[](2);
-        credentialIds[1] = _credentialIds[0];
-        credentialIds[0] = _credentialIds[1];
-        _credentialIds[0] = credentialIds[0];
-        _credentialIds[1] = credentialIds[1];
+        credentialIds[0] = _credentialIds[0];
+        credentialIds[1] = _credentialIds[1];
 
         // Create the new signature format that includes the credential IDs:
         // abi.encode(credentialIds, abi.encode(signatures))
@@ -139,18 +136,14 @@ contract WebAuthnValidatorTest is BaseTest {
 
     function test_GenerateCredentialId() public view {
         // Test that credential ID generation is deterministic
-        bytes32 credId = validator.generateCredentialId(_pubKeysX[1], _pubKeysY[1], address(this));
+        bytes32 credId = validator.generateCredentialId(_pubKeysX[1], _pubKeysY[1]);
 
-        assertEq(credId, _credentialIds[0], "Credential ID generation should be deterministic");
+        assertEq(credId, _credentialIds[1], "Credential ID generation should be deterministic");
 
         // Test that different parameters produce different credential IDs
-        bytes32 credId2 = validator.generateCredentialId(
-            _pubKeysX[0],
-            _pubKeysY[0],
-            address(1) // Different address
-        );
+        bytes32 credId2 = validator.generateCredentialId(uint256(1_234_567_890), _pubKeysY[1]);
 
-        assertTrue(credId != credId2, "Different addresses should produce different credential IDs");
+        assertTrue(credId != credId2, "Different pub keys should produce different credential IDs");
     }
 
     function test_OnInstallRevertWhen_ModuleIsInitialized() public {
@@ -160,16 +153,12 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
             new WebAuthnValidator.WebAuthnCredential[](2);
 
-        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
-        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         bytes memory data = abi.encode(_threshold, webAuthnCredentials);
@@ -186,15 +175,11 @@ contract WebAuthnValidatorTest is BaseTest {
             new WebAuthnValidator.WebAuthnCredential[](2);
 
         webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
         webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
         // Create data with threshold = 0
         bytes memory data = abi.encode(0, webAuthnCredentials);
@@ -209,16 +194,12 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
             new WebAuthnValidator.WebAuthnCredential[](2);
 
-        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
-        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
         bytes memory data = abi.encode(_threshold, webAuthnCredentials);
         validator.onInstall(data);
@@ -236,15 +217,11 @@ contract WebAuthnValidatorTest is BaseTest {
             new WebAuthnValidator.WebAuthnCredential[](2);
 
         webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
         webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
         // Create data with threshold > credentials length
         bytes memory data = abi.encode(3, webAuthnCredentials);
@@ -266,7 +243,7 @@ contract WebAuthnValidatorTest is BaseTest {
                 pubKeyX: i + 1000,
                 pubKeyY: i + 2000,
                 requireUV: (i % 2 == 0) // Alternate true/false
-             });
+            });
         }
 
         bytes memory data = abi.encode(_threshold, webAuthnCredentials);
@@ -287,9 +264,7 @@ contract WebAuthnValidatorTest is BaseTest {
         });
 
         webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         bytes memory data = abi.encode(_threshold, webAuthnCredentials);
@@ -304,15 +279,11 @@ contract WebAuthnValidatorTest is BaseTest {
             new WebAuthnValidator.WebAuthnCredential[](2);
 
         webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
         webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
         bytes memory data = abi.encode(_threshold, webAuthnCredentials);
@@ -326,16 +297,12 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory webAuthnCredentials =
             new WebAuthnValidator.WebAuthnCredential[](2);
 
-        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
 
-        webAuthnCredentials[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+        webAuthnCredentials[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         bytes memory data = abi.encode(_threshold, webAuthnCredentials);
@@ -360,9 +327,9 @@ contract WebAuthnValidatorTest is BaseTest {
         // Check first credential exists with correct data
         (uint256 pubKeyX, uint256 pubKeyY, bool requireUV) =
             validator.getCredentialInfo(_credentialIds[1], address(this));
-        assertEq(pubKeyX, _pubKeysX[0], "Public key X should match");
-        assertEq(pubKeyY, _pubKeysY[0], "Public key Y should match");
-        assertEq(requireUV, _requireUVs[0], "RequireUV should match");
+        assertEq(pubKeyX, _pubKeysX[1], "Public key X should match");
+        assertEq(pubKeyY, _pubKeysY[1], "Public key Y should match");
+        assertEq(requireUV, _requireUVs[1], "RequireUV should match");
     }
 
     function test_OnUninstallShouldRemoveAllCredentials() public {
@@ -483,14 +450,14 @@ contract WebAuthnValidatorTest is BaseTest {
                 pubKeyX: i + 1000,
                 pubKeyY: i + 2000,
                 requireUV: (i % 2 == 0) // Alternate true/false
-             });
+            });
         }
 
         // Generate credential IDs for these
         bytes32[] memory credentialIds = new bytes32[](32);
         for (uint256 i = 0; i < 32; i++) {
             credentialIds[i] = validator.generateCredentialId(
-                webAuthnCredentials[i].pubKeyX, webAuthnCredentials[i].pubKeyY, address(this)
+                webAuthnCredentials[i].pubKeyX, webAuthnCredentials[i].pubKeyY
             );
         }
         // Sort the credential ids and the webAuthnCredentials
@@ -518,10 +485,7 @@ contract WebAuthnValidatorTest is BaseTest {
         validator.addCredential(99_999, 88_888, true);
     }
 
-    function test_AddCredentialRevertWhen_CredentialAlreadyExists()
-        public
-        whenModuleIsInitialized
-    {
+    function test_AddCredentialRevertWhen_CredentialAlreadyExists() public whenModuleIsInitialized {
         // First install the module
         test_OnInstallWhenCredentialsAreValid();
 
@@ -542,8 +506,7 @@ contract WebAuthnValidatorTest is BaseTest {
         validator.addCredential(newPubKeyX, newPubKeyY, newRequireUV);
 
         // Compute the credential ID
-        bytes32 newCredentialId =
-            validator.generateCredentialId(newPubKeyX, newPubKeyY, address(this));
+        bytes32 newCredentialId = validator.generateCredentialId(newPubKeyX, newPubKeyY);
 
         // Check credential was added
         assertTrue(
@@ -619,7 +582,7 @@ contract WebAuthnValidatorTest is BaseTest {
         );
 
         assertFalse(
-            validator.hasCredentialById(_credentialIds[1], address(this)),
+            validator.hasCredentialById(_credentialIds[0], address(this)),
             "Credential should be removed by ID check"
         );
 
@@ -696,9 +659,9 @@ contract WebAuthnValidatorTest is BaseTest {
             validator.getCredentialInfo(_credentialIds[1], address(this));
 
         // Check info matches
-        assertEq(pubKeyX, _pubKeysX[0], "Public key X should match");
-        assertEq(pubKeyY, _pubKeysY[0], "Public key Y should match");
-        assertEq(requireUV, _requireUVs[0], "RequireUV should match");
+        assertEq(pubKeyX, _pubKeysX[1], "Public key X should match");
+        assertEq(pubKeyY, _pubKeysY[1], "Public key Y should match");
+        assertEq(requireUV, _requireUVs[1], "RequireUV should match");
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -741,8 +704,8 @@ contract WebAuthnValidatorTest is BaseTest {
         userOp.sender = address(this);
         bytes32 userOpHash = bytes32(keccak256("userOpHash"));
 
-        uint256 validationData =
-            ERC7579ValidatorBase.ValidationData.unwrap(validator.validateUserOp(userOp, userOpHash));
+        uint256 validationData = ERC7579ValidatorBase.ValidationData
+        .unwrap(validator.validateUserOp(userOp, userOpHash));
         assertEq(
             validationData, uint256(1), "Should return VALIDATION_FAILED when threshold is not set"
         );
@@ -771,8 +734,8 @@ contract WebAuthnValidatorTest is BaseTest {
         userOp.signature = abi.encode(_credentialIds, false, sigs);
 
         // Validation should fail because the signature data doesn't match
-        uint256 validationData =
-            ERC7579ValidatorBase.ValidationData.unwrap(validator.validateUserOp(userOp, userOpHash));
+        uint256 validationData = ERC7579ValidatorBase.ValidationData
+        .unwrap(validator.validateUserOp(userOp, userOpHash));
         assertEq(
             validationData,
             uint256(1),
@@ -801,8 +764,8 @@ contract WebAuthnValidatorTest is BaseTest {
         userOp.signature = abi.encode(credIds, false, sigs);
 
         // Validation should fail because we need 2 valid signatures
-        uint256 validationData =
-            ERC7579ValidatorBase.ValidationData.unwrap(validator.validateUserOp(userOp, userOpHash));
+        uint256 validationData = ERC7579ValidatorBase.ValidationData
+        .unwrap(validator.validateUserOp(userOp, userOpHash));
         assertEq(
             validationData,
             uint256(1),
@@ -889,15 +852,15 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes memory signature = abi.encode(sigs);
 
         // Create verification context with mismatched arrays
-        WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 2,
-            credentialIds: _credentialIds, // 2 IDs
-            credentialData: new WebAuthnValidator.WebAuthnCredential[](1) // Different length!
-         });
+        WebAuthnValidator.WebAuthVerificationContext memory context =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 2,
+                credentialIds: _credentialIds, // 2 IDs
+                credentialData: new WebAuthnValidator.WebAuthnCredential[](1) // Different length!
+            });
 
-        bytes memory data = abi.encode(context, address(this));
+        bytes memory data = abi.encode(context);
 
         bool result = validator.validateSignatureWithData(hash, signature, data);
         assertFalse(result, "Should return false when array lengths don't match");
@@ -919,37 +882,33 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
         credentialData[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
         credentialData[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         // Case 1: Threshold is 0
-        WebAuthnValidator.WebAuthVerificationContext memory context1 = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 0, // Invalid threshold
-            credentialIds: credentialIds,
-            credentialData: credentialData
-        });
+        WebAuthnValidator.WebAuthVerificationContext memory context1 =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 0, // Invalid threshold
+                credentialIds: credentialIds,
+                credentialData: credentialData
+            });
 
         bytes memory data1 = abi.encode(context1);
         bool result1 = validator.validateSignatureWithData(hash, signature, data1);
         assertFalse(result1, "Should return false when threshold is 0");
 
         // Case 2: Threshold is greater than credentials length
-        WebAuthnValidator.WebAuthVerificationContext memory context2 = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 3, // Invalid threshold (> credentials length)
-            credentialIds: credentialIds,
-            credentialData: credentialData
-        });
+        WebAuthnValidator.WebAuthVerificationContext memory context2 =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 3, // Invalid threshold (> credentials length)
+                credentialIds: credentialIds,
+                credentialData: credentialData
+            });
 
         bytes memory data2 = abi.encode(context2);
         bool result2 = validator.validateSignatureWithData(hash, signature, data2);
@@ -973,14 +932,10 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
         credentialData[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
         credentialData[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         // Create signature data with credentials in wrong order
@@ -994,13 +949,13 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes memory signature = abi.encode(sigs);
 
         // Context with valid threshold
-        WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 2,
-            credentialIds: credentialIds,
-            credentialData: credentialData
-        });
+        WebAuthnValidator.WebAuthVerificationContext memory context =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 2,
+                credentialIds: credentialIds,
+                credentialData: credentialData
+            });
 
         bytes memory data = abi.encode(context);
 
@@ -1020,14 +975,10 @@ contract WebAuthnValidatorTest is BaseTest {
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
         credentialData[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
         credentialData[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         // Create signature data
@@ -1041,13 +992,13 @@ contract WebAuthnValidatorTest is BaseTest {
         bytes memory signature = abi.encode(sigs);
 
         // Context with valid threshold
-        WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 2,
-            credentialIds: credentialIds,
-            credentialData: credentialData
-        });
+        WebAuthnValidator.WebAuthVerificationContext memory context =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 2,
+                credentialIds: credentialIds,
+                credentialData: credentialData
+            });
 
         bytes memory data = abi.encode(context);
 
@@ -1073,8 +1024,8 @@ contract WebAuthnValidatorTest is BaseTest {
         userOp.signature = mockSignatureData;
 
         // Validation should succeed with our real WebAuthn signatures
-        uint256 validationData =
-            ERC7579ValidatorBase.ValidationData.unwrap(validator.validateUserOp(userOp, userOpHash));
+        uint256 validationData = ERC7579ValidatorBase.ValidationData
+        .unwrap(validator.validateUserOp(userOp, userOpHash));
         assertEq(
             validationData,
             uint256(0),
@@ -1118,15 +1069,11 @@ contract WebAuthnValidatorTest is BaseTest {
 
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
-        credentialData[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
-        });
         credentialData[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
+        });
+        credentialData[1] = WebAuthnValidator.WebAuthnCredential({
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         // Use our pre-encoded valid signatures
@@ -1134,15 +1081,15 @@ contract WebAuthnValidatorTest is BaseTest {
             abi.decode(mockSignatureData, (bytes32, bool, WebAuthn.WebAuthnAuth[]));
 
         // Context with valid threshold
-        WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 2,
-            credentialIds: credentialIds,
-            credentialData: credentialData
-        });
+        WebAuthnValidator.WebAuthVerificationContext memory context =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 2,
+                credentialIds: credentialIds,
+                credentialData: credentialData
+            });
 
-        bytes memory data = abi.encode(context, address(this));
+        bytes memory data = abi.encode(context);
 
         // Validation should succeed with our real WebAuthn signatures
         bool result = validator.validateSignatureWithData(hash, abi.encode(signature), data);
