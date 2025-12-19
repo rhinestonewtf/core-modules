@@ -303,7 +303,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
                 credentialData: credentialData
             });
 
-        bytes memory data = abi.encode(context, address(instance.account));
+        bytes memory data = abi.encode(context);
         WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
         (credentialIds,, sigs) = abi.decode(sig, (bytes32[], bool, WebAuthn.WebAuthnAuth[]));
 
