@@ -489,7 +489,7 @@ contract WebAuthnValidator is ERC7579HybridValidatorBase {
         override
         returns (bool)
     {
-        // Decode the threshold and credentials and from data
+        // Decode the threshold and credentials from data
         (WebAuthVerificationContext memory context) = abi.decode(data, (WebAuthVerificationContext));
         // Make sure the credentials are unique and sorted
         require(context.credentialIds.isSortedAndUniquified(), NotSorted());
