@@ -69,9 +69,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         // Pre-compute credential IDs for testing
         _credentialIds = new bytes32[](2);
         for (uint256 i = 0; i < 2; i++) {
-            _credentialIds[i] = validator.generateCredentialId(
-                _pubKeysX[i], _pubKeysY[i], address(instance.account)
-            );
+            _credentialIds[i] = validator.generateCredentialId(_pubKeysX[i], _pubKeysY[i]);
         }
 
         // Use a fixed challenge for testing
@@ -118,14 +116,10 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
         credentialData[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
         credentialData[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         // Install the validator module on the account
@@ -168,9 +162,7 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
     function test_OnUninstallRemovesCredentialsAndThreshold() public {
         // It should remove the credentials and threshold
         instance.uninstallModule({
-            moduleTypeId: MODULE_TYPE_VALIDATOR,
-            module: address(validator),
-            data: ""
+            moduleTypeId: MODULE_TYPE_VALIDATOR, module: address(validator), data: ""
         });
 
         uint256 threshold = validator.threshold(address(instance.account));
@@ -188,11 +180,13 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         uint256 newThreshold = 1;
 
         instance.getExecOps({
-            target: address(validator),
-            value: 0,
-            callData: abi.encodeWithSelector(WebAuthnValidator.setThreshold.selector, newThreshold),
-            txValidator: address(instance.defaultValidator)
-        }).execUserOps();
+                target: address(validator),
+                value: 0,
+                callData: abi.encodeWithSelector(
+                    WebAuthnValidator.setThreshold.selector, newThreshold
+                ),
+                txValidator: address(instance.defaultValidator)
+            }).execUserOps();
 
         uint256 threshold = validator.threshold(address(instance.account));
         assertEq(threshold, newThreshold, "Threshold should be updated");
@@ -204,11 +198,13 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
 
         instance.expect4337Revert();
         instance.getExecOps({
-            target: address(validator),
-            value: 0,
-            callData: abi.encodeWithSelector(WebAuthnValidator.setThreshold.selector, newThreshold),
-            txValidator: address(instance.defaultValidator)
-        }).execUserOps();
+                target: address(validator),
+                value: 0,
+                callData: abi.encodeWithSelector(
+                    WebAuthnValidator.setThreshold.selector, newThreshold
+                ),
+                txValidator: address(instance.defaultValidator)
+            }).execUserOps();
     }
 
     function test_AddCredential() public {
@@ -219,17 +215,16 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         bool newRequireUV = true;
 
         instance.getExecOps({
-            target: address(validator),
-            value: 0,
-            callData: abi.encodeWithSelector(
-                WebAuthnValidator.addCredential.selector, newPubKeyX, newPubKeyY, newRequireUV
-            ),
-            txValidator: address(instance.defaultValidator)
-        }).execUserOps();
+                target: address(validator),
+                value: 0,
+                callData: abi.encodeWithSelector(
+                    WebAuthnValidator.addCredential.selector, newPubKeyX, newPubKeyY, newRequireUV
+                ),
+                txValidator: address(instance.defaultValidator)
+            }).execUserOps();
 
         // Check credential was added
-        bytes32 newCredentialId =
-            validator.generateCredentialId(newPubKeyX, newPubKeyY, address(instance.account));
+        bytes32 newCredentialId = validator.generateCredentialId(newPubKeyX, newPubKeyY);
 
         assertTrue(
             validator.hasCredentialById(newCredentialId, address(instance.account)),
@@ -247,13 +242,16 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
 
         // It should remove a credential and decrement the credential count
         instance.getExecOps({
-            target: address(validator),
-            value: 0,
-            callData: abi.encodeWithSelector(
-                WebAuthnValidator.removeCredential.selector, _pubKeysX[0], _pubKeysY[0], _requireUVs[0]
-            ),
-            txValidator: address(instance.defaultValidator)
-        }).execUserOps();
+                target: address(validator),
+                value: 0,
+                callData: abi.encodeWithSelector(
+                    WebAuthnValidator.removeCredential.selector,
+                    _pubKeysX[0],
+                    _pubKeysY[0],
+                    _requireUVs[0]
+                ),
+                txValidator: address(instance.defaultValidator)
+            }).execUserOps();
 
         // Check credential was removed
         assertFalse(
@@ -290,26 +288,22 @@ contract WebAuthnValidatorIntegrationTest is BaseIntegrationTest {
         WebAuthnValidator.WebAuthnCredential[] memory credentialData =
             new WebAuthnValidator.WebAuthnCredential[](2);
         credentialData[0] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[0],
-            pubKeyY: _pubKeysY[0],
-            requireUV: _requireUVs[0]
+            pubKeyX: _pubKeysX[0], pubKeyY: _pubKeysY[0], requireUV: _requireUVs[0]
         });
         credentialData[1] = WebAuthnValidator.WebAuthnCredential({
-            pubKeyX: _pubKeysX[1],
-            pubKeyY: _pubKeysY[1],
-            requireUV: _requireUVs[1]
+            pubKeyX: _pubKeysX[1], pubKeyY: _pubKeysY[1], requireUV: _requireUVs[1]
         });
 
         // Create verification context
-        WebAuthnValidator.WebAuthVerificationContext memory context = WebAuthnValidator
-            .WebAuthVerificationContext({
-            usePrecompile: false,
-            threshold: 2,
-            credentialIds: credentialIds,
-            credentialData: credentialData
-        });
+        WebAuthnValidator.WebAuthVerificationContext memory context =
+            WebAuthnValidator.WebAuthVerificationContext({
+                usePrecompile: false,
+                threshold: 2,
+                credentialIds: credentialIds,
+                credentialData: credentialData
+            });
 
-        bytes memory data = abi.encode(context, address(instance.account));
+        bytes memory data = abi.encode(context);
         WebAuthn.WebAuthnAuth[] memory sigs = new WebAuthn.WebAuthnAuth[](2);
         (credentialIds,, sigs) = abi.decode(sig, (bytes32[], bool, WebAuthn.WebAuthnAuth[]));
 
