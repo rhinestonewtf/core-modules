@@ -226,6 +226,36 @@ contract WebAuthnValidatorV2Test is BaseTest {
         validator.onInstall(abi.encode(keyIds, creds, requireUVs, address(0)));
     }
 
+    function test_OnInstall_RevertWhen_DuplicateKeyId() public {
+        uint16[] memory keyIds = new uint16[](2);
+        keyIds[0] = 5;
+        keyIds[1] = 5;
+        WebAuthnValidatorV2.WebAuthnCredential[] memory creds =
+            new WebAuthnValidatorV2.WebAuthnCredential[](2);
+        creds[0] = WebAuthnValidatorV2.WebAuthnCredential({ pubKeyX: _pubKeyX0, pubKeyY: _pubKeyY0 });
+        creds[1] = WebAuthnValidatorV2.WebAuthnCredential({ pubKeyX: _pubKeyX1, pubKeyY: _pubKeyY1 });
+        bool[] memory requireUVs = new bool[](2);
+        requireUVs[0] = false;
+        requireUVs[1] = false;
+        vm.expectRevert(abi.encodeWithSelector(WebAuthnValidatorV2.KeyIdAlreadyExists.selector, 5));
+        validator.onInstall(abi.encode(keyIds, creds, requireUVs, address(0)));
+    }
+
+    function test_OnInstall_SameKeyId_DifferentRequireUV() public {
+        uint16[] memory keyIds = new uint16[](2);
+        keyIds[0] = 5;
+        keyIds[1] = 5;
+        WebAuthnValidatorV2.WebAuthnCredential[] memory creds =
+            new WebAuthnValidatorV2.WebAuthnCredential[](2);
+        creds[0] = WebAuthnValidatorV2.WebAuthnCredential({ pubKeyX: _pubKeyX0, pubKeyY: _pubKeyY0 });
+        creds[1] = WebAuthnValidatorV2.WebAuthnCredential({ pubKeyX: _pubKeyX1, pubKeyY: _pubKeyY1 });
+        bool[] memory requireUVs = new bool[](2);
+        requireUVs[0] = false;
+        requireUVs[1] = true;
+        validator.onInstall(abi.encode(keyIds, creds, requireUVs, address(0)));
+        assertEq(validator.credentialCount(address(this)), 2);
+    }
+
     function test_OnUninstall() public {
         _install2();
         assertTrue(validator.isInitialized(address(this)));
@@ -564,5 +594,75 @@ contract WebAuthnValidatorV2Test is BaseTest {
     function test_IsModuleType_Other() public view {
         assertFalse(validator.isModuleType(2));
         assertFalse(validator.isModuleType(0));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                              EIP-712 PASSKEY DIGEST TESTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_GetPasskeyDigest_MatchesEIP712() public view {
+        bytes32 typehash = keccak256("PasskeyDigest(bytes32 digest)");
+        assertEq(typehash, validator.PASSKEY_DIGEST_TYPEHASH());
+
+        bytes32 structHash = keccak256(abi.encode(typehash, TEST_DIGEST));
+
+        bytes32 domainSep = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes("WebAuthnValidator")),
+                keccak256(bytes("2.0.0")),
+                block.chainid,
+                address(validator)
+            )
+        );
+
+        bytes32 expected = keccak256(abi.encodePacked("\x19\x01", domainSep, structHash));
+        bytes32 actual = validator.getPasskeyDigest(TEST_DIGEST);
+        assertEq(actual, expected, "PasskeyDigest should match manual EIP-712 computation");
+    }
+
+    function test_GetPasskeyDigest_ChainSpecific() public {
+        bytes32 digest1 = validator.getPasskeyDigest(TEST_DIGEST);
+
+        vm.chainId(999);
+        bytes32 digest2 = validator.getPasskeyDigest(TEST_DIGEST);
+
+        assertTrue(digest1 != digest2, "Different chainIds should produce different digests");
+    }
+
+    function test_GetPasskeyMultichain_MatchesEIP712() public view {
+        bytes32 typehash = keccak256("PasskeyMultichain(bytes32 root)");
+        assertEq(typehash, validator.PASSKEY_MULTICHAIN_TYPEHASH());
+
+        bytes32 structHash = keccak256(abi.encode(typehash, TEST_DIGEST));
+
+        // Sans-chainId domain: no chainId field
+        bytes32 domainSep = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,address verifyingContract)"),
+                keccak256(bytes("WebAuthnValidator")),
+                keccak256(bytes("2.0.0")),
+                address(validator)
+            )
+        );
+
+        bytes32 expected = keccak256(abi.encodePacked("\x19\x01", domainSep, structHash));
+        bytes32 actual = validator.getPasskeyMultichain(TEST_DIGEST);
+        assertEq(actual, expected, "PasskeyMultichain should match manual EIP-712 computation");
+    }
+
+    function test_GetPasskeyMultichain_ChainAgnostic() public {
+        bytes32 digest1 = validator.getPasskeyMultichain(TEST_DIGEST);
+
+        vm.chainId(999);
+        bytes32 digest2 = validator.getPasskeyMultichain(TEST_DIGEST);
+
+        assertEq(digest1, digest2, "Different chainIds should produce the same multichain digest");
+    }
+
+    function test_GetPasskeyDigest_DifferentDigests() public view {
+        bytes32 d1 = validator.getPasskeyDigest(TEST_DIGEST);
+        bytes32 d2 = validator.getPasskeyDigest(bytes32(uint256(0xdead)));
+        assertTrue(d1 != d2, "Different input digests should produce different passkey digests");
     }
 }

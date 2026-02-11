@@ -69,6 +69,12 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
     uint256 constant MAX_CREDENTIALS = 64;
     uint256 private constant _REQUIRE_UV_BIT = 1 << 16;
 
+    bytes32 public constant PASSKEY_DIGEST_TYPEHASH =
+        keccak256("PasskeyDigest(bytes32 digest)");
+
+    bytes32 public constant PASSKEY_MULTICHAIN_TYPEHASH =
+        keccak256("PasskeyMultichain(bytes32 root)");
+
     /*//////////////////////////////////////////////////////////////
                                  STATE
     //////////////////////////////////////////////////////////////*/
@@ -99,11 +105,12 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
         }
         if (length > MAX_CREDENTIALS) revert TooManyCredentials();
 
+        PasskeyCredentials storage pc = _passkeyCredentials[account];
         for (uint256 i; i < length; ++i) {
             if (creds[i].pubKeyX == 0 || creds[i].pubKeyY == 0) revert InvalidPublicKey();
             uint256 ck = _credKey(keyIds[i], requireUVs[i]);
-            _passkeyCredentials[account].enabledCredKeys.add(ck);
-            _passkeyCredentials[account].credentials[ck] = creds[i];
+            if (!pc.enabledCredKeys.add(ck)) revert KeyIdAlreadyExists(keyIds[i]);
+            pc.credentials[ck] = creds[i];
             emit CredentialAdded(account, keyIds[i], requireUVs[i], creds[i].pubKeyX, creds[i].pubKeyY);
         }
 
@@ -118,11 +125,12 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
     /// @notice Uninstall the module, clearing all credentials and guardian
     function onUninstall(bytes calldata) external override {
         address account = msg.sender;
-        uint256[] memory credKeys = _passkeyCredentials[account].enabledCredKeys.values();
+        PasskeyCredentials storage pc = _passkeyCredentials[account];
+        uint256[] memory credKeys = pc.enabledCredKeys.values();
 
         for (uint256 i; i < credKeys.length; ++i) {
-            delete _passkeyCredentials[account].credentials[credKeys[i]];
-            _passkeyCredentials[account].enabledCredKeys.remove(credKeys[i]);
+            delete pc.credentials[credKeys[i]];
+            pc.enabledCredKeys.remove(credKeys[i]);
         }
 
         delete _recoveryConfig[account].guardian;
@@ -147,27 +155,19 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
 
     /// @notice Add a new credential with a specific keyId
     function addCredential(uint16 keyId, uint256 pubKeyX, uint256 pubKeyY, bool requireUV) external {
-        address account = msg.sender;
-        if (!isInitialized(account)) revert NotInitialized(account);
-        if (pubKeyX == 0 || pubKeyY == 0) revert InvalidPublicKey();
-        if (_passkeyCredentials[account].enabledCredKeys.length() >= MAX_CREDENTIALS) revert TooManyCredentials();
-        uint256 ck = _credKey(keyId, requireUV);
-        if (!_passkeyCredentials[account].enabledCredKeys.add(ck)) revert KeyIdAlreadyExists(keyId);
-
-        _passkeyCredentials[account].credentials[ck] = WebAuthnCredential({ pubKeyX: pubKeyX, pubKeyY: pubKeyY });
-
-        emit CredentialAdded(account, keyId, requireUV, pubKeyX, pubKeyY);
+        _addCredential(msg.sender, keyId, pubKeyX, pubKeyY, requireUV);
     }
 
     /// @notice Remove a credential by keyId and requireUV
     function removeCredential(uint16 keyId, bool requireUV) external {
         address account = msg.sender;
-        if (!isInitialized(account)) revert NotInitialized(account);
-        if (_passkeyCredentials[account].enabledCredKeys.length() <= 1) revert CannotRemoveLastCredential();
+        PasskeyCredentials storage pc = _passkeyCredentials[account];
+        uint256 len = pc.enabledCredKeys.length();
+        if (len == 0) revert NotInitialized(account);
+        if (len <= 1) revert CannotRemoveLastCredential();
         uint256 ck = _credKey(keyId, requireUV);
-        if (!_passkeyCredentials[account].enabledCredKeys.remove(ck)) revert CredentialNotFound(keyId);
-
-        delete _passkeyCredentials[account].credentials[ck];
+        if (!pc.enabledCredKeys.remove(ck)) revert CredentialNotFound(keyId);
+        delete pc.credentials[ck];
         emit CredentialRemoved(account, keyId);
     }
 
@@ -182,7 +182,7 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
         returns (uint256 pubKeyX, uint256 pubKeyY)
     {
         uint256 ck = _credKey(keyId, requireUV);
-        WebAuthnCredential memory cred = _passkeyCredentials[account].credentials[ck];
+        WebAuthnCredential storage cred = _passkeyCredentials[account].credentials[ck];
         return (cred.pubKeyX, cred.pubKeyY);
     }
 
@@ -253,15 +253,15 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
         uint256 proofLength = uint8(data[0]);
 
         if (proofLength == 0) {
-            // Regular signing: challenge = hash (digest directly)
             if (data.length < 67) revert InvalidSignatureData();
-            return _verifyWebAuthnSig(
-                hash, // challenge = digest
-                uint256(bytes32(data[1:33])), // pubKeyX
-                uint256(bytes32(data[33:65])), // pubKeyY
-                uint8(data[65]) != 0, // requireUV
-                uint8(data[66]) != 0, // usePrecompile
-                signature
+            WebAuthn.WebAuthnAuth memory auth = _parseWebAuthnAuth(signature);
+            return WebAuthn.verify(
+                abi.encode(_passkeyDigest(hash)),
+                uint8(data[65]) != 0,
+                auth,
+                uint256(bytes32(data[1:33])),
+                uint256(bytes32(data[33:65])),
+                uint8(data[66]) != 0
             );
         }
 
@@ -285,14 +285,17 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
             }
         }
 
-        return _verifyWebAuthnSig(
-            merkleRoot, // challenge = merkle root
-            uint256(bytes32(data[33:65])), // pubKeyX
-            uint256(bytes32(data[65:97])), // pubKeyY
-            uint8(data[97]) != 0, // requireUV
-            uint8(data[98]) != 0, // usePrecompile
-            signature
-        );
+        {
+            WebAuthn.WebAuthnAuth memory auth = _parseWebAuthnAuth(signature);
+            return WebAuthn.verify(
+                abi.encode(_passkeyMultichain(merkleRoot)),
+                uint8(data[97]) != 0,
+                auth,
+                uint256(bytes32(data[33:65])),
+                uint256(bytes32(data[65:97])),
+                uint8(data[98]) != 0
+            );
+        }
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -307,13 +310,7 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
         internal
         override
     {
-        if (!isInitialized(account)) revert NotInitialized(account);
-        if (cred.pubKeyX == 0 || cred.pubKeyY == 0) revert InvalidPublicKey();
-        if (_passkeyCredentials[account].enabledCredKeys.length() >= MAX_CREDENTIALS) revert TooManyCredentials();
-        uint256 ck = _credKey(cred.keyId, cred.requireUV);
-        if (!_passkeyCredentials[account].enabledCredKeys.add(ck)) revert KeyIdAlreadyExists(cred.keyId);
-        _passkeyCredentials[account].credentials[ck] = WebAuthnCredential({ pubKeyX: cred.pubKeyX, pubKeyY: cred.pubKeyY });
-        emit CredentialAdded(account, cred.keyId, cred.requireUV, cred.pubKeyX, cred.pubKeyY);
+        _addCredential(account, cred.keyId, cred.pubKeyX, cred.pubKeyY, cred.requireUV);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -324,6 +321,47 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
     /// @dev Packs keyId in bits [0:15] and requireUV in bit 16
     function _credKey(uint16 keyId, bool requireUV) internal pure returns (uint256) {
         return uint256(keyId) | (requireUV ? _REQUIRE_UV_BIT : 0);
+    }
+
+    /// @notice Chain-specific EIP-712 challenge for single operation signing
+    function _passkeyDigest(bytes32 digest) internal view returns (bytes32) {
+        return _hashTypedData(keccak256(abi.encode(PASSKEY_DIGEST_TYPEHASH, digest)));
+    }
+
+    /// @notice Chain-agnostic EIP-712 challenge for merkle batch signing
+    function _passkeyMultichain(bytes32 root) internal view returns (bytes32) {
+        return _hashTypedDataSansChainId(keccak256(abi.encode(PASSKEY_MULTICHAIN_TYPEHASH, root)));
+    }
+
+    /// @notice Compute the passkey challenge for a single operation digest
+    function getPasskeyDigest(bytes32 digest) public view returns (bytes32) {
+        return _passkeyDigest(digest);
+    }
+
+    /// @notice Compute the passkey challenge for a merkle root
+    function getPasskeyMultichain(bytes32 root) public view returns (bytes32) {
+        return _passkeyMultichain(root);
+    }
+
+    /// @notice Add a credential with full validation
+    function _addCredential(
+        address account,
+        uint16 keyId,
+        uint256 pubKeyX,
+        uint256 pubKeyY,
+        bool requireUV
+    )
+        internal
+    {
+        if (pubKeyX == 0 || pubKeyY == 0) revert InvalidPublicKey();
+        PasskeyCredentials storage pc = _passkeyCredentials[account];
+        uint256 len = pc.enabledCredKeys.length();
+        if (len == 0) revert NotInitialized(account);
+        if (len >= MAX_CREDENTIALS) revert TooManyCredentials();
+        uint256 ck = _credKey(keyId, requireUV);
+        if (!pc.enabledCredKeys.add(ck)) revert KeyIdAlreadyExists(keyId);
+        pc.credentials[ck] = WebAuthnCredential(pubKeyX, pubKeyY);
+        emit CredentialAdded(account, keyId, requireUV, pubKeyX, pubKeyY);
     }
 
     /// @notice Core stateful validation
@@ -377,12 +415,11 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
         bool usePrecompile = uint8(data[4]) != 0;
 
         uint256 ck = _credKey(keyId, requireUV);
-        WebAuthnCredential memory cred = _passkeyCredentials[account].credentials[ck];
+        WebAuthnCredential storage cred = _passkeyCredentials[account].credentials[ck];
         if (cred.pubKeyX == 0) return false;
 
         WebAuthn.WebAuthnAuth memory auth = _parseWebAuthnAuth(data[5:]);
-        bytes memory challenge = abi.encode(digest);
-        return WebAuthn.verify(challenge, requireUV, auth, cred.pubKeyX, cred.pubKeyY, usePrecompile);
+        return WebAuthn.verify(abi.encode(_passkeyDigest(digest)), requireUV, auth, cred.pubKeyX, cred.pubKeyY, usePrecompile);
     }
 
     /// @notice Merkle signing path (proofLength>0): challenge = merkleRoot
@@ -418,30 +455,11 @@ contract WebAuthnValidatorV2 is ERC7579HybridValidatorBase, WebAuthnRecoveryBase
         bool usePrecompile = uint8(data[proofEnd + 3]) != 0;
 
         uint256 ck = _credKey(keyId, requireUV);
-        WebAuthnCredential memory cred = _passkeyCredentials[account].credentials[ck];
+        WebAuthnCredential storage cred = _passkeyCredentials[account].credentials[ck];
         if (cred.pubKeyX == 0) return false;
 
         WebAuthn.WebAuthnAuth memory auth = _parseWebAuthnAuth(data[proofEnd + 4:]);
-        bytes memory challenge = abi.encode(merkleRoot);
-        return WebAuthn.verify(challenge, requireUV, auth, cred.pubKeyX, cred.pubKeyY, usePrecompile);
-    }
-
-    /// @notice Verify a WebAuthn signature
-    function _verifyWebAuthnSig(
-        bytes32 challengeHash,
-        uint256 pubKeyX,
-        uint256 pubKeyY,
-        bool requireUV,
-        bool usePrecompile,
-        bytes calldata rawAuth
-    )
-        internal
-        view
-        returns (bool)
-    {
-        WebAuthn.WebAuthnAuth memory auth = _parseWebAuthnAuth(rawAuth);
-        bytes memory challenge = abi.encode(challengeHash);
-        return WebAuthn.verify(challenge, requireUV, auth, pubKeyX, pubKeyY, usePrecompile);
+        return WebAuthn.verify(abi.encode(_passkeyMultichain(merkleRoot)), requireUV, auth, cred.pubKeyX, cred.pubKeyY, usePrecompile);
     }
 
     /// @notice Parse tightly packed WebAuthnAuth from calldata
