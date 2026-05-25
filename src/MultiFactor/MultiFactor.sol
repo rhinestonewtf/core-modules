@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.25;
 
-import { ERC7579ValidatorBase, ERC7484RegistryAdapter } from "modulekit/Modules.sol";
+import { ERC7579ValidatorBase } from "modulekit/Modules.sol";
 import { PackedUserOperation } from "modulekit/external/ERC4337.sol";
-import { IStatelessValidator, IERC7484 } from "modulekit/Interfaces.sol";
-import { MODULE_TYPE_VALIDATOR } from "modulekit/accounts/common/interfaces/IERC7579Module.sol";
+import { IStatelessValidator } from "modulekit/Interfaces.sol";
 import {
     Validator,
     SubValidatorConfig,
@@ -21,7 +20,7 @@ import { ECDSA } from "solady/utils/ECDSA.sol";
  * @dev A validator that multiplexes multiple other validators
  * @author Rhinestone
  */
-contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
+contract MultiFactor is ERC7579ValidatorBase {
     using FlatBytesLib for *;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -50,8 +49,6 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
     mapping(
         uint256 iteration => mapping(address subValidator => IterativeSubvalidatorRecord record)
     ) internal iterationToSubValidator;
-
-    constructor(IERC7484 _registry) ERC7484RegistryAdapter(_registry) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -111,12 +108,6 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
                 id: id
             });
 
-            // check if the subValidator is an attested validator and revert if it is not
-            REGISTRY.checkForAccount({
-                smartAccount: account,
-                module: validatorAddress,
-                moduleType: MODULE_TYPE_VALIDATOR
-            });
             // set the subValidator data
             $validator.store(_validator.data);
 
@@ -224,13 +215,6 @@ contract MultiFactor is ERC7579ValidatorBase, ERC7484RegistryAdapter {
         MFAConfig storage $config = accountConfig[account];
         // cache the current iteration
         uint256 iteration = $config.iteration;
-
-        // check that the subValidator is an attested validator and revert if it is not
-        REGISTRY.checkForAccount({
-            smartAccount: msg.sender,
-            module: validatorAddress,
-            moduleType: MODULE_TYPE_VALIDATOR
-        });
 
         // get storage reference to subValidator config
         FlatBytesLib.Bytes storage $validator = $subValidatorData({
