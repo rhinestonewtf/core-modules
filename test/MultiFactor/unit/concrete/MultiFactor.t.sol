@@ -15,7 +15,6 @@ import {
     parseValidationData,
     ValidationData
 } from "test/utils/ERC4337.sol";
-import { MockRegistry } from "test/mocks/MockRegistry.sol";
 import { MockValidator } from "test/mocks/MockValidator.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
 
@@ -25,7 +24,6 @@ contract MultiFactorTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     MultiFactor internal validator;
-    MockRegistry internal _registry;
     MockValidator internal subValidator1;
     MockValidator internal subValidator2;
 
@@ -42,8 +40,7 @@ contract MultiFactorTest is BaseTest {
     function setUp() public virtual override {
         BaseTest.setUp();
 
-        _registry = new MockRegistry();
-        validator = new MultiFactor(_registry);
+        validator = new MultiFactor();
 
         subValidator1 = new MockValidator();
         subValidator2 = new MockValidator();
@@ -104,19 +101,25 @@ contract MultiFactorTest is BaseTest {
         validator.onInstall(data);
     }
 
-    function test_OnInstallRevertWhen_AValidatorIsNotAttestedTo()
+    function test_OnInstallWhenValidatorIsNotAttestedTo()
         public
         whenModuleIsNotIntialized
         whenThresholdIsNot0
         whenOwnersLengthIsNotLessThanThreshold
     {
-        // it should revert
+        // it should install the validator without consulting a registry
+        address unattestedValidator = address(0x420);
         Validator[] memory validators = _getValidators();
-        validators[0].packedValidatorAndId = bytes32(abi.encodePacked(uint96(1), address(0x420)));
+        validators[0].packedValidatorAndId =
+            bytes32(abi.encodePacked(uint96(1), unattestedValidator));
         bytes memory data = abi.encodePacked(_threshold, abi.encode(validators));
 
-        vm.expectRevert();
         validator.onInstall(data);
+
+        bool isSubValidator = validator.isSubValidator(
+            address(this), unattestedValidator, ValidatorId.wrap(bytes12(uint96(1)))
+        );
+        assertTrue(isSubValidator);
     }
 
     function test_OnInstallWhenAllValidatorsAreAttestedTo()

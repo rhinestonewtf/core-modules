@@ -1,0 +1,11 @@
+onlyBuiltDependencies:
+  - '@rhinestone/flatbytes'
+  - '@rhinestone/sentinellist'
+  - '@rhinestone/modulekit'
+  - '@rhinestone/module-bases'
+  - '@rhinestone/registry'
+  - '@rhinestone/safe7579'
+  - '@erc7579/enumerablemap4337'
+  - 'erc7579'
+  - 'forge-std'
+  - 'sentinellist'
