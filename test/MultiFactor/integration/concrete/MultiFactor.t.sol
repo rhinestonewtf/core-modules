@@ -41,7 +41,7 @@ contract MultiFactorIntegrationTest is BaseIntegrationTest {
     function setUp() public virtual override {
         BaseIntegrationTest.setUp();
 
-        validator = new MultiFactor(instance.aux.registry);
+        validator = new MultiFactor();
 
         subValidator1 = new OwnableValidator();
         subValidator2 = new OwnableValidator();

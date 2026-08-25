@@ -15,7 +15,6 @@ import {
     parseValidationData,
     ValidationData
 } from "test/utils/ERC4337.sol";
-import { MockRegistry } from "test/mocks/MockRegistry.sol";
 import { MockValidator } from "test/mocks/MockValidator.sol";
 import { EIP1271_MAGIC_VALUE } from "test/utils/Constants.sol";
 
@@ -25,7 +24,6 @@ contract MultiFactorTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     MultiFactor internal validator;
-    MockRegistry internal _registry;
     MockValidator internal subValidator1;
     MockValidator internal subValidator2;
 
@@ -42,8 +40,7 @@ contract MultiFactorTest is BaseTest {
     function setUp() public virtual override {
         BaseTest.setUp();
 
-        _registry = new MockRegistry();
-        validator = new MultiFactor(_registry);
+        validator = new MultiFactor();
 
         subValidator1 = new MockValidator();
         subValidator2 = new MockValidator();
@@ -104,22 +101,7 @@ contract MultiFactorTest is BaseTest {
         validator.onInstall(data);
     }
 
-    function test_OnInstallRevertWhen_AValidatorIsNotAttestedTo()
-        public
-        whenModuleIsNotIntialized
-        whenThresholdIsNot0
-        whenOwnersLengthIsNotLessThanThreshold
-    {
-        // it should revert
-        Validator[] memory validators = _getValidators();
-        validators[0].packedValidatorAndId = bytes32(abi.encodePacked(uint96(1), address(0x420)));
-        bytes memory data = abi.encodePacked(_threshold, abi.encode(validators));
-
-        vm.expectRevert();
-        validator.onInstall(data);
-    }
-
-    function test_OnInstallWhenAllValidatorsAreAttestedTo()
+    function test_OnInstallWhenOwnersLengthIsNotLessThanThreshold()
         public
         whenModuleIsNotIntialized
         whenThresholdIsNot0
@@ -157,7 +139,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_OnUninstallShouldIncrementTheIterator() public {
         // it should increment the iterator
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         validator.onUninstall("");
 
@@ -167,7 +149,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_OnUninstallShouldSetThresholdTo0() public {
         // it should set threshold to 0
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         validator.onUninstall("");
 
@@ -183,7 +165,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_IsInitializedWhenModuleIsIntialized() public {
         // it should return true
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         bool isInitialized = validator.isInitialized(address(this));
         assertTrue(isInitialized);
@@ -199,7 +181,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_SetThresholdRevertWhen_ThresholdIs0() public whenModuleIsIntialized {
         // it should revert
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         vm.expectRevert(abi.encodeWithSelector(MultiFactor.ZeroThreshold.selector));
         validator.setThreshold(0);
@@ -207,7 +189,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_SetThresholdWhenThresholdIsNot0() public whenModuleIsIntialized {
         // it should set the threshold
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         uint8 newThreshold = 1;
         validator.setThreshold(newThreshold);
@@ -230,7 +212,7 @@ contract MultiFactorTest is BaseTest {
     function test_SetValidatorWhenModuleIsIntialized() public {
         // it should emit a ValidatorAdded event
         // it should set the validator data
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         vm.expectEmit(true, true, true, true, address(validator));
         emit MultiFactor.ValidatorAdded({
@@ -293,7 +275,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_IsSubValidatorWhenSubvalidatorIsInstalled() public {
         // it should return true
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         bool isSubValidator = validator.isSubValidator(
             address(this), address(subValidator1), ValidatorId.wrap(bytes12(0))
@@ -314,7 +296,7 @@ contract MultiFactorTest is BaseTest {
 
     function test_ValidateUserOpWhenAnyValidatorIsNotSet() public whenValidatorLengthIsNotZero {
         // it should return 1
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         PackedUserOperation memory userOp = getEmptyUserOperation();
 
@@ -338,7 +320,7 @@ contract MultiFactorTest is BaseTest {
         whenAllValidatorsAreSet
     {
         // it should return 1
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         PackedUserOperation memory userOp = getEmptyUserOperation();
 
@@ -361,7 +343,7 @@ contract MultiFactorTest is BaseTest {
         whenAllValidatorsAreSet
     {
         // it should return 0
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         PackedUserOperation memory userOp = getEmptyUserOperation();
 
@@ -393,7 +375,7 @@ contract MultiFactorTest is BaseTest {
         whenValidatorLengthIsNotZero
     {
         // it should return EIP1271_FAILED
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         Validator[] memory validators = _getValidators();
         validators[1].packedValidatorAndId =
@@ -412,7 +394,7 @@ contract MultiFactorTest is BaseTest {
         whenAllValidatorsAreSet
     {
         // it should return EIP1271_FAILED
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         Validator[] memory validators = _getValidators();
         validators[1].data = bytes("invalid");
@@ -430,7 +412,7 @@ contract MultiFactorTest is BaseTest {
         whenAllValidatorsAreSet
     {
         // it should return ERC1271_MAGIC_VALUE
-        test_OnInstallWhenAllValidatorsAreAttestedTo();
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
 
         Validator[] memory validators = _getValidators();
 
