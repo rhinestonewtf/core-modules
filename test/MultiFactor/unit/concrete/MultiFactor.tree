@@ -8,12 +8,9 @@ MultiFactor::onInstall
         ├── when owners length is less than threshold
         │   └── it should revert
         └── when owners length is not less than threshold
-            ├── when a validator is not attested to
-            │   └── it should revert
-            └── when all validators are attested to
-                ├── it should set threshold
-                ├── it should store the validators
-                └── it should emit a ValidatorAdded event for each validator
+            ├── it should set threshold
+            ├── it should store the validators
+            └── it should emit a ValidatorAdded event for each validator
      
 
 MultiFactor::onUninstall
