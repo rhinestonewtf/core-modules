@@ -19,7 +19,7 @@ Modules:
 
 ## Using the modules
 
-To use the modules in an application, head to our [sdk documentation](https://docs.rhinestone.wtf/module-sdk) for more information.
+To use the modules in an application, head to our [sdk documentation](https://docs.rhinestone.dev/home/introduction/welcome-to-rhinestone) for more information.
 
 ## Using this repo
 
