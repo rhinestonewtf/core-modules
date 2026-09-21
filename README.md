@@ -44,3 +44,5 @@ forge test
 ## Contributing
 
 For feature or change requests, feel free to open a PR, start a discussion or get in touch with us.
+
+Maintained by [Rhinestone](https://www.rhinestone.dev), co-author of ERC-7579.
