@@ -2,7 +2,7 @@
 pragma solidity ^0.8.25;
 
 import { IERC7579Account } from "modulekit/Accounts.sol";
-import { SchedulingBase } from "modulekit/Modules.sol";
+import { SchedulingBase } from "src/utils/SchedulingBase.sol";
 import { ModeLib } from "modulekit/accounts/common/lib/ModeLib.sol";
 import { ExecutionLib } from "modulekit/accounts/erc7579/lib/ExecutionLib.sol";
 import { IERC20 } from "forge-std/interfaces/IERC20.sol";

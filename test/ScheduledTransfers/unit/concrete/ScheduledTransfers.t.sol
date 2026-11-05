@@ -401,6 +401,28 @@ contract ScheduledTransfersTest is BaseTest {
         assertGt(value, 0);
     }
 
+    function test_FirstExecutionShouldNotBeGatedByExecuteInterval() public {
+        uint48 executeInterval = 100 * 365 days;
+        uint16 numberOfExecutions = 2;
+        uint48 startDate = uint48(block.timestamp);
+        bytes memory executionData = abi.encode(address(target), address(0), uint256(1));
+
+        vm.prank(address(target));
+        executor.onInstall(
+            abi.encodePacked(executeInterval, numberOfExecutions, startDate, executionData)
+        );
+
+        // At startDate, the first execution must SUCCEED, not revert due to 0 + executeInterval > block.timestamp
+        vm.prank(address(target));
+        executor.executeOrder(1);
+
+        // Verify that 1 execution completed
+        (,, uint16 completed,, bool isEnabled, uint48 lastExecutionTime,) = executor.executionLog(address(target), 1);
+        assertEq(completed, 1);
+        assertTrue(isEnabled);
+        assertEq(lastExecutionTime, uint48(block.timestamp));
+    }
+
     function test_NameShouldReturnScheduledTransfers() public {
         // it should return ScheduledTransfers
         string memory name = executor.name();
