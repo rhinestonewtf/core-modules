@@ -2,7 +2,7 @@
 pragma solidity ^0.8.25;
 
 import { IERC7579Account } from "modulekit/accounts/common/interfaces/IERC7579Account.sol";
-import { SchedulingBase } from "modulekit/Modules.sol";
+import { SchedulingBase } from "src/utils/SchedulingBase.sol";
 import {
     InitializableUniswapV3Integration,
     Execution,
