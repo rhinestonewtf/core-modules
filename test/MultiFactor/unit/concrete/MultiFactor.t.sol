@@ -314,6 +314,25 @@ contract MultiFactorTest is BaseTest {
         assertEq(validationData, 1);
     }
 
+    function test_ValidateUserOpWhenAValidatorIsRepeated() public whenValidatorLengthIsNotZero {
+        // it should return 1
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
+
+        PackedUserOperation memory userOp = getEmptyUserOperation();
+
+        Validator[] memory validators = _getValidators();
+        validators[1] = validators[0];
+
+        userOp.signature = abi.encode(validators);
+        userOp.sender = address(this);
+
+        bytes32 userOpHash = bytes32(keccak256("userOpHash"));
+
+        uint256 validationData =
+            ERC7579ValidatorBase.ValidationData.unwrap(validator.validateUserOp(userOp, userOpHash));
+        assertEq(validationData, 1);
+    }
+
     function test_ValidateUserOpWhenValidSignaturesAreLessThanThreshold()
         public
         whenValidatorLengthIsNotZero
@@ -380,6 +399,23 @@ contract MultiFactorTest is BaseTest {
         Validator[] memory validators = _getValidators();
         validators[1].packedValidatorAndId =
             bytes32(abi.encodePacked(bytes12(uint96(1)), address(0x420)));
+
+        bytes32 hash = bytes32(keccak256("hash"));
+
+        bytes4 result =
+            validator.isValidSignatureWithSender(address(1), hash, abi.encode(validators));
+        assertNotEq(result, EIP1271_MAGIC_VALUE);
+    }
+
+    function test_IsValidSignatureWithSenderWhenAValidatorIsRepeated()
+        public
+        whenValidatorLengthIsNotZero
+    {
+        // it should return EIP1271_FAILED
+        test_OnInstallWhenOwnersLengthIsNotLessThanThreshold();
+
+        Validator[] memory validators = _getValidators();
+        validators[1] = validators[0];
 
         bytes32 hash = bytes32(keccak256("hash"));
 

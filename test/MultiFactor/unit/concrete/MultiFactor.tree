@@ -64,6 +64,8 @@ MultiFactor::validateUserOp
 └── when validator length is not zero
     ├── when any validator is not set
     │   └── it should return 1
+    ├── when a validator is repeated
+    │   └── it should return 1
     └── when all validators are set
         ├── when valid signatures are less than threshold
         │   └── it should return 1
@@ -76,6 +78,8 @@ MultiFactor::isValidSignatureWithSender
 │   └── it should return EIP1271_FAILED
 └── when validator length is not zero
     ├── when any validator is not set
+    │   └── it should return EIP1271_FAILED
+    ├── when a validator is repeated
     │   └── it should return EIP1271_FAILED
     └── when all validators are set
         ├── when valid signatures are less than threshold
