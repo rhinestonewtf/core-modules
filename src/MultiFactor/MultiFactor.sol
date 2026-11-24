@@ -424,6 +424,13 @@ contract MultiFactor is ERC7579ValidatorBase {
             // cache the validator
             Validator calldata validator = validators[i];
 
+            // each validator counts toward the threshold at most once
+            for (uint256 j; j < i; j++) {
+                if (validators[j].packedValidatorAndId == validator.packedValidatorAndId) {
+                    return false;
+                }
+            }
+
             // unpack the validator address and id
             (address validatorAddress, ValidatorId id) =
                 MultiFactorLib.unpack(validator.packedValidatorAndId);
